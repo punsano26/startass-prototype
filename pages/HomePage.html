@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>STARTASS - Top 10 Highest Bid Auctions</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Platform Stylesheet -->
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <!-- Main Container -->
+  <div class="container">
+
+    <!-- Page Header (No Navbar as requested) -->
+    <header class="auction-header">
+      <div class="header-badge">
+        <span class="pulse-dot"></span> Live Bidding Marketplace
+      </div>
+      <h1 class="main-title">Top 10 Highest Current Bids</h1>
+      <p class="main-subtitle">
+        Explore elite high-value auctions with the fiercest bidding wars. Place your bids or track the highest-valued collector items in real time.
+      </p>
+
+      <!-- Key Marketplace Stats Ribbon -->
+      <div class="stats-ribbon">
+        <div class="stat-item">
+          <i class="fa-solid fa-trophy stat-icon"></i>
+          <div class="stat-content">
+            <div class="stat-value">$485,000</div>
+            <div class="stat-label">Highest Active Bid</div>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <i class="fa-solid fa-fire stat-icon" style="color: #f97316;"></i>
+          <div class="stat-content">
+            <div class="stat-value">10 Items</div>
+            <div class="stat-label">Featured Showcase</div>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <i class="fa-solid fa-shield-halved stat-icon" style="color: #10b981;"></i>
+          <div class="stat-content">
+            <div class="stat-value">100% Verified</div>
+            <div class="stat-label">Authenticity Guaranteed</div>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <i class="fa-solid fa-bolt stat-icon" style="color: #6366f1;"></i>
+          <div class="stat-content">
+            <div class="stat-value">312 Total Bids</div>
+            <div class="stat-label">Active Competitors</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Filters & Category Navigation -->
+    <section class="filter-section">
+      <!-- Search Input Bar -->
+      <div class="search-bar-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="itemSearch" placeholder="Search auctions by title, category, or keyword..." autocomplete="off">
+        <button type="button" id="clearSearchBtn" class="search-clear-btn" aria-label="Clear search" style="display: none;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Categories Filter Pills Bar -->
+      <div class="category-filters-container">
+        <div class="category-filters-header">
+          <span class="category-filters-title"><i class="fa-solid fa-sliders"></i> Categories:</span>
+          <span class="category-filters-active-hint" id="activeCategoryHint">All Auctions</span>
+        </div>
+        <div class="category-filters" role="tablist">
+          <button class="category-btn active" data-category="all" role="tab" aria-selected="true">
+            <i class="fa-solid fa-border-all"></i> All Categories
+            <span class="category-count" id="count-all">10</span>
+          </button>
+          <button class="category-btn" data-category="cars" role="tab" aria-selected="false">
+            <i class="fa-solid fa-car-side"></i> Car Models
+            <span class="category-count" id="count-cars">3</span>
+          </button>
+          <button class="category-btn" data-category="cards" role="tab" aria-selected="false">
+            <i class="fa-solid fa-ticket"></i> Collectible Cards
+            <span class="category-count" id="count-cards">2</span>
+          </button>
+          <button class="category-btn" data-category="tech" role="tab" aria-selected="false">
+            <i class="fa-solid fa-microchip"></i> Tech & Computing
+            <span class="category-count" id="count-tech">3</span>
+          </button>
+          <button class="category-btn" data-category="trees" role="tab" aria-selected="false">
+            <i class="fa-solid fa-tree"></i> Rare Trees & Flora
+            <span class="category-count" id="count-trees">2</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section Title & Counter -->
+      <div class="section-header-bar">
+        <h2 class="section-title">
+          <i class="fa-solid fa-chart-line"></i> Current Leaderboard
+        </h2>
+        <span class="items-counter" id="itemsCount">Showing 10 of 10 featured items</span>
+      </div>
+    </section>
+
+    <!-- Auction Items Grid (Bigger Featured Cards) -->
+    <main class="auction-grid" id="auctionGrid">
+      <!-- Dynamically populated by js/main.js -->
+    </main>
+
+    <!-- Empty State (When search/filter has no match) -->
+    <div class="empty-state" id="emptyState">
+      <i class="fa-solid fa-box-open"></i>
+      <h3>No auctions found</h3>
+      <p>Try selecting another category or searching with different keywords.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+      <div class="footer-brand">
+        <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i> STARTASS AUCTIONS
+      </div>
+      <p>Exclusive High-Value Auction Prototype &bull; Real-time Bidding Demonstration</p>
+    </footer>
+
+  </div>
+
+  <!-- MODAL: Open Auction Bid -->
+  <div class="modal-backdrop" id="bidModal" role="dialog" aria-modal="true" aria-labelledby="bidModalTitle">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="bidModalTitle">
+          <i class="fa-solid fa-gavel"></i> Place Auction Bid
+        </h3>
+        <button class="modal-close" onclick="closeBidModal()" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Item Short Preview -->
+        <div class="modal-item-preview">
+          <img src="" id="modalPreviewImg" class="preview-img" alt="Product Preview">
+          <div class="preview-info">
+            <span class="preview-badge" id="modalPreviewCategory">Category</span>
+            <h4 id="modalPreviewTitle">Auction Item Title</h4>
+          </div>
+        </div>
+
+        <!-- Bidding Controls -->
+        <div class="bidding-box">
+          <div class="bid-status-row">
+            <div class="bid-status-col">
+              <span>Current Highest Bid</span>
+              <strong id="modalCurrentBid">$0</strong>
+            </div>
+            <div class="bid-status-col" style="text-align: right;">
+              <span>Minimum Next Bid</span>
+              <strong id="modalMinNextBid" style="color: var(--accent-gold);">$0</strong>
+            </div>
+          </div>
+
+          <label class="bid-input-label" for="bidAmountInput">Your Maximum Bid Amount (USD)</label>
+          <div class="bid-input-group">
+            <span class="bid-currency">$</span>
+            <input type="number" id="bidAmountInput" class="bid-input" step="500">
+          </div>
+
+          <!-- Quick Increment Buttons -->
+          <div class="quick-bids">
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(500)">+$500</button>
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(1000)">+$1,000</button>
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(5000)">+$5,000</button>
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(10000)">+$10,000</button>
+          </div>
+
+          <!-- Recent Bids History -->
+          <div class="bid-history-title">
+            <span><i class="fa-solid fa-clock-rotate-left"></i> Recent Bids Activity</span>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">Verified Bidders</span>
+          </div>
+          <ul class="bid-history-list" id="modalBidHistory">
+            <!-- Populated via JS -->
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-view" onclick="closeBidModal()">Cancel</button>
+        <button class="btn btn-bid" onclick="submitBid()">
+          <i class="fa-solid fa-check"></i> Confirm & Submit Bid
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: View Product Details -->
+  <div class="modal-backdrop" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="modal-container modal-detail-container">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fa-solid fa-circle-info"></i> Auction Item Details
+        </h3>
+        <button class="modal-close" onclick="closeDetailModal()" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-modal-media">
+          <img id="detailImg" src="" alt="Product Full View" class="detail-modal-img">
+        </div>
+
+        <div class="detail-header-flex">
+          <div class="detail-title-col">
+            <span id="detailCategory" class="category-tag">Category</span>
+            <h2 id="detailTitle" class="detail-title-text">Item Title</h2>
+          </div>
+          <div class="detail-bid-col">
+            <div class="detail-bid-label">Current Highest Bid</div>
+            <div id="detailCurrentBid" class="detail-bid-value">$0</div>
+          </div>
+        </div>
+
+        <p id="detailDesc" class="detail-description">
+          Description
+        </p>
+
+        <!-- Specifications & Provenance -->
+        <h4 class="detail-specs-heading">
+          <i class="fa-solid fa-list-check" style="color: var(--accent-gold);"></i> Key Specifications & Provenance
+        </h4>
+        <ul id="detailSpecs" class="detail-specs-list">
+          <!-- Populated via JS -->
+        </ul>
+
+        <!-- Timeline & Pricing Details -->
+        <div class="auction-dates detail-dates-box">
+          <div class="date-row">
+            <span class="label"><i class="fa-regular fa-calendar-check"></i> Auction Started</span>
+            <span class="value" id="detailStartDate">-</span>
+          </div>
+          <div class="date-row">
+            <span class="label"><i class="fa-solid fa-flag"></i> Reserve / Start Price</span>
+            <span class="value" id="detailStartPrice" style="color: var(--accent-gold);">-</span>
+          </div>
+          <div class="date-row" style="grid-column: 1 / -1; margin-top: 6px;">
+            <span class="label"><i class="fa-regular fa-calendar-xmark"></i> Auction Ending On</span>
+            <span class="value" id="detailEndDate">-</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-view" onclick="closeDetailModal()">Close</button>
+        <button class="btn btn-bid" onclick="switchFromDetailToBid()">
+          <i class="fa-solid fa-gavel"></i> Place Bid Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform JavaScript -->
+  <script src="../js/main.js"></script>
+</body>
+</html>

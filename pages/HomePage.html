@@ -23,10 +23,57 @@
 </head>
 <body>
 
+  <!-- Top Navbar: Clean & Prominent Brand Logo, Create Auction & Profile Dropdown -->
+  <nav class="site-navbar">
+    <div class="navbar-container">
+      <a href="HomePage.html" class="navbar-brand">
+        <img src="../images/logo.png" alt="STARTASS Logo" class="navbar-logo-img">
+        <span class="navbar-brand-name">STAR <span>TASS!</span></span>
+      </a>
+
+      <div class="navbar-actions">
+        <button type="button" class="btn btn-create-auction" onclick="openCreateModal()">
+          <i class="fa-solid fa-plus"></i>
+          <span>สร้างโพสต์ประมูล</span>
+        </button>
+
+        <!-- User Profile Dropdown -->
+        <div class="profile-dropdown-wrapper" id="profileDropdownWrapper">
+          <button type="button" class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown(event)" aria-expanded="false" aria-haspopup="true" title="ดูโปรไฟล์ Alexander Sterling">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Profile" class="profile-avatar" id="navProfileAvatar">
+          </button>
+
+          <!-- Dropdown Menu Content -->
+          <div class="profile-dropdown-menu" id="profileDropdownMenu">
+            <div class="profile-dropdown-header">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Avatar" class="dropdown-avatar-lg" id="menuProfileAvatar">
+              <div class="profile-dropdown-user-info">
+                <span class="profile-full-name-label">Full Name</span>
+                <span class="profile-full-name" id="userFullName">Alexander Sterling</span>
+                <span class="profile-badge"><i class="fa-solid fa-certificate"></i> Verified Collector</span>
+              </div>
+            </div>
+
+            <div class="profile-dropdown-divider"></div>
+
+            <ul class="profile-menu-list">
+              <li>
+                <button type="button" class="profile-menu-item text-danger" onclick="handleLogout()">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                  <span>ออกจากระบบ (Logout)</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
   <!-- Main Container -->
   <div class="container">
 
-    <!-- Page Header (No Navbar as requested) -->
+    <!-- Page Header -->
     <header class="auction-header">
       <div class="header-badge">
         <span class="pulse-dot"></span> Live Bidding Marketplace
@@ -41,7 +88,7 @@
         <div class="stat-item">
           <i class="fa-solid fa-trophy stat-icon"></i>
           <div class="stat-content">
-            <div class="stat-value">$485,000</div>
+            <div class="stat-value" id="statHighestBid">$485,000</div>
             <div class="stat-label">Highest Active Bid</div>
           </div>
         </div>
@@ -49,7 +96,7 @@
         <div class="stat-item">
           <i class="fa-solid fa-fire stat-icon" style="color: #f97316;"></i>
           <div class="stat-content">
-            <div class="stat-value">10 Items</div>
+            <div class="stat-value" id="statTotalItems">10 Items</div>
             <div class="stat-label">Featured Showcase</div>
           </div>
         </div>
@@ -65,7 +112,7 @@
         <div class="stat-item">
           <i class="fa-solid fa-bolt stat-icon" style="color: #6366f1;"></i>
           <div class="stat-content">
-            <div class="stat-value">312 Total Bids</div>
+            <div class="stat-value" id="statTotalBids">312 Total Bids</div>
             <div class="stat-label">Active Competitors</div>
           </div>
         </div>
@@ -137,7 +184,7 @@
     <!-- Footer -->
     <footer class="page-footer">
       <div class="footer-brand">
-        <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i> STARTASS AUCTIONS
+        <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i> STAR <span style="color: var(--accent-gold); margin-left: 3px;">TASS!</span>
       </div>
       <p>Exclusive High-Value Auction Prototype &bull; Real-time Bidding Demonstration</p>
     </footer>
@@ -268,6 +315,144 @@
           <i class="fa-solid fa-gavel"></i> Place Bid Now
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Create Auction Listing -->
+  <div class="modal-backdrop" id="createModal" role="dialog" aria-modal="true" aria-labelledby="createModalTitle">
+    <div class="modal-container modal-create-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="createModalTitle">
+          <i class="fa-solid fa-plus-circle" style="color: var(--accent-gold);"></i> สร้างโพสต์ประมูลสินค้า
+        </h3>
+        <button class="modal-close" onclick="closeCreateModal()" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="createAuctionForm" onsubmit="handleCreateAuction(event)">
+        <div class="modal-body create-modal-body">
+
+          <!-- Product Image URL & Preview -->
+          <div class="form-group form-col-full">
+            <label class="form-label" for="newProductImage">
+              <i class="fa-solid fa-image"></i> Product Image (รูปภาพสินค้า - ใส่ URL รูปภาพ)
+            </label>
+            <div class="image-input-wrapper">
+              <input type="url" id="newProductImage" class="form-input" placeholder="https://images.unsplash.com/..." required oninput="previewCreateImage(this.value)">
+              <div class="create-image-preview" id="createImagePreviewBox">
+                <img id="createPreviewImg" src="" alt="Image Preview" style="display: none;">
+                <div class="image-placeholder" id="createPlaceholder">
+                  <i class="fa-regular fa-image"></i>
+                  <span>ป้อน URL รูปภาพด้านบนเพื่อแสดงตัวอย่างรูป</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Name -->
+          <div class="form-group form-col-full">
+            <label class="form-label" for="newProductName">
+              <i class="fa-solid fa-tag"></i> Product Name (ชื่อสินค้า)
+            </label>
+            <input type="text" id="newProductName" class="form-input" placeholder="เช่น 1969 Ford Mustang Boss 429" required maxlength="120">
+          </div>
+
+          <!-- Category Enum & Is Active Toggle -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="newProductCategory">
+                <i class="fa-solid fa-layer-group"></i> Product Category (หมวดหมู่สินค้า)
+              </label>
+              <select id="newProductCategory" class="form-select" required>
+                <option value="cars">Car Models (โมเดลรถยนต์)</option>
+                <option value="cards">Collectible Cards (การ์ดสะสมหายาก)</option>
+                <option value="tech">Tech & Computing (เทคโนโลยีและคอมพิวเตอร์)</option>
+                <option value="trees">Rare Trees & Flora (บอนไซและพันธุ์ไม้หายาก)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fa-solid fa-toggle-on"></i> Status (สถานะการเปิดประมูล)
+              </label>
+              <div class="status-toggle-wrapper">
+                <label class="switch">
+                  <input type="checkbox" id="newIsActive" checked onchange="toggleStatusLabel(this.checked)">
+                  <span class="slider round"></span>
+                </label>
+                <span class="status-label active-status" id="statusToggleLabel">
+                  <i class="fa-solid fa-circle-check"></i> Active (เปิดประมูลทันที)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Start Price & Bid Increment -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="newStartPrice">
+                <i class="fa-solid fa-dollar-sign"></i> Auction Price Start (ราคาเริ่มต้น USD)
+              </label>
+              <div class="input-prefix-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" id="newStartPrice" class="form-input with-prefix" placeholder="50,000" min="100" step="100" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="newBidIncrement">
+                <i class="fa-solid fa-arrow-up-right-dots"></i> Set Increments Of (ก้าวราคาขั้นต่ำ)
+              </label>
+              <select id="newBidIncrement" class="form-select" required>
+                <option value="250">+$250 USD</option>
+                <option value="500">+$500 USD</option>
+                <option value="1000" selected>+$1,000 USD (ค่าเริ่มต้นแนะนำ)</option>
+                <option value="2500">+$2,500 USD</option>
+                <option value="5000">+$5,000 USD</option>
+                <option value="10000">+$10,000 USD</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Start Date & End Date -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="newStartDate">
+                <i class="fa-regular fa-calendar-check"></i> Start Date (วันเวลาเริ่มต้น)
+              </label>
+              <input type="datetime-local" id="newStartDate" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="newEndDate">
+                <i class="fa-regular fa-calendar-xmark"></i> End Date (วันเวลาสิ้นสุด)
+              </label>
+              <input type="datetime-local" id="newEndDate" class="form-input" required>
+            </div>
+          </div>
+
+          <!-- Product Descriptions -->
+          <div class="form-group form-col-full">
+            <label class="form-label" for="newProductDesc">
+              <i class="fa-solid fa-align-left"></i> Product Descriptions (คำอธิบายสินค้า)
+            </label>
+            <textarea id="newProductDesc" class="form-textarea" rows="3" placeholder="ระบุรายละเอียด สภาพของสินค้า ประวัติความเป็นมา เอกสารการันตี หรือข้อมูลสำคัญสำหรับการประมูล..." required></textarea>
+          </div>
+
+          <!-- Key Specifications (Optional) -->
+          <div class="form-group form-col-full">
+            <label class="form-label" for="newProductSpecs">
+              <i class="fa-solid fa-list-check"></i> Specifications (จุดเด่น/สเปกสินค้า คั่นด้วยเครื่องหมายจุลภาค , )
+            </label>
+            <input type="text" id="newProductSpecs" class="form-input" placeholder="เช่น สภาพ 99% ไม่เคยผ่านการใช้งาน, ใบรับรองแท้จากสถาบัน, หายากผลิตเพียง 100 ชิ้น">
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-view" onclick="closeCreateModal()">ยกเลิก</button>
+          <button type="submit" class="btn btn-bid">
+            <i class="fa-solid fa-cloud-arrow-up"></i> ยืนยันสร้างโพสต์ประมูล
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

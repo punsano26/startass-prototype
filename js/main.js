@@ -3,8 +3,8 @@
  * Handles Top 10 Bids display, category filtering, live countdowns, and bidding modals.
  */
 
-// Top 10 Auction Items Data with Highest Current Bids
-const AUCTION_ITEMS = [
+// Default Top 10 Auction Items Data
+const DEFAULT_AUCTION_ITEMS = [
   {
     id: 'auc-01',
     rank: 1,
@@ -207,7 +207,42 @@ const AUCTION_ITEMS = [
   }
 ];
 
+// LocalStorage Persistence Helpers
+function loadAuctions() {
+  const saved = localStorage.getItem('startass_auctions');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    } catch (e) {
+      console.error('Failed to parse saved auctions:', e);
+    }
+  }
+  return JSON.parse(JSON.stringify(DEFAULT_AUCTION_ITEMS));
+}
+
+function saveAuctions() {
+  try {
+    localStorage.setItem('startass_auctions', JSON.stringify(AUCTION_ITEMS));
+  } catch (e) {
+    console.error('Failed to save auctions to storage:', e);
+  }
+}
+
+function getCategoryLabel(category) {
+  switch (category) {
+    case 'cars': return 'Car Models';
+    case 'cards': return 'Collectible Cards';
+    case 'tech': return 'Tech & Computing';
+    case 'trees': return 'Rare Trees & Flora';
+    default: return 'Special Collectible';
+  }
+}
+
 // State
+let AUCTION_ITEMS = loadAuctions();
 let currentCategory = 'all';
 let searchQuery = '';
 let selectedItemForBid = null;
@@ -265,11 +300,21 @@ function renderCards() {
 
   grid.innerHTML = filtered.map(item => {
     const time = getTimeRemaining(item.endDate);
-    const timeDisplay = time.expired 
-      ? 'Auction Closed' 
-      : `${time.days}d ${time.hours}h ${time.minutes}m ${time.seconds}s left`;
+    const isInactive = item.isActive === false;
+    const timeDisplay = isInactive
+      ? 'แบบร่าง (ยังไม่เปิด)'
+      : (time.expired 
+        ? 'Auction Closed' 
+        : `${time.days}d ${time.hours}h ${time.minutes}m ${time.seconds}s left`);
 
     const rankClass = item.rank === 1 ? 'top-1' : item.rank === 2 ? 'top-2' : item.rank === 3 ? 'top-3' : '';
+    const draftTag = isInactive
+      ? `<span class="category-tag" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4);"><i class="fa-solid fa-pause"></i> Draft</span>`
+      : '';
+
+    const bidButtonHtml = isInactive
+      ? `<button class="btn btn-bid" style="opacity: 0.6; cursor: not-allowed;" disabled title="สถานะแบบร่าง ยังไม่เปิดประมูล"><i class="fa-solid fa-lock"></i> ยังไม่เปิดประมูล</button>`
+      : `<button class="btn btn-bid" onclick="openBidModal('${item.id}')"><i class="fa-solid fa-gavel"></i> Open Auction Bid</button>`;
 
     return `
       <article class="auction-card" id="card-${item.id}">
@@ -281,7 +326,10 @@ function renderCards() {
             <span class="rank-badge ${rankClass}">
               <i class="fa-solid fa-trophy"></i> #${item.rank} Highest Bid
             </span>
-            <span class="category-tag">${item.categoryLabel}</span>
+            <div style="display:flex; gap:6px; align-items:center;">
+              ${draftTag}
+              <span class="category-tag">${item.categoryLabel}</span>
+            </div>
           </div>
 
           <div class="countdown-badge" data-end="${item.endDate}">
@@ -325,9 +373,7 @@ function renderCards() {
 
           <!-- Action Buttons -->
           <div class="card-actions">
-            <button class="btn btn-bid" onclick="openBidModal('${item.id}')">
-              <i class="fa-solid fa-gavel"></i> Open Auction Bid
-            </button>
+            ${bidButtonHtml}
             <button class="btn btn-view" onclick="openDetailModal('${item.id}')" title="View Details">
               <i class="fa-regular fa-eye"></i> View
             </button>
@@ -448,16 +494,18 @@ function openBidModal(itemId) {
   if (previewCategory) previewCategory.textContent = item.categoryLabel;
   if (currentBidEl) currentBidEl.textContent = formatCurrency(item.currentBid);
 
-  const minNext = item.currentBid + 1000;
+  const step = item.bidIncrement || 1000;
+  const minNext = item.currentBid + step;
   if (minNextBidEl) minNextBidEl.textContent = formatCurrency(minNext);
   if (bidInput) {
     bidInput.value = minNext;
     bidInput.min = minNext;
+    bidInput.step = step;
   }
 
   // Populate history
   if (historyList) {
-    historyList.innerHTML = item.bidHistory.map(b => `
+    historyList.innerHTML = (item.bidHistory || []).map(b => `
       <li class="bid-history-item">
         <span class="bidder-name"><i class="fa-solid fa-user-circle"></i> ${b.user}</span>
         <span class="bidder-amount">${formatCurrency(b.amount)} <small style="color:#64748b; font-weight: normal; margin-left: 8px;">${b.time}</small></span>
@@ -494,19 +542,22 @@ function submitBid() {
 
   // Update item
   selectedItemForBid.currentBid = newAmount;
-  selectedItemForBid.bidsCount += 1;
+  selectedItemForBid.bidsCount = (selectedItemForBid.bidsCount || 0) + 1;
+  if (!selectedItemForBid.bidHistory) selectedItemForBid.bidHistory = [];
   selectedItemForBid.bidHistory.unshift({
     user: 'You (Online Bidder)',
     amount: newAmount,
     time: 'Just now'
   });
 
-  // Re-sort Top 10 by currentBid descending and update ranks
+  // Re-sort Top items by currentBid descending and update ranks
   AUCTION_ITEMS.sort((a, b) => b.currentBid - a.currentBid);
   AUCTION_ITEMS.forEach((item, index) => {
     item.rank = index + 1;
   });
 
+  saveAuctions();
+  updateStatsRibbon();
   closeBidModal();
   renderCards();
   showToast(`Bid Placed: ${formatCurrency(newAmount)} on ${selectedItemForBid.title}!`);
@@ -539,7 +590,7 @@ function openDetailModal(itemId) {
   if (endDate) endDate.textContent = new Date(item.endDate).toLocaleString();
 
   if (specsList) {
-    specsList.innerHTML = item.specs.map(spec => `
+    specsList.innerHTML = (item.specs || []).map(spec => `
       <li class="detail-spec-item">
         <i class="fa-solid fa-check spec-icon"></i>
         <span>${spec}</span>
@@ -558,9 +609,188 @@ function closeDetailModal() {
 
 function switchFromDetailToBid() {
   if (selectedItemForDetail) {
+    if (selectedItemForDetail.isActive === false) {
+      alert('สินค้านี้อยู่ในสถานะแบบร่าง (Draft) ยังไม่เปิดให้เริ่มเสนอราคา');
+      return;
+    }
     const id = selectedItemForDetail.id;
     closeDetailModal();
     openBidModal(id);
+  }
+}
+
+// ==========================================================================
+// CREATE AUCTION MODAL & LISTING ENGINE
+// ==========================================================================
+function openCreateModal() {
+  const modal = document.getElementById('createModal');
+  if (!modal) return;
+
+  // Set default start date to now (local timezone)
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const localStart = new Date(now.getTime() - offset).toISOString().slice(0, 16);
+  const startInput = document.getElementById('newStartDate');
+  if (startInput) startInput.value = localStart;
+
+  // Set default end date to 3 days from now
+  const later = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000 - offset);
+  const localEnd = later.toISOString().slice(0, 16);
+  const endInput = document.getElementById('newEndDate');
+  if (endInput) endInput.value = localEnd;
+
+  modal.classList.add('open');
+}
+
+function closeCreateModal() {
+  const modal = document.getElementById('createModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function previewCreateImage(url) {
+  const previewImg = document.getElementById('createPreviewImg');
+  const placeholder = document.getElementById('createPlaceholder');
+  if (!url || !url.trim()) {
+    if (previewImg) previewImg.style.display = 'none';
+    if (placeholder) {
+      placeholder.style.display = 'flex';
+      const hint = placeholder.querySelector('span');
+      if (hint) hint.textContent = 'ป้อน URL รูปภาพด้านบนเพื่อแสดงตัวอย่างรูป';
+    }
+    return;
+  }
+
+  const testImg = new Image();
+  testImg.onload = () => {
+    if (previewImg) {
+      previewImg.src = url;
+      previewImg.style.display = 'block';
+    }
+    if (placeholder) placeholder.style.display = 'none';
+  };
+  testImg.onerror = () => {
+    if (previewImg) previewImg.style.display = 'none';
+    if (placeholder) {
+      placeholder.style.display = 'flex';
+      const hint = placeholder.querySelector('span');
+      if (hint) hint.textContent = 'ไม่สามารถโหลดรูปภาพได้ กรุณาตรวจสอบ URL';
+    }
+  };
+  testImg.src = url;
+}
+
+function toggleStatusLabel(isChecked) {
+  const label = document.getElementById('statusToggleLabel');
+  if (!label) return;
+  if (isChecked) {
+    label.className = 'status-label active-status';
+    label.innerHTML = '<i class="fa-solid fa-circle-check"></i> Active (เปิดประมูลทันที)';
+  } else {
+    label.className = 'status-label draft-status';
+    label.innerHTML = '<i class="fa-solid fa-pause"></i> Draft (แบบร่าง / ยังไม่เปิด)';
+  }
+}
+
+function handleCreateAuction(event) {
+  event.preventDefault();
+
+  const nameInput = document.getElementById('newProductName');
+  const catInput = document.getElementById('newProductCategory');
+  const imgInput = document.getElementById('newProductImage');
+  const priceInput = document.getElementById('newStartPrice');
+  const incrementInput = document.getElementById('newBidIncrement');
+  const activeInput = document.getElementById('newIsActive');
+  const startInput = document.getElementById('newStartDate');
+  const endInput = document.getElementById('newEndDate');
+  const descInput = document.getElementById('newProductDesc');
+  const specsInput = document.getElementById('newProductSpecs');
+
+  const title = nameInput ? nameInput.value.trim() : '';
+  const category = catInput ? catInput.value : 'cars';
+  const categoryLabel = getCategoryLabel(category);
+  const image = imgInput && imgInput.value.trim() 
+    ? imgInput.value.trim() 
+    : 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80';
+  const startPrice = parseFloat(priceInput ? priceInput.value : 0) || 0;
+  const bidIncrement = parseInt(incrementInput ? incrementInput.value : 1000, 10) || 1000;
+  const isActive = activeInput ? activeInput.checked : true;
+  const startDateVal = startInput && startInput.value ? startInput.value : new Date().toISOString();
+  const endDateVal = endInput && endInput.value ? endInput.value : new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString();
+  const desc = descInput ? descInput.value.trim() : '';
+  const specs = specsInput && specsInput.value.trim() 
+    ? specsInput.value.split(',').map(s => s.trim()).filter(Boolean)
+    : ['ของแท้ 100% พร้อมการรับรอง', 'สภาพสมบูรณ์ตรงตามภาพ'];
+
+  if (new Date(endDateVal) <= new Date(startDateVal)) {
+    alert('วันเวลาสิ้นสุดการประมูล (End Date) ต้องอยู่หลังจากวันเวลาเริ่มต้น (Start Date)!');
+    return;
+  }
+
+  if (startPrice <= 0) {
+    alert('ราคาเริ่มต้นการประมูลต้องมากกว่า $0!');
+    return;
+  }
+
+  const newItem = {
+    id: 'auc-' + Date.now(),
+    rank: 0,
+    title: title,
+    category: category,
+    categoryLabel: categoryLabel,
+    image: image,
+    description: desc,
+    startPrice: startPrice,
+    currentBid: startPrice,
+    bidIncrement: bidIncrement,
+    isActive: isActive,
+    startDate: new Date(startDateVal).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    endDate: new Date(endDateVal).toISOString(),
+    bidsCount: 0,
+    specs: specs,
+    bidHistory: [
+      { user: 'ระบบ (ราคาตั้งต้น)', amount: startPrice, time: 'เพิ่งเปิดประมูล' }
+    ]
+  };
+
+  // Prepend and sort by highest current bid
+  AUCTION_ITEMS.unshift(newItem);
+  AUCTION_ITEMS.sort((a, b) => b.currentBid - a.currentBid);
+  AUCTION_ITEMS.forEach((item, index) => {
+    item.rank = index + 1;
+  });
+
+  saveAuctions();
+  updateCategoryCounts();
+  updateStatsRibbon();
+  renderCards();
+
+  closeCreateModal();
+  document.getElementById('createAuctionForm').reset();
+  
+  const previewImg = document.getElementById('createPreviewImg');
+  const placeholder = document.getElementById('createPlaceholder');
+  if (previewImg) previewImg.style.display = 'none';
+  if (placeholder) {
+    placeholder.style.display = 'flex';
+    const hint = placeholder.querySelector('span');
+    if (hint) hint.textContent = 'ป้อน URL รูปภาพด้านบนเพื่อแสดงตัวอย่างรูป';
+  }
+
+  showToast(`สร้างโพสต์ประมูล "${title}" สำเร็จเรียบร้อย!`);
+}
+
+// Update Key Stats in Header Ribbon
+function updateStatsRibbon() {
+  const statHighestBid = document.getElementById('statHighestBid');
+  const statTotalItems = document.getElementById('statTotalItems');
+  const statTotalBids = document.getElementById('statTotalBids');
+
+  if (AUCTION_ITEMS.length > 0) {
+    const highestBid = Math.max(...AUCTION_ITEMS.map(i => i.currentBid));
+    if (statHighestBid) statHighestBid.textContent = formatCurrency(highestBid);
+    if (statTotalItems) statTotalItems.textContent = `${AUCTION_ITEMS.length} Items`;
+    const totalBids = AUCTION_ITEMS.reduce((sum, i) => sum + (i.bidsCount || 0), 0);
+    if (statTotalBids) statTotalBids.textContent = `${totalBids} Total Bids`;
   }
 }
 
@@ -593,10 +823,78 @@ function showToast(message) {
   }, 4000);
 }
 
+// ==========================================================================
+// USER PROFILE & DROPDOWN ENGINE
+// ==========================================================================
+let currentUser = {
+  fullName: 'Alexander Sterling',
+  role: 'Verified Collector',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
+  isLoggedIn: true
+};
+
+function toggleProfileDropdown(event) {
+  if (event) event.stopPropagation();
+
+  if (!currentUser.isLoggedIn) {
+    // Log back in
+    currentUser.isLoggedIn = true;
+    updateProfileUI();
+    showToast('เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับกลับมา ' + currentUser.fullName);
+    return;
+  }
+
+  const menu = document.getElementById('profileDropdownMenu');
+  const btn = document.getElementById('profileBtn');
+  if (menu && btn) {
+    const isOpen = menu.classList.toggle('open');
+    btn.classList.toggle('active', isOpen);
+    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+}
+
+function closeProfileDropdown() {
+  const menu = document.getElementById('profileDropdownMenu');
+  const btn = document.getElementById('profileBtn');
+  if (menu) menu.classList.remove('open');
+  if (btn) {
+    btn.classList.remove('active');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function handleLogout() {
+  closeProfileDropdown();
+  currentUser.isLoggedIn = false;
+  updateProfileUI();
+  showToast('ออกจากระบบ (Logout) เรียบร้อยแล้ว');
+}
+
+function updateProfileUI() {
+  const fullNameEl = document.getElementById('userFullName');
+  const navAvatar = document.getElementById('navProfileAvatar');
+  const menuAvatar = document.getElementById('menuProfileAvatar');
+  const profileBtn = document.getElementById('profileBtn');
+
+  if (currentUser.isLoggedIn) {
+    if (fullNameEl) fullNameEl.textContent = currentUser.fullName;
+    if (navAvatar) navAvatar.src = currentUser.avatar;
+    if (menuAvatar) menuAvatar.src = currentUser.avatar;
+    if (profileBtn) profileBtn.title = `ดูโปรไฟล์ (${currentUser.fullName})`;
+  } else {
+    if (fullNameEl) fullNameEl.textContent = 'Guest (ผู้เยี่ยมชม)';
+    if (navAvatar) navAvatar.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80';
+    if (menuAvatar) menuAvatar.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80';
+    if (profileBtn) profileBtn.title = 'คลิกเพื่อเข้าสู่ระบบ (Sign In)';
+  }
+}
+
 // Initialization on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
   renderCards();
   setupCategoryFilters();
+  updateStatsRibbon();
+  updateProfileUI();
   setInterval(updateCountdowns, 1000);
 
   // Close modals on clicking backdrop
@@ -606,5 +904,13 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.remove('open');
       }
     });
+  });
+
+  // Close profile dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    const wrapper = document.getElementById('profileDropdownWrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+      closeProfileDropdown();
+    }
   });
 });

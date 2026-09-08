@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>STARTASS - Top 10 Highest Bid Auctions</title>
+  <title>STARTASS - Order & Auction Details</title>
   
   <!-- Browser Tab Icon (Favicon) -->
   <link rel="icon" type="image/png" href="../images/logo.png">
@@ -23,7 +23,7 @@
 </head>
 <body>
 
-  <!-- Top Navbar: Clean & Prominent Brand Logo, Create Auction & Profile Dropdown -->
+  <!-- Top Navbar: Clean & Prominent Brand Logo, All Auctions Link, Create Auction & Profile Dropdown -->
   <nav class="site-navbar">
     <div class="navbar-container">
       <a href="HomePage.html" class="navbar-brand">
@@ -32,11 +32,17 @@
       </a>
 
       <div class="navbar-actions">
-        <!-- My Orders Navigation Button -->
-        <a href="ordersdetail.html" class="btn-orders-nav" id="navOrdersBtn" title="ดูรายการคำสั่งซื้อ / การประมูลของฉัน">
+        <!-- Back to Auctions Link -->
+        <a href="HomePage.html" class="btn btn-view" title="กลับไปหน้ากระดานประมูลหลัก">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>All Auctions</span>
+        </a>
+
+        <!-- My Orders Navigation Button (Active) -->
+        <a href="ordersdetail.html" class="btn-orders-nav active" id="navOrdersBtn" title="หน้ารายการคำสั่งซื้อ / การประมูลของฉัน">
           <i class="fa-solid fa-receipt"></i>
           <span>My Orders</span>
-          <span class="orders-nav-badge" id="navOrdersBadge" style="display: none;">0</span>
+          <span class="orders-nav-badge" id="navOrdersBadge">1</span>
         </a>
 
         <!-- Messages Navigation Button -->
@@ -46,6 +52,7 @@
           <span class="chat-nav-badge" id="navChatBadge" style="display: none;">0</span>
         </a>
 
+        <!-- Create Auction Button -->
         <button type="button" class="btn btn-create-auction" onclick="openCreateModal()">
           <i class="fa-solid fa-plus"></i>
           <span>สร้างโพสต์ประมูล</span>
@@ -135,139 +142,30 @@
   </nav>
 
   <!-- Main Container -->
-  <div class="container">
-
-    <!-- Page Header -->
-    <header class="auction-header">
-      <div class="header-badge">
-        <span class="pulse-dot"></span> Live Bidding Marketplace
+  <div class="container order-page-wrapper">
+    <!-- Dynamic Order Detail Container -->
+    <div id="orderDetailContainer">
+      <!-- Loading Skeleton / Fallback State (replaced by initOrderDetailPage() on DOM Ready) -->
+      <div style="text-align: center; padding: 60px 20px;">
+        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2.5rem; color: var(--accent-gold); margin-bottom: 16px;"></i>
+        <p style="color: var(--text-secondary);">กำลังโหลดข้อมูลคำสั่งซื้อและการประมูล...</p>
       </div>
-      <h1 class="main-title">Top 10 Highest Current Bids</h1>
-      <p class="main-subtitle">
-        Explore elite high-value auctions with the fiercest bidding wars. Place your bids or track the highest-valued collector items in real time.
-      </p>
-
-      <!-- Key Marketplace Stats Ribbon -->
-      <div class="stats-ribbon">
-        <div class="stat-item">
-          <i class="fa-solid fa-trophy stat-icon"></i>
-          <div class="stat-content">
-            <div class="stat-value" id="statHighestBid">$485,000</div>
-            <div class="stat-label">Highest Active Bid</div>
-          </div>
-        </div>
-
-        <div class="stat-item">
-          <i class="fa-solid fa-fire stat-icon" style="color: #f97316;"></i>
-          <div class="stat-content">
-            <div class="stat-value" id="statTotalItems">10 Items</div>
-            <div class="stat-label">Featured Showcase</div>
-          </div>
-        </div>
-
-        <div class="stat-item">
-          <i class="fa-solid fa-shield-halved stat-icon" style="color: #10b981;"></i>
-          <div class="stat-content">
-            <div class="stat-value">100% Verified</div>
-            <div class="stat-label">Authenticity Guaranteed</div>
-          </div>
-        </div>
-
-        <div class="stat-item">
-          <i class="fa-solid fa-bolt stat-icon" style="color: #6366f1;"></i>
-          <div class="stat-content">
-            <div class="stat-value" id="statTotalBids">312 Total Bids</div>
-            <div class="stat-label">Active Competitors</div>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Filters & Category Navigation -->
-    <section class="filter-section">
-      <!-- Search Input Bar -->
-      <div class="search-bar-wrapper">
-        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="itemSearch" placeholder="Search auctions by title, category, or keyword..." autocomplete="off">
-        <button type="button" id="clearSearchBtn" class="search-clear-btn" aria-label="Clear search" style="display: none;">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Categories Filter Pills Bar -->
-      <div class="category-filters-container">
-        <div class="category-filters-header">
-          <span class="category-filters-title"><i class="fa-solid fa-sliders"></i> Categories:</span>
-          <span class="category-filters-active-hint" id="activeCategoryHint">All Auctions</span>
-        </div>
-        <div class="category-filters" role="tablist">
-          <button class="category-btn active" data-category="all" role="tab" aria-selected="true">
-            <i class="fa-solid fa-border-all"></i> All Categories
-            <span class="category-count" id="count-all">10</span>
-          </button>
-          <button class="category-btn" data-category="cars" role="tab" aria-selected="false">
-            <i class="fa-solid fa-car-side"></i> Car Models
-            <span class="category-count" id="count-cars">3</span>
-          </button>
-          <button class="category-btn" data-category="cards" role="tab" aria-selected="false">
-            <i class="fa-solid fa-ticket"></i> Collectible Cards
-            <span class="category-count" id="count-cards">2</span>
-          </button>
-          <button class="category-btn" data-category="tech" role="tab" aria-selected="false">
-            <i class="fa-solid fa-microchip"></i> Tech & Computing
-            <span class="category-count" id="count-tech">3</span>
-          </button>
-          <button class="category-btn" data-category="trees" role="tab" aria-selected="false">
-            <i class="fa-solid fa-tree"></i> Rare Trees & Flora
-            <span class="category-count" id="count-trees">2</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Section Title & Counter -->
-      <div class="section-header-bar">
-        <h2 class="section-title">
-          <i class="fa-solid fa-chart-line"></i> Current Leaderboard
-        </h2>
-        <span class="items-counter" id="itemsCount">Showing 10 of 10 featured items</span>
-      </div>
-    </section>
-
-    <!-- Auction Items Grid (Bigger Featured Cards) -->
-    <main class="auction-grid" id="auctionGrid">
-      <!-- Dynamically populated by js/main.js -->
-    </main>
-
-    <!-- Empty State (When search/filter has no match) -->
-    <div class="empty-state" id="emptyState">
-      <i class="fa-solid fa-box-open"></i>
-      <h3>No auctions found</h3>
-      <p>Try selecting another category or searching with different keywords.</p>
     </div>
-
-    <!-- Footer -->
-    <footer class="page-footer">
-      <div class="footer-brand">
-        <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i> STAR <span style="color: var(--accent-gold); margin-left: 3px;">TASS!</span>
-      </div>
-      <p>Exclusive High-Value Auction Prototype &bull; Real-time Bidding Demonstration</p>
-    </footer>
-
   </div>
 
-  <!-- MODAL: Open Auction Bid -->
+  <!-- MODAL: Open Auction Bid Submission -->
   <div class="modal-backdrop" id="bidModal" role="dialog" aria-modal="true" aria-labelledby="bidModalTitle">
-    <div class="modal-container">
+    <div class="modal-container modal-bid-container">
       <div class="modal-header">
         <h3 class="modal-title" id="bidModalTitle">
-          <i class="fa-solid fa-gavel"></i> Place Auction Bid
+          <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i> เสนอราคาประมูล (Place Your Bid)
         </h3>
         <button class="modal-close" onclick="closeBidModal()" aria-label="Close modal">&times;</button>
       </div>
       <div class="modal-body">
-        <!-- Item Short Preview -->
+        <!-- Item Preview Header in Modal -->
         <div class="modal-item-preview">
-          <img src="" id="modalPreviewImg" class="preview-img" alt="Product Preview">
+          <img id="modalPreviewImg" src="" alt="Auction Item" class="preview-thumb">
           <div class="preview-info">
             <span class="preview-badge" id="modalPreviewCategory">Category</span>
             <h4 id="modalPreviewTitle">Auction Item Title</h4>
@@ -431,7 +329,7 @@
                       <input type="checkbox" id="newIsActive" checked onchange="toggleStatusLabel(this.checked)">
                       <span class="slider round"></span>
                     </label>
-                    <span class="status-label active-status" id="statusToggleLabel">
+                    <span id="statusToggleLabel" class="status-label active-status">
                       <i class="fa-solid fa-circle-check"></i> Active (เปิดประมูลทันที)
                     </span>
                   </div>
@@ -539,14 +437,17 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-view" onclick="closeCreateModal()">ยกเลิก</button>
           <button type="submit" class="btn btn-bid">
-            <i class="fa-solid fa-cloud-arrow-up"></i> ยืนยันสร้างโพสต์ประมูล
+            <i class="fa-solid fa-check"></i> บันทึกและสร้างการประมูล
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Platform JavaScript -->
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Platform Scripts -->
   <script src="../js/main.js"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>STARTASS - Top 10 Highest Bid Auctions</title>
+  <title>STARTASS - P2P Chat & Messages</title>
   
   <!-- Browser Tab Icon (Favicon) -->
   <link rel="icon" type="image/png" href="../images/logo.png">
@@ -23,7 +23,7 @@
 </head>
 <body>
 
-  <!-- Top Navbar: Clean & Prominent Brand Logo, Create Auction & Profile Dropdown -->
+  <!-- Top Navbar -->
   <nav class="site-navbar">
     <div class="navbar-container">
       <a href="HomePage.html" class="navbar-brand">
@@ -32,20 +32,27 @@
       </a>
 
       <div class="navbar-actions">
+        <!-- Back to Auctions Link -->
+        <a href="HomePage.html" class="btn btn-view" title="กลับไปหน้ากระดานประมูลหลัก">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>All Auctions</span>
+        </a>
+
         <!-- My Orders Navigation Button -->
-        <a href="ordersdetail.html" class="btn-orders-nav" id="navOrdersBtn" title="ดูรายการคำสั่งซื้อ / การประมูลของฉัน">
+        <a href="ordersdetail.html" class="btn-orders-nav" id="navOrdersBtn" title="หน้ารายการคำสั่งซื้อ / การประมูลของฉัน">
           <i class="fa-solid fa-receipt"></i>
           <span>My Orders</span>
-          <span class="orders-nav-badge" id="navOrdersBadge" style="display: none;">0</span>
+          <span class="orders-nav-badge" id="navOrdersBadge">1</span>
         </a>
 
-        <!-- Messages Navigation Button -->
-        <a href="chat.html" class="btn-chat-nav" id="navChatBtn" title="ข้อความและการสนทนา P2P (Messages & P2P Chat)">
+        <!-- Messages Navigation Button (Active) -->
+        <a href="chat.html" class="btn-chat-nav active" id="navChatBtn" title="ข้อความและการสนทนา P2P (Messages & P2P Chat)">
           <i class="fa-solid fa-comments"></i>
           <span>Messages</span>
-          <span class="chat-nav-badge" id="navChatBadge" style="display: none;">0</span>
+          <span class="chat-nav-badge" id="navChatBadge" style="display: inline-flex;">1</span>
         </a>
 
+        <!-- Create Auction Button -->
         <button type="button" class="btn btn-create-auction" onclick="openCreateModal()">
           <i class="fa-solid fa-plus"></i>
           <span>สร้างโพสต์ประมูล</span>
@@ -116,7 +123,7 @@
                 </a>
               </li>
               <li>
-                <a href="chat.html" class="profile-menu-item" style="text-decoration: none;">
+                <a href="chat.html" class="profile-menu-item active" style="text-decoration: none;">
                   <i class="fa-solid fa-comments"></i>
                   <span>ข้อความและการสนทนา (Messages / P2P Chat)</span>
                 </a>
@@ -135,149 +142,142 @@
   </nav>
 
   <!-- Main Container -->
-  <div class="container">
+  <div class="container chat-page-wrapper">
+    <!-- Breadcrumbs -->
+    <nav class="order-breadcrumbs" aria-label="Breadcrumb">
+      <a href="HomePage.html"><i class="fa-solid fa-house"></i> Home</a>
+      <span class="crumb-sep">/</span>
+      <a href="ordersdetail.html">My Orders</a>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-active" id="chatBreadcrumbCurrent">Messages & P2P Chat</span>
+    </nav>
 
-    <!-- Page Header -->
-    <header class="auction-header">
-      <div class="header-badge">
-        <span class="pulse-dot"></span> Live Bidding Marketplace
-      </div>
-      <h1 class="main-title">Top 10 Highest Current Bids</h1>
-      <p class="main-subtitle">
-        Explore elite high-value auctions with the fiercest bidding wars. Place your bids or track the highest-valued collector items in real time.
-      </p>
+    <!-- Standalone Chat Two-Part Layout -->
+    <div class="standalone-chat-container" id="standaloneChatContainer">
+      
+      <!-- ====================================================================
+           PART 1: CONVERSATION HISTORY (LEFT SIDEBAR)
+           Image Profile, User Name, Latest Message, Time & Date, Is Read or Not Read
+           ==================================================================== -->
+      <aside class="standalone-chat-sidebar" id="standaloneChatSidebar">
+        
+        <!-- Sidebar Header -->
+        <div class="chat-sidebar-header">
+          <div class="chat-sidebar-heading">
+            <i class="fa-solid fa-comments"></i>
+            <span>Conversation History</span>
+          </div>
+          <span class="chat-conv-count-badge" id="chatConvCountBadge">3 Active</span>
+        </div>
 
-      <!-- Key Marketplace Stats Ribbon -->
-      <div class="stats-ribbon">
-        <div class="stat-item">
-          <i class="fa-solid fa-trophy stat-icon"></i>
-          <div class="stat-content">
-            <div class="stat-value" id="statHighestBid">$485,000</div>
-            <div class="stat-label">Highest Active Bid</div>
+        <!-- Filter Chips: All, Unread, Won Deals -->
+        <div class="chat-filter-chips-strip">
+          <button type="button" class="btn-chat-filter active" data-filter="all" onclick="setChatFilter('all', this)">
+            <span>All</span>
+          </button>
+          <button type="button" class="btn-chat-filter" data-filter="unread" onclick="setChatFilter('unread', this)">
+            <span>Unread</span>
+            <span class="filter-unread-dot"></span>
+          </button>
+          <button type="button" class="btn-chat-filter" data-filter="won" onclick="setChatFilter('won', this)">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Won Deals</span>
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="chat-search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="chatSearchInput" placeholder="Search user name or item..." oninput="filterStandaloneChatList(this.value)">
+          <button type="button" class="chat-search-clear" id="chatSearchClearBtn" onclick="clearStandaloneChatSearch()" style="display: none;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Conversations History List -->
+        <div class="chat-conversations-scroll" id="chatConversationsList">
+          <!-- Populated dynamically via renderStandaloneChatConversations() in main.js -->
+        </div>
+
+      </aside>
+
+      <!-- ====================================================================
+           PART 2: CURRENT CHAT (RIGHT MAIN WINDOW)
+           Image Profile, User Name, Messages All, Time Date in Message,
+           Is Read or Not Read, If Part Owner Messages Show Product & Price Bids Latest
+           ==================================================================== -->
+      <main class="standalone-chat-main" id="standaloneChatMain">
+        
+        <!-- Current Chat Header -->
+        <header class="chat-main-header" id="chatCurrentHeader">
+          <!-- Populated dynamically via renderStandaloneCurrentChat() -->
+        </header>
+
+        <!-- Current Chat Live Deal Strip (Product and Latest Bids Price) -->
+        <div class="chat-live-deal-strip" id="chatLiveDealStrip">
+          <!-- Populated dynamically via renderStandaloneCurrentChat() -->
+        </div>
+
+        <!-- Messages All History Timeline -->
+        <div class="chat-messages-timeline" id="chatMessagesTimeline">
+          <!-- Populated dynamically with all messages, date/time, read status, and owner product & price bids -->
+        </div>
+
+        <!-- Quick Action Prompt Chips Bar -->
+        <div class="chat-quick-actions-bar" id="chatQuickActionsBar">
+          <span class="quick-label"><i class="fa-solid fa-bolt"></i> Quick Actions:</span>
+          <div class="quick-chips-scroll">
+            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('📍 ยืนยันที่อยู่จัดส่ง: 450 Lexington Ave, New York, NY 10017 พร้อมรับมอบสินค้าครับ')">
+              📍 Confirm Address
+            </button>
+            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('📜 รบกวนส่งเอกสาร Certificate of Authenticity และผลตรวจสอบเบื้องต้นให้ดูทางนี้ด้วยครับ')">
+              📜 Request Certificate
+            </button>
+            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('🛡️ เงินมัดจำ Escrow ได้รับการยืนยันเรียบร้อย พร้อมประสานงานปล่อยยอดเมื่อได้รับสินค้าครับ')">
+              🛡️ Escrow Verified
+            </button>
+            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('🚚 รบกวนสอบถามตารางเวลาที่รถขนส่ง White-Glove พร้อมเข้ามาส่งมอบสินค้าด้วยครับ')">
+              🚚 Delivery Schedule
+            </button>
           </div>
         </div>
 
-        <div class="stat-item">
-          <i class="fa-solid fa-fire stat-icon" style="color: #f97316;"></i>
-          <div class="stat-content">
-            <div class="stat-value" id="statTotalItems">10 Items</div>
-            <div class="stat-label">Featured Showcase</div>
-          </div>
-        </div>
-
-        <div class="stat-item">
-          <i class="fa-solid fa-shield-halved stat-icon" style="color: #10b981;"></i>
-          <div class="stat-content">
-            <div class="stat-value">100% Verified</div>
-            <div class="stat-label">Authenticity Guaranteed</div>
-          </div>
-        </div>
-
-        <div class="stat-item">
-          <i class="fa-solid fa-bolt stat-icon" style="color: #6366f1;"></i>
-          <div class="stat-content">
-            <div class="stat-value" id="statTotalBids">312 Total Bids</div>
-            <div class="stat-label">Active Competitors</div>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Filters & Category Navigation -->
-    <section class="filter-section">
-      <!-- Search Input Bar -->
-      <div class="search-bar-wrapper">
-        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="itemSearch" placeholder="Search auctions by title, category, or keyword..." autocomplete="off">
-        <button type="button" id="clearSearchBtn" class="search-clear-btn" aria-label="Clear search" style="display: none;">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Categories Filter Pills Bar -->
-      <div class="category-filters-container">
-        <div class="category-filters-header">
-          <span class="category-filters-title"><i class="fa-solid fa-sliders"></i> Categories:</span>
-          <span class="category-filters-active-hint" id="activeCategoryHint">All Auctions</span>
-        </div>
-        <div class="category-filters" role="tablist">
-          <button class="category-btn active" data-category="all" role="tab" aria-selected="true">
-            <i class="fa-solid fa-border-all"></i> All Categories
-            <span class="category-count" id="count-all">10</span>
+        <!-- Message Composer Form Bar -->
+        <form class="chat-composer-bar" id="standaloneChatForm" onsubmit="handleSendStandaloneChatMessage(event)">
+          <button type="button" class="btn-composer-attach" title="แนบไฟล์หรือเอกสาร COA" onclick="showToast('ระบบแนบไฟล์สำหรับส่งหลักฐาน Escrow และเอกสาร COA พร้อมใช้งาน')">
+            <i class="fa-solid fa-paperclip"></i>
           </button>
-          <button class="category-btn" data-category="cars" role="tab" aria-selected="false">
-            <i class="fa-solid fa-car-side"></i> Car Models
-            <span class="category-count" id="count-cars">3</span>
+          <input type="text" id="standaloneMessageInput" class="composer-input" placeholder="Type message to owner..." autocomplete="off" required>
+          <button type="submit" class="btn-composer-send" title="ส่งข้อความ (Send Message)">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>Send</span>
           </button>
-          <button class="category-btn" data-category="cards" role="tab" aria-selected="false">
-            <i class="fa-solid fa-ticket"></i> Collectible Cards
-            <span class="category-count" id="count-cards">2</span>
-          </button>
-          <button class="category-btn" data-category="tech" role="tab" aria-selected="false">
-            <i class="fa-solid fa-microchip"></i> Tech & Computing
-            <span class="category-count" id="count-tech">3</span>
-          </button>
-          <button class="category-btn" data-category="trees" role="tab" aria-selected="false">
-            <i class="fa-solid fa-tree"></i> Rare Trees & Flora
-            <span class="category-count" id="count-trees">2</span>
-          </button>
-        </div>
-      </div>
+        </form>
 
-      <!-- Section Title & Counter -->
-      <div class="section-header-bar">
-        <h2 class="section-title">
-          <i class="fa-solid fa-chart-line"></i> Current Leaderboard
-        </h2>
-        <span class="items-counter" id="itemsCount">Showing 10 of 10 featured items</span>
-      </div>
-    </section>
+      </main>
 
-    <!-- Auction Items Grid (Bigger Featured Cards) -->
-    <main class="auction-grid" id="auctionGrid">
-      <!-- Dynamically populated by js/main.js -->
-    </main>
-
-    <!-- Empty State (When search/filter has no match) -->
-    <div class="empty-state" id="emptyState">
-      <i class="fa-solid fa-box-open"></i>
-      <h3>No auctions found</h3>
-      <p>Try selecting another category or searching with different keywords.</p>
     </div>
-
-    <!-- Footer -->
-    <footer class="page-footer">
-      <div class="footer-brand">
-        <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i> STAR <span style="color: var(--accent-gold); margin-left: 3px;">TASS!</span>
-      </div>
-      <p>Exclusive High-Value Auction Prototype &bull; Real-time Bidding Demonstration</p>
-    </footer>
-
   </div>
 
-  <!-- MODAL: Open Auction Bid -->
+  <!-- MODAL: Open Auction Bid Submission -->
   <div class="modal-backdrop" id="bidModal" role="dialog" aria-modal="true" aria-labelledby="bidModalTitle">
-    <div class="modal-container">
+    <div class="modal-container modal-bid-container">
       <div class="modal-header">
         <h3 class="modal-title" id="bidModalTitle">
-          <i class="fa-solid fa-gavel"></i> Place Auction Bid
+          <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i> เสนอราคาประมูล (Place Your Bid)
         </h3>
         <button class="modal-close" onclick="closeBidModal()" aria-label="Close modal">&times;</button>
       </div>
       <div class="modal-body">
-        <!-- Item Short Preview -->
         <div class="modal-item-preview">
-          <img src="" id="modalPreviewImg" class="preview-img" alt="Product Preview">
+          <img id="modalPreviewImg" src="" alt="Auction Item" class="preview-thumb">
           <div class="preview-info">
             <span class="preview-badge" id="modalPreviewCategory">Category</span>
             <h4 id="modalPreviewTitle">Auction Item Title</h4>
           </div>
         </div>
-
-        <!-- Bidding Controls -->
         <div class="bidding-box">
           <div id="modalBidLockNotice" class="modal-bid-lock-notice" style="display: none;"></div>
-
           <div class="bid-status-row">
             <div class="bid-status-col">
               <span>Current Highest Bid</span>
@@ -288,29 +288,22 @@
               <strong id="modalMinNextBid" style="color: var(--accent-gold);">$0</strong>
             </div>
           </div>
-
           <label class="bid-input-label" for="bidAmountInput">Your Maximum Bid Amount (USD)</label>
           <div class="bid-input-group">
             <span class="bid-currency">$</span>
             <input type="number" id="bidAmountInput" class="bid-input" step="500">
           </div>
-
-          <!-- Quick Increment Buttons -->
           <div class="quick-bids">
             <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(500)">+$500</button>
             <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(1000)">+$1,000</button>
             <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(5000)">+$5,000</button>
             <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(10000)">+$10,000</button>
           </div>
-
-          <!-- Recent Bids History -->
           <div class="bid-history-title">
             <span><i class="fa-solid fa-clock-rotate-left"></i> Recent Bids Activity</span>
             <span style="font-size: 0.78rem; color: var(--text-muted);">Verified Bidders</span>
           </div>
-          <ul class="bid-history-list" id="modalBidHistory">
-            <!-- Populated via JS -->
-          </ul>
+          <ul class="bid-history-list" id="modalBidHistory"></ul>
         </div>
       </div>
       <div class="modal-footer">
@@ -336,7 +329,6 @@
           <img id="detailImg" src="" alt="Product Full View" class="detail-modal-img">
         </div>
         <div class="detail-thumbnails-strip" id="detailThumbnailsStrip" style="display: none;"></div>
-
         <div class="detail-header-flex">
           <div class="detail-title-col">
             <span id="detailCategory" class="category-tag">Category</span>
@@ -347,20 +339,11 @@
             <div id="detailCurrentBid" class="detail-bid-value">$0</div>
           </div>
         </div>
-
-        <p id="detailDesc" class="detail-description">
-          Description
-        </p>
-
-        <!-- Specifications & Provenance -->
+        <p id="detailDesc" class="detail-description">Description</p>
         <h4 class="detail-specs-heading">
           <i class="fa-solid fa-list-check" style="color: var(--accent-gold);"></i> Key Specifications & Provenance
         </h4>
-        <ul id="detailSpecs" class="detail-specs-list">
-          <!-- Populated via JS -->
-        </ul>
-
-        <!-- Timeline & Pricing Details -->
+        <ul id="detailSpecs" class="detail-specs-list"></ul>
         <div class="auction-dates detail-dates-box">
           <div class="date-row">
             <span class="label"><i class="fa-regular fa-calendar-check"></i> Auction Started</span>
@@ -397,18 +380,13 @@
       <form id="createAuctionForm" onsubmit="handleCreateAuction(event)">
         <div class="modal-body create-modal-body">
           <div class="create-modal-layout">
-
-            <!-- LEFT SIDE: All Form Input Fields -->
             <div class="create-modal-left">
-              <!-- Product Name -->
               <div class="form-group form-col-full">
                 <label class="form-label" for="newProductName">
                   <i class="fa-solid fa-tag"></i> Product Name (ชื่อสินค้า)
                 </label>
                 <input type="text" id="newProductName" class="form-input" placeholder="เช่น 1969 Ford Mustang Boss 429" required maxlength="120">
               </div>
-
-              <!-- Category Enum & Is Active Toggle -->
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label" for="newProductCategory">
@@ -421,7 +399,6 @@
                     <option value="trees">Rare Trees & Flora (บอนไซและพันธุ์ไม้หายาก)</option>
                   </select>
                 </div>
-
                 <div class="form-group">
                   <label class="form-label">
                     <i class="fa-solid fa-toggle-on"></i> Status (สถานะการเปิดประมูล)
@@ -431,14 +408,12 @@
                       <input type="checkbox" id="newIsActive" checked onchange="toggleStatusLabel(this.checked)">
                       <span class="slider round"></span>
                     </label>
-                    <span class="status-label active-status" id="statusToggleLabel">
+                    <span id="statusToggleLabel" class="status-label active-status">
                       <i class="fa-solid fa-circle-check"></i> Active (เปิดประมูลทันที)
                     </span>
                   </div>
                 </div>
               </div>
-
-              <!-- Start Price & Bid Increment -->
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label" for="newStartPrice">
@@ -449,7 +424,6 @@
                     <input type="number" id="newStartPrice" class="form-input with-prefix" placeholder="50,000" min="100" step="100" required>
                   </div>
                 </div>
-
                 <div class="form-group">
                   <label class="form-label" for="newBidIncrement">
                     <i class="fa-solid fa-arrow-up-right-dots"></i> Set Increments Of (ก้าวราคาขั้นต่ำ)
@@ -464,8 +438,6 @@
                   </select>
                 </div>
               </div>
-
-              <!-- Start Date & End Date -->
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label" for="newStartDate">
@@ -473,7 +445,6 @@
                   </label>
                   <input type="datetime-local" id="newStartDate" class="form-input" required>
                 </div>
-
                 <div class="form-group">
                   <label class="form-label" for="newEndDate">
                     <i class="fa-regular fa-calendar-xmark"></i> End Date (วันเวลาสิ้นสุด)
@@ -481,8 +452,6 @@
                   <input type="datetime-local" id="newEndDate" class="form-input" required>
                 </div>
               </div>
-
-              <!-- Product Descriptions -->
               <div class="form-group form-col-full">
                 <label class="form-label" for="newProductDesc">
                   <i class="fa-solid fa-align-left"></i> Product Descriptions (คำอธิบายสินค้า)
@@ -490,14 +459,10 @@
                 <textarea id="newProductDesc" class="form-textarea" rows="3" placeholder="ระบุรายละเอียด สภาพของสินค้า ประวัติความเป็นมา เอกสารการันตี หรือข้อมูลสำคัญสำหรับการประมูล..." required></textarea>
               </div>
             </div>
-
-            <!-- RIGHT SIDE: Browse Images & Live Preview Display -->
             <div class="create-modal-right">
               <label class="form-label">
                 <i class="fa-solid fa-images"></i> Product Images (รูปภาพสินค้า - เลือกได้หลายรูป)
               </label>
-
-              <!-- Drag & Drop / Click to Browse Box -->
               <div class="image-upload-zone" id="imageDropZone" onclick="document.getElementById('newProductImageFile').click()">
                 <input type="file" id="newProductImageFile" accept="image/*" multiple class="file-input-hidden" onchange="handleImageFileSelect(event)">
                 <div class="upload-prompt">
@@ -509,8 +474,6 @@
                   </button>
                 </div>
               </div>
-
-              <!-- Live Image Preview Display & Thumbnails -->
               <div class="create-image-preview-wrapper">
                 <div class="create-image-preview" id="createImagePreviewBox">
                   <img id="createPreviewImg" src="" alt="Image Preview" style="display: none;">
@@ -526,27 +489,25 @@
                     <i class="fa-solid fa-trash-can"></i> ลบรูปนี้
                   </button>
                 </div>
-
-                <!-- Gallery Thumbnails Strip -->
-                <div class="create-thumbnails-strip" id="createThumbnailsStrip" style="display: none;">
-                  <!-- Dynamic thumbnails will appear here -->
-                </div>
+                <div class="create-thumbnails-strip" id="createThumbnailsStrip" style="display: none;"></div>
               </div>
             </div>
-
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-view" onclick="closeCreateModal()">ยกเลิก</button>
           <button type="submit" class="btn btn-bid">
-            <i class="fa-solid fa-cloud-arrow-up"></i> ยืนยันสร้างโพสต์ประมูล
+            <i class="fa-solid fa-check"></i> บันทึกและสร้างการประมูล
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Platform JavaScript -->
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Platform Scripts -->
   <script src="../js/main.js"></script>
 </body>
 </html>

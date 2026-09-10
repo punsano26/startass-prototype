@@ -2985,33 +2985,6 @@ function renderOrderDetail(orderId) {
               </div>
             </div>
           </div>
-
-          <!-- P2P Direct Communication CTA Box -->
-          <div class="seller-p2p-cta-box">
-            ${isWon ? `
-              <div class="p2p-unlocked-notice">
-                <div class="p2p-notice-text">
-                  <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
-                  <span><strong>สิทธิ์การสนทนา P2P ปลดล็อกแล้ว:</strong> คุณชนะการประมูลรายการนี้ สามารถติดต่อผู้ขาย [ @${seller.nickname || 'ผู้ขาย'} ] เพื่อประสานงานจัดส่ง</span>
-                </div>
-                <button type="button" class="btn btn-p2p-direct" onclick="openSellerP2PChat('${order.orderId}')">
-                  <i class="fa-solid fa-comments"></i>
-                  <span>💬 แชต P2P โดยตรงกับ [ @${seller.nickname || 'ผู้ขาย'} ]</span>
-                </button>
-              </div>
-            ` : `
-              <div class="p2p-locked-notice">
-                <div class="p2p-notice-text">
-                  <i class="fa-solid fa-lock" style="color: #f59e0b;"></i>
-                  <span><strong>ห้องแชต P2P ยังล็อกอยู่:</strong> สงวนสิทธิ์การสนทนากับ [ @${seller.nickname || 'ผู้ขาย'} ] เฉพาะผู้ชนะประมูลเท่านั้น</span>
-                </div>
-                <button type="button" class="btn btn-p2p-locked" onclick="showP2PLockNotice('${seller.nickname || 'ผู้ขาย'}')">
-                  <i class="fa-solid fa-lock"></i>
-                  <span>แชต P2P ล็อกอยู่ (เฉพาะผู้ชนะการประมูล)</span>
-                </button>
-              </div>
-            `}
-          </div>
         </div>
 
       </div>

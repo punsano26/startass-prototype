@@ -184,7 +184,7 @@ Every auction item card must incorporate:
 - **Exclusive Access**: Direct peer-to-peer (P2P) communication with the seller is an exclusive right reserved strictly for winning bidders (`order.status === 'WON'`).
 - **Orders Detail View (`pages/ordersdetail.html`)**:
   - Maintains strictly 2 tabs: `ภาพรวมคำสั่งซื้อ (Overview)` and `ประวัติการเสนอราคา (Bid History)`.
-  - When won, all chat CTA buttons (`.btn-order-p2p`, `.btn-p2p-direct`, `.btn-order-p2p-cta`) route directly to `pages/chat.html?orderId=<orderId>`.
+  - When won, all chat CTA buttons (`.btn-order-p2p` in header and `.btn-order-p2p-cta` in pricing card) route directly to `pages/chat.html?orderId=<orderId>`. Redundant middle buttons inside the seller card have been removed to prevent button clutter.
   - If a URL query parameter `tab=chat` is encountered on `ordersdetail.html`, `initOrderDetailPage()` automatically redirects to `chat.html?orderId=<orderId>`.
 - **Active / Ongoing Auction Locked State**: If the auction is still ongoing (`WINNING`, `OUTBID`), direct messaging remains locked and calls `showP2PLockNotice()`.
 

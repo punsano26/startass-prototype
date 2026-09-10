@@ -3,27 +3,37 @@
  * Handles Top 10 Bids display, category filtering, live countdowns, and bidding modals.
  */
 
-// Default Top 10 Auction Items Data
+// Cache Invalidation for Version 2 (Thai Localization & THB Currency)
+const APP_VERSION = 'startass_v2_th';
+if (localStorage.getItem('startass_version') !== APP_VERSION) {
+  localStorage.removeItem('startass_auctions');
+  localStorage.removeItem('startass_orders');
+  localStorage.removeItem('startass_p2p_chats');
+  localStorage.removeItem('startass_notifications');
+  localStorage.setItem('startass_version', APP_VERSION);
+}
+
+// Default Top 10 Auction Items Data (ภาษาไทย / THB Currency)
 const DEFAULT_AUCTION_ITEMS = [
   {
     id: 'auc-01',
     rank: 1,
     title: '1967 Shelby GT500 Fastback "Eleanor Edition"',
     category: 'cars',
-    categoryLabel: 'Car Models',
+    categoryLabel: 'โมเดลรถยนต์ & ซูเปอร์คาร์',
     image: 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80'
     ],
-    description: 'Fully restored numbers-matching 428 Cobra Jet V8, 4-speed manual transmission, finished in Pepper Gray with black Le Mans stripes. Verified Shelby registry documentation.',
-    startPrice: 150000,
-    currentBid: 485000,
-    startDate: '2026-08-28 10:00 AM',
+    description: 'เครื่องยนต์ 428 Cobra Jet V8 แท้ดั้งเดิม เกียร์ธรรมดา 4 สปีด สี Pepper Gray คาดลาย Le Mans สีดำ บูรณะเต็มระบบพร้อมเอกสารรับรองจาก Shelby Registry',
+    startPrice: 5200000,
+    currentBid: 16800000,
+    startDate: '28 ส.ค. 2026, 10:00',
     endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 4 * 3600 * 1000).toISOString(),
     bidsCount: 42,
-    specs: ['428ci Cobra Jet V8 Engine', '4-Speed Toploader Manual', 'Pepper Gray with Black Stripes', 'Carroll Shelby Signed Dashboard'],
+    specs: ['เครื่องยนต์ 428ci Cobra Jet V8 แท้', 'เกียร์ธรรมดา 4 สปีด Toploader', 'สีพิเศษ Pepper Gray คาดเส้นดำ Le Mans', 'ลายเซ็นแท้ Carroll Shelby บนแผงคอนโซล'],
     seller: {
       nickname: 'ApexMotors_NY',
       name: 'Apex Classic Motoring LLC',
@@ -33,9 +43,9 @@ const DEFAULT_AUCTION_ITEMS = [
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
     },
     bidHistory: [
-      { user: 'Alexander Sterling (You)', amount: 485000, time: '12 mins ago' },
-      { user: 'ApexMotors_NY', amount: 470000, time: '1 hour ago' },
-      { user: 'VintageVault', amount: 450000, time: '3 hours ago' }
+      { user: 'Alexander Sterling (คุณ)', amount: 16800000, time: '12 นาทีที่แล้ว' },
+      { user: 'ApexMotors_NY', amount: 16000000, time: '1 ชั่วโมงที่แล้ว' },
+      { user: 'VintageVault', amount: 15200000, time: '3 ชั่วโมงที่แล้ว' }
     ]
   },
   {
@@ -43,19 +53,19 @@ const DEFAULT_AUCTION_ITEMS = [
     rank: 2,
     title: '1st Edition Shadowless Charizard #4/102 (PSA 10 Gem Mint)',
     category: 'cards',
-    categoryLabel: 'Collectible Cards',
+    categoryLabel: 'การ์ดสะสมหายาก',
     image: 'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=1200&q=80'
     ],
-    description: 'Holy Grail of collectible trading cards. 1999 Base Set 1st Edition Shadowless Charizard graded PSA 10 Gem Mint. Flawless centering, razor sharp corners, and crystal surface.',
-    startPrice: 90000,
-    currentBid: 360000,
-    startDate: '2026-08-30 02:00 PM',
+    description: 'จอกศักดิ์สิทธิ์แห่งวงการการ์ดสะสม โปเกมอนการ์ดปี 1999 Base Set รุ่น Shadowless ลิซาร์ดอน เกรดสูงสุด PSA 10 ไร้ตำหนิ ศูนย์กลางคมชัด ขอบและพื้นผิวระดับสมบูรณ์แบบ',
+    startPrice: 3100000,
+    currentBid: 12500000,
+    startDate: '30 ส.ค. 2026, 14:00',
     endDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000 + 11 * 3600 * 1000).toISOString(),
     bidsCount: 58,
-    specs: ['Graded: PSA 10 Gem Mint', 'Cert ID: #4829104', 'Shadowless Holographic', 'Museum Grade UV Acrylic Casing'],
+    specs: ['ระดับการประเมิน: PSA 10 Gem Mint', 'รหัสใบรับรอง: #4829104', 'การ์ดโฮโลแกรม Shadowless ไร้เงา', 'เคสอะคริลิกกันรังสี UV เกรดพิพิธภัณฑ์'],
     seller: {
       nickname: 'KyotoVault_Cards',
       name: 'Kyoto Rare Collectibles Japan',
@@ -65,9 +75,9 @@ const DEFAULT_AUCTION_ITEMS = [
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80'
     },
     bidHistory: [
-      { user: 'PokeInvestor99', amount: 360000, time: '5 mins ago' },
-      { user: 'KyotoCollectibles', amount: 345000, time: '45 mins ago' },
-      { user: 'BlueEyesTrader', amount: 320000, time: '2 hours ago' }
+      { user: 'PokeInvestor99', amount: 12500000, time: '5 นาทีที่แล้ว' },
+      { user: 'KyotoCollectibles', amount: 11900000, time: '45 นาทีที่แล้ว' },
+      { user: 'BlueEyesTrader', amount: 11000000, time: '2 ชั่วโมงที่แล้ว' }
     ]
   },
   {
@@ -75,19 +85,19 @@ const DEFAULT_AUCTION_ITEMS = [
     rank: 3,
     title: 'Porsche 911 GT3 RS Weissach Package (2024)',
     category: 'cars',
-    categoryLabel: 'Car Models',
+    categoryLabel: 'โมเดลรถยนต์ & ซูเปอร์คาร์',
     image: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80'
     ],
-    description: 'Factory lightweight Weissach Package, exposed carbon fiber hood & roof, magnesium wheels, ceramic composite brakes (PCCB), and delivery mileage only (45 miles).',
-    startPrice: 220000,
-    currentBid: 315000,
-    startDate: '2026-08-25 09:00 AM',
+    description: 'แพ็กเกจน้ำหนักเบา Weissach แท้จากโรงงาน ฝากระโปรงและหลังคาคาร์บอนไฟเบอร์ ล้อแมกนีเซียม เบรกเซรามิกคอมโพสิต (PCCB) ไมล์ส่งมอบเพียง 45 ไมล์เท่านั้น',
+    startPrice: 7500000,
+    currentBid: 10900000,
+    startDate: '25 ส.ค. 2026, 09:00',
     endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 8 * 3600 * 1000).toISOString(),
     bidsCount: 29,
-    specs: ['4.0L Naturally Aspirated Flat-6 (518 HP)', 'Carbon-Ceramic Composite Brakes', 'Weissach Lightweight Carbon Package', 'Odo: 45 miles'],
+    specs: ['เครื่องยนต์ Flat-6 4.0 ลิตร ไร้ระบบอัดอากาศ (518 แรงม้า)', 'ระบบเบรกคาร์บอนเซรามิกคอมโพสิต (PCCB)', 'ชุดแต่งน้ำหนักเบาคาร์บอน Weissach Package', 'เลขไมล์สะสมเพียง 45 ไมล์'],
     seller: {
       nickname: 'StuttgartExclusive',
       name: 'Stuttgart Heritage Auto Haus',
@@ -97,29 +107,29 @@ const DEFAULT_AUCTION_ITEMS = [
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80'
     },
     bidHistory: [
-      { user: 'StuttgartFanatic', amount: 315000, time: '25 mins ago' },
-      { user: 'TrackDayHero', amount: 305000, time: '2 hours ago' },
-      { user: 'MonacoGarage', amount: 290000, time: '5 hours ago' }
+      { user: 'StuttgartFanatic', amount: 10900000, time: '25 นาทีที่แล้ว' },
+      { user: 'TrackDayHero', amount: 10500000, time: '2 ชั่วโมงที่แล้ว' },
+      { user: 'MonacoGarage', amount: 10000000, time: '5 ชั่วโมงที่แล้ว' }
     ]
   },
   {
     id: 'auc-04',
     rank: 4,
-    title: '180-Year-Old Imperial Japanese Shimpaku Juniper Bonsai',
+    title: 'บอนไซสนชิมปากุญี่ปุ่น อายุ 180 ปี (Imperial Shimpaku Juniper)',
     category: 'trees',
-    categoryLabel: 'Rare Trees & Flora',
+    categoryLabel: 'บอนไซ & ไม้ด่างหายาก',
     image: 'https://images.unsplash.com/photo-1512428813834-c702c7702b78?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1512428813834-c702c7702b78?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&q=80'
     ],
-    description: 'Direct lineage from the Omiya Bonsai Village master collection. Exquisite jin and shari natural deadwood sculpture with vibrant compact foliage in antique handmade Tokoname pot.',
-    startPrice: 40000,
-    currentBid: 195000,
-    startDate: '2026-08-27 11:30 AM',
+    description: 'สายพันธุ์แท้จากคอลเลกชันระดับปรมาจารย์แห่งหมู่บ้านบอนไซโอมิยะ ซากไม้ธรรมชาติจินและชาริสุดวิจิตร พุ่มใบเขียวขจีแน่นสวย ปลูกในกระถางโบราณโทโคนาเมะปั้นมือ',
+    startPrice: 1400000,
+    currentBid: 6800000,
+    startDate: '27 ส.ค. 2026, 11:30',
     endDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000 + 16 * 3600 * 1000).toISOString(),
     bidsCount: 33,
-    specs: ['Age: ~180 Years (Documented)', 'Species: Juniperus chinensis var. sargentii', 'Pot: Antique 19th Century Tokoname Ceramic', 'Includes Botanical Export Certificate'],
+    specs: ['อายุประมาณ 180 ปี (พร้อมเอกสารรับรอง)', 'สายพันธุ์: Juniperus chinensis var. sargentii', 'กระถางเซรามิกโบราณโทโคนาเมะ ศตวรรษที่ 19', 'ใบรับรองการส่งออกพืชพรรณทางการ'],
     seller: {
       nickname: 'ZenMasterBotanics',
       name: 'Omiya Master Bonsai Collection',
@@ -129,29 +139,29 @@ const DEFAULT_AUCTION_ITEMS = [
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80'
     },
     bidHistory: [
-      { user: 'ZenBotanics_Tokyo', amount: 195000, time: '18 mins ago' },
-      { user: 'BotanicalArboretum', amount: 180000, time: '3 hours ago' },
-      { user: 'GreenHeritage', amount: 165000, time: '6 hours ago' }
+      { user: 'ZenBotanics_Tokyo', amount: 6800000, time: '18 นาทีที่แล้ว' },
+      { user: 'BotanicalArboretum', amount: 6200000, time: '3 ชั่วโมงที่แล้ว' },
+      { user: 'GreenHeritage', amount: 5700000, time: '6 ชั่วโมงที่แล้ว' }
     ]
   },
   {
     id: 'auc-05',
     rank: 5,
-    title: 'Original Operational Apple-1 Computer System (1976)',
+    title: 'ระบบคอมพิวเตอร์ Apple-1 ดั้งเดิม สภาพใช้งานได้สมบูรณ์ (1976)',
     category: 'tech',
-    categoryLabel: 'Tech Computing',
+    categoryLabel: 'เทคโนโลยี & ซูเปอร์คอมพิวเตอร์',
     image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80'
     ],
-    description: 'One of only 63 surviving Apple-1 motherboards hand-built by Steve Wozniak and Steve Jobs. Fully functional, authenticated by Corey Cohen, complete with period Sanyo monitor and Datanetics keyboard.',
-    startPrice: 85000,
-    currentBid: 178000,
-    startDate: '2026-08-29 08:00 AM',
+    description: '1 ใน 63 บอร์ด Apple-1 ที่ยังคงหลงเหลืออยู่ในโลก ประกอบด้วยมือโดย Steve Wozniak และ Steve Jobs ใช้งานได้เต็มรูปแบบ ตรวจสอบโดย Corey Cohen พร้อมจอ Sanyo และคีย์บอร์ด Datanetics ยุคดั้งเดิม',
+    startPrice: 2900000,
+    currentBid: 6200000,
+    startDate: '29 ส.ค. 2026, 08:00',
     endDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000 + 7 * 3600 * 1000).toISOString(),
     bidsCount: 38,
-    specs: ['Operational MOS 6502 Microprocessor @ 1MHz', '4KB RAM Onboard (expandable)', 'Original Apple Cassette Interface (ACI)', 'Signed letter of authenticity'],
+    specs: ['ไมโครโปรเซสเซอร์ MOS 6502 ทำงานที่ 1MHz', 'แรมออนบอร์ด 4KB (ขยายได้)', 'การ์ดเชื่อมต่อเทปคาสเซ็ต Apple Cassette Interface (ACI) ดั้งเดิม', 'จดหมายรับรองความแท้ดั้งเดิม'],
     seller: {
       nickname: 'SiliconHeritage_CA',
       name: 'Silicon Valley Artifacts Society',
@@ -161,9 +171,9 @@ const DEFAULT_AUCTION_ITEMS = [
       avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=120&q=80'
     },
     bidHistory: [
-      { user: 'SiliconMuseum_SF', amount: 178000, time: '30 mins ago' },
-      { user: 'TechPioneerVentures', amount: 165000, time: '2 hours ago' },
-      { user: 'ByteHistorian', amount: 150000, time: '4 hours ago' }
+      { user: 'SiliconMuseum_SF', amount: 6200000, time: '30 นาทีที่แล้ว' },
+      { user: 'TechPioneerVentures', amount: 5800000, time: '2 ชั่วโมงที่แล้ว' },
+      { user: 'ByteHistorian', amount: 5200000, time: '4 ชั่วโมงที่แล้ว' }
     ]
   },
   {
@@ -171,19 +181,19 @@ const DEFAULT_AUCTION_ITEMS = [
     rank: 6,
     title: 'Magic: The Gathering Alpha Black Lotus (BGS 9.5 Gem Mint)',
     category: 'cards',
-    categoryLabel: 'Collectible Cards',
+    categoryLabel: 'การ์ดสะสมหายาก',
     image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80'
     ],
-    description: 'The pinnacle of Magic: The Gathering history. Original 1993 Alpha release illustrated by the late Christopher Rush. Pristine subgrades: Centering 9.5, Corners 9.5, Edges 9.5, Surface 9.0.',
-    startPrice: 70000,
-    currentBid: 162000,
-    startDate: '2026-08-26 01:00 PM',
+    description: 'สุดยอดจุดสูงสุดแห่งประวัติศาสตร์ MTG การ์ดชุด Alpha ปี 1993 วาดภาพโดย Christopher Rush คะแนนย่อยสมบูรณ์แบบ: Centering 9.5, Corners 9.5, Edges 9.5, Surface 9.0',
+    startPrice: 2400000,
+    currentBid: 5600000,
+    startDate: '26 ส.ค. 2026, 13:00',
     endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 19 * 3600 * 1000).toISOString(),
     bidsCount: 26,
-    specs: ['Beckett Grading: BGS 9.5 Gem Mint', '1993 Limited Edition Alpha', 'Subgrades: 9.5 / 9.5 / 9.5 / 9.0', 'Artist: Christopher Rush'],
+    specs: ['การจัดเกรด Beckett: BGS 9.5 Gem Mint', 'รุ่น Alpha ปี 1993 ฉบับจำกัดจำนวน', 'คะแนนย่อย: 9.5 / 9.5 / 9.5 / 9.0', 'ศิลปินผู้วาด: Christopher Rush'],
     seller: {
       nickname: 'PlaneswalkerGuild',
       name: 'Planeswalker High-End Vault',
@@ -193,29 +203,29 @@ const DEFAULT_AUCTION_ITEMS = [
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'
     },
     bidHistory: [
-      { user: 'ManaVaultCapital', amount: 162000, time: '40 mins ago' },
-      { user: 'PlaneswalkerGuild', amount: 155000, time: '1 hour ago' },
-      { user: 'SeattleCardRoom', amount: 140000, time: '3 hours ago' }
+      { user: 'ManaVaultCapital', amount: 5600000, time: '40 นาทีที่แล้ว' },
+      { user: 'PlaneswalkerGuild', amount: 5300000, time: '1 ชั่วโมงที่แล้ว' },
+      { user: 'SeattleCardRoom', amount: 4800000, time: '3 ชั่วโมงที่แล้ว' }
     ]
   },
   {
     id: 'auc-07',
     rank: 7,
-    title: 'Silicon Graphics Onyx2 Ultimate Reality Visualization Rack',
+    title: 'แร็กซูเปอร์คอมพิวเตอร์ Silicon Graphics Onyx2 Ultimate Reality',
     category: 'tech',
-    categoryLabel: 'Tech Computing',
+    categoryLabel: 'เทคโนโลยี & ซูเปอร์คอมพิวเตอร์',
     image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80'
     ],
-    description: 'Legendary 1990s aerospace & CGI supercomputer rack in signature purple enclosure. Powered by 16 MIPS R10000 processors and 4 RealityEngine graphics pipes. Fully restored with IRIX 6.5.',
-    startPrice: 35000,
-    currentBid: 125000,
-    startDate: '2026-08-28 03:00 PM',
+    description: 'ตำนานซูเปอร์คอมพิวเตอร์ยุค 90s ใช้ในอุตสาหกรรมการบินและภาพยนตร์ฮอลลีวูด ตัวถังสีม่วงอันเป็นเอกลักษณ์ ขับเคลื่อนด้วยโปรเซสเซอร์ MIPS R10000 16 ตัว พร้อม RealityEngine 4 ไพป์ ติดตั้ง IRIX 6.5 บูรณะสมบูรณ์',
+    startPrice: 1200000,
+    currentBid: 4300000,
+    startDate: '28 ส.ค. 2026, 15:00',
     endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 12 * 3600 * 1000).toISOString(),
     bidsCount: 21,
-    specs: ['16x 250MHz MIPS R10000 Processors', 'InfiniteReality3 Graphics Subsystem', 'IRIX 6.5.30 Loaded with Alias/Wavefront', 'Original 1998 Documentation & Cables'],
+    specs: ['โปรเซสเซอร์ MIPS R10000 ความเร็ว 250MHz จำนวน 16 คอร์', 'ระบบประมวลผลกราฟิก InfiniteReality3', 'ติดตั้งระบบปฏิบัติการ IRIX 6.5.30 พร้อมซอฟต์แวร์ Alias/Wavefront', 'สายเชื่อมต่อและคู่มือต้นฉบับปี 1998 ครบชุด'],
     seller: {
       nickname: 'RetroFoundry_Sys',
       name: 'Retro Supercomputing Heritage',
@@ -225,29 +235,29 @@ const DEFAULT_AUCTION_ITEMS = [
       avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=120&q=80'
     },
     bidHistory: [
-      { user: 'HoloComputeLab', amount: 125000, time: '55 mins ago' },
-      { user: 'RetroSiliconFoundry', amount: 115000, time: '4 hours ago' },
-      { user: 'SupercomputeArch', amount: 100000, time: '8 hours ago' }
+      { user: 'HoloComputeLab', amount: 4300000, time: '55 นาทีที่แล้ว' },
+      { user: 'RetroSiliconFoundry', amount: 3900000, time: '4 ชั่วโมงที่แล้ว' },
+      { user: 'SupercomputeArch', amount: 3400000, time: '8 ชั่วโมงที่แล้ว' }
     ]
   },
   {
     id: 'auc-08',
     rank: 8,
-    title: '1994 McLaren F1 GTR Telemetry Simulation Rig & Chassis Frame',
+    title: 'ชุดโครงซิมูเลเตอร์เทเลเมทรี McLaren F1 GTR 1994 พร้อมแชสซีคาร์บอนแท้',
     category: 'tech',
-    categoryLabel: 'Tech Computing',
+    categoryLabel: 'เทคโนโลยี & ซูเปอร์คอมพิวเตอร์',
     image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80'
     ],
-    description: 'Custom bespoke motorsport simulator built on a genuine lightweight carbon composite tub with industrial hydraulic motion actuators, quad-4K surround display, and authentic MoTeC telemetry systems.',
-    startPrice: 30000,
-    currentBid: 110000,
-    startDate: '2026-08-31 10:00 AM',
+    description: 'ซิมูเลเตอร์มอเตอร์สปอร์ตคัสตอมระดับพรีเมียม สร้างบนโครงคาร์บอนคอมโพสิตน้ำหนักเบาแท้ พร้อมระบบไฮดรอลิกเคลื่อนไหวอุตสาหกรรม จอโค้งพาโนรามา Quad-4K และระบบเทเลเมทรี MoTeC แท้',
+    startPrice: 1000000,
+    currentBid: 3800000,
+    startDate: '31 ส.ค. 2026, 10:00',
     endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 2 * 3600 * 1000).toISOString(),
     bidsCount: 19,
-    specs: ['6-DOF Force-Feedback Hydraulic Platform', 'Full Carbon Fiber Monocoque Cockpit', 'Authentic MoTeC Display Unit & Sparco Pedals', 'Dual RTX 4090 Simulation Node'],
+    specs: ['แท่นไฮดรอลิก 6 ทิศทาง (6-DOF) ตอบสนองแรงสั่นสะเทือนสมจริง', 'ค็อกพิตโครงสร้างคาร์บอนไฟเบอร์โมโนค็อกแท้', 'หน้าปัด MoTeC แท้ และชุดแป้นเหยียบแข่ง Sparco', 'โหนดประมวลผลการจำลอง Dual RTX 4090'],
     seller: {
       nickname: 'SilverstoneRacer',
       name: 'Silverstone Motorsport Sim Lab',
@@ -257,29 +267,29 @@ const DEFAULT_AUCTION_ITEMS = [
       avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&q=80'
     },
     bidHistory: [
-      { user: 'SilverstoneRacer', amount: 110000, time: '1 hour ago' },
-      { user: 'SimDynamics_UK', amount: 98000, time: '5 hours ago' },
-      { user: 'ProRacingGlobal', amount: 90000, time: '1 day ago' }
+      { user: 'SilverstoneRacer', amount: 3800000, time: '1 ชั่วโมงที่แล้ว' },
+      { user: 'SimDynamics_UK', amount: 3400000, time: '5 ชั่วโมงที่แล้ว' },
+      { user: 'ProRacingGlobal', amount: 3100000, time: '1 วันที่แล้ว' }
     ]
   },
   {
     id: 'auc-09',
     rank: 9,
-    title: 'Ancient Mature Japanese Maple Bonsai (Momiji Acer Palmatum)',
+    title: 'บอนไซเมเปิ้ลญี่ปุ่นโบราณอายุ 95 ปี (Momiji Acer Palmatum)',
     category: 'trees',
-    categoryLabel: 'Rare Trees & Flora',
+    categoryLabel: 'บอนไซ & ไม้ด่างหายาก',
     image: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1512428813834-c702c7702b78?auto=format&fit=crop&w=1200&q=80'
     ],
-    description: 'Majestic 95-year-old Japanese Mountain Maple with breathtaking fiery autumn scarlet foliage. Balanced broom-style canopy with an impressive flared nebari root base.',
-    startPrice: 20000,
-    currentBid: 96000,
-    startDate: '2026-08-29 09:30 AM',
+    description: 'บอนไซเมเปิ้ลภูเขาญี่ปุ่นอายุ 95 ปีอันทรงคุณค่า ใบเปลี่ยนสีแดงเพลิงงดงามจับตาในฤดูใบไม้ร่วง ทรงพุ่มแบบไม้กวาดสมดุลสง่างาม พร้อมฐานรากเนบาริแผ่กว้างตระการตา',
+    startPrice: 700000,
+    currentBid: 3300000,
+    startDate: '29 ส.ค. 2026, 09:30',
     endDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000 + 20 * 3600 * 1000).toISOString(),
     bidsCount: 24,
-    specs: ['Age: 95 Years', 'Style: Hoki-dachi (Broom Style)', 'Height: 38 inches / Nebari Width: 14 inches', 'Acclimated Greenhouse Specimen'],
+    specs: ['อายุประมาณ 95 ปี', 'รูปแบบทรงต้น: Hoki-dachi (ทรงไม้กวาด)', 'ความสูง 38 นิ้ว / ความกว้างฐานรากเนบาริ 14 นิ้ว', 'ผ่านการเพาะเลี้ยงปรับสภาพในเรือนกระจกมาตรฐานสูง'],
     seller: {
       nickname: 'BonsaiKyotoGarden',
       name: 'Kyoto Imperial Botanical Heritage',
@@ -289,29 +299,29 @@ const DEFAULT_AUCTION_ITEMS = [
       avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=120&q=80'
     },
     bidHistory: [
-      { user: 'KyotoGardener', amount: 96000, time: '2 hours ago' },
-      { user: 'BonsaiCollector_CH', amount: 88000, time: '6 hours ago' },
-      { user: 'BotanicaLover', amount: 80000, time: '12 hours ago' }
+      { user: 'KyotoGardener', amount: 3300000, time: '2 ชั่วโมงที่แล้ว' },
+      { user: 'BonsaiCollector_CH', amount: 3000000, time: '6 ชั่วโมงที่แล้ว' },
+      { user: 'BotanicaLover', amount: 2700000, time: '12 ชั่วโมงที่แล้ว' }
     ]
   },
   {
     id: 'auc-10',
     rank: 10,
-    title: '1970 Dodge Charger R/T 426 HEMI (B5 Blue Fire Metallic)',
+    title: '1970 Dodge Charger R/T 426 HEMI (สี B5 Blue Fire Metallic)',
     category: 'cars',
-    categoryLabel: 'Car Models',
+    categoryLabel: 'โมเดลรถยนต์ & ซูเปอร์คาร์',
     image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80'
     ],
-    description: 'Factory original 426 HEMI V8 (425 hp), Torqueflite automatic, pristine B5 Blue Metallic with black vinyl roof. Documented with original broadcast sheet and Galen Govier inspection report.',
-    startPrice: 45000,
-    currentBid: 92000,
-    startDate: '2026-08-27 04:00 PM',
+    description: 'เครื่องยนต์ 426 HEMI V8 (425 แรงม้า) แท้จากโรงงาน เกียร์อัตโนมัติ Torqueflite ตัวถังสีน้ำเงิน B5 Blue Metallic หลังคาไวนิลสีดำ พร้อมแผ่นสูติบัตร Broadcast Sheet ดั้งเดิมและรายงานตรวจสภาพ Galen Govier',
+    startPrice: 1500000,
+    currentBid: 3200000,
+    startDate: '27 ส.ค. 2026, 16:00',
     endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 5 * 3600 * 1000).toISOString(),
     bidsCount: 31,
-    specs: ['Original 426ci Street HEMI V8', 'Dual 4-Barrel Carter Carburetors', 'B5 Blue Fire Metallic Paint', 'Galen Govier Authenticated 1 of 112'],
+    specs: ['เครื่องยนต์ 426ci Street HEMI V8 ดั้งเดิม', 'คาร์บูเรเตอร์ Carter 4 บาร์เรลคู่', 'สีพิเศษ B5 Blue Fire Metallic ดั้งเดิม', 'ใบรับรอง Galen Govier เป็น 1 ใน 112 คันที่ผลิต'],
     seller: {
       nickname: 'DetroitMuscle_Classic',
       name: 'Detroit Auto Heritage Collectibles',
@@ -321,9 +331,9 @@ const DEFAULT_AUCTION_ITEMS = [
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
     },
     bidHistory: [
-      { user: 'MoparMuscleClub', amount: 92000, time: '15 mins ago' },
-      { user: 'DetroitIron', amount: 86000, time: '3 hours ago' },
-      { user: 'HighwayLegend', amount: 79000, time: '7 hours ago' }
+      { user: 'MoparMuscleClub', amount: 3200000, time: '15 นาทีที่แล้ว' },
+      { user: 'DetroitIron', amount: 3000000, time: '3 ชั่วโมงที่แล้ว' },
+      { user: 'HighwayLegend', amount: 2700000, time: '7 ชั่วโมงที่แล้ว' }
     ]
   }
 ];
@@ -376,59 +386,59 @@ function loadOrders() {
     itemId: 'auc-02',
     title: '1st Edition Shadowless Charizard #4/102 (PSA 10 Gem Mint)',
     category: 'cards',
-    categoryLabel: 'Collectible Cards',
+    categoryLabel: 'การ์ดสะสมหายาก',
     image: 'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=1200&q=80'
     ],
-    userBid: 360000,
-    currentBid: 360000,
-    startPrice: 90000,
-    bidIncrement: 5000,
+    userBid: 12500000,
+    currentBid: 12500000,
+    startPrice: 3100000,
+    bidIncrement: 50000,
     status: 'WON', // ENUM: 'WINNING' | 'OUTBID' | 'WON' | 'ENDED'
-    statusLabel: 'Auction Won (Pending Delivery)',
-    placedAt: 'Sep 7, 2026, 14:15',
-    updatedAt: 'Sep 8, 2026, 16:30',
+    statusLabel: 'ชนะการประมูลแล้ว (รอประสานงานจัดส่ง)',
+    placedAt: '7 ก.ย. 2026, 14:15',
+    updatedAt: '8 ก.ย. 2026, 16:30',
     seller: {
       nickname: 'KyotoVault_Cards',
       name: 'Kyoto Rare Collectibles Japan',
-      rating: '5.0 ★ (94 reviews)',
+      rating: '5.0 ★ (94 รีวิว)',
       verified: true,
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80'
     },
-    specs: ['Graded: PSA 10 Gem Mint', 'Cert ID: #4829104', 'Shadowless Holographic', 'Museum Grade UV Acrylic Casing'],
-    description: 'Holy Grail of collectible trading cards. 1999 Base Set 1st Edition Shadowless Charizard graded PSA 10 Gem Mint. Flawless centering, razor sharp corners, and crystal surface.',
+    specs: ['ระดับการประเมิน: PSA 10 Gem Mint', 'รหัสใบรับรอง: #4829104', 'การ์ดโฮโลแกรม Shadowless ไร้เงา', 'เคสอะคริลิกกันรังสี UV เกรดพิพิธภัณฑ์'],
+    description: 'จอกศักดิ์สิทธิ์แห่งวงการการ์ดสะสม โปเกมอนการ์ดปี 1999 Base Set รุ่น Shadowless ลิซาร์ดอน เกรดสูงสุด PSA 10 ไร้ตำหนิ ศูนย์กลางคมชัด ขอบและพื้นผิวระดับสมบูรณ์แบบ',
     endDate: new Date(Date.now() - 3600000).toISOString()
   };
 
   const seedWonOrder3 = {
     orderId: 'ORD-AUC-03',
     itemId: 'auc-03',
-    title: 'Patek Philippe Grandmaster Chime 6300G-001 White Gold',
+    title: 'Patek Philippe Grandmaster Chime 6300G-001 ทองคำขาว',
     category: 'tech',
-    categoryLabel: 'Luxury Timepieces',
+    categoryLabel: 'นาฬิกาหรูระดับมาสเตอร์พีซ',
     image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80',
     images: [
       'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80'
     ],
-    userBid: 4200000,
-    currentBid: 4200000,
-    startPrice: 2800000,
-    bidIncrement: 50000,
+    userBid: 145000000,
+    currentBid: 145000000,
+    startPrice: 98000000,
+    bidIncrement: 1000000,
     status: 'WON', // ENUM: 'WINNING' | 'OUTBID' | 'WON' | 'ENDED'
-    statusLabel: 'Auction Won (Pending Delivery)',
-    placedAt: 'Sep 6, 2026, 10:20',
-    updatedAt: 'Sep 8, 2026, 11:45',
+    statusLabel: 'ชนะการประมูลแล้ว (รอประสานงานจัดส่ง)',
+    placedAt: '6 ก.ย. 2026, 10:20',
+    updatedAt: '8 ก.ย. 2026, 11:45',
     seller: {
       nickname: 'GenevaVault_CH',
       name: 'Geneva Horology Antiquities SA',
-      rating: '5.0 ★ (62 reviews)',
+      rating: '5.0 ★ (62 รีวิว)',
       verified: true,
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80'
     },
-    specs: ['Reversible Case in 18K White Gold', '20 Complications with 5 Chime Modes', 'Patek Philippe Certificate of Origin', 'White-Glove Armored Escort Included'],
-    description: 'The most complicated Patek Philippe wristwatch ever made in regular production. Double-faced reversible case with guilloched hobnail pattern.',
+    specs: ['ตัวเรือนพลิกสลับได้ 2 ด้าน ทำจากไวท์โกลด์ 18K', 'กลไกซับซ้อน 20 ฟังก์ชัน พร้อมโหมดตีระฆัง 5 รูปแบบ', 'ใบรับรองแหล่งกำเนิดแท้จาก Patek Philippe', 'บริการคุ้มกันส่งมอบระดับพรีเมียมพร้อมรถหุ้มเกราะ'],
+    description: 'นาฬิกาข้อมือที่มีกลไกซับซ้อนที่สุดเท่าที่ Patek Philippe เคยผลิตในสายการผลิตปกติ ตัวเรือนสองหน้าหมุนพลิกได้พร้อมลวดลายกิโยเช่ Hobnail อันวิจิตร',
     endDate: new Date(Date.now() - 7200000).toISOString()
   };
 
@@ -463,30 +473,30 @@ function loadOrders() {
       itemId: 'auc-01',
       title: '1967 Shelby GT500 Fastback "Eleanor Edition"',
       category: 'cars',
-      categoryLabel: 'Car Models',
+      categoryLabel: 'โมเดลรถยนต์ & ซูเปอร์คาร์',
       image: 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80',
       images: [
         'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80',
         'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80',
         'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80'
       ],
-      userBid: 485000,
-      currentBid: 485000,
-      startPrice: 150000,
-      bidIncrement: 1000,
+      userBid: 16800000,
+      currentBid: 16800000,
+      startPrice: 5200000,
+      bidIncrement: 50000,
       status: 'WINNING', // ENUM: 'WINNING' | 'OUTBID' | 'WON' | 'ENDED'
-      statusLabel: 'Active Winning (Highest Bidder)',
-      placedAt: 'Sep 8, 2026, 17:30',
-      updatedAt: 'Sep 8, 2026, 18:45',
+      statusLabel: 'กำลังนำการประมูล (ราคาสูงสุด)',
+      placedAt: '8 ก.ย. 2026, 17:30',
+      updatedAt: '8 ก.ย. 2026, 18:45',
       seller: {
         nickname: 'ApexMotors_NY',
         name: 'Apex Classic Motoring LLC',
-        rating: '4.9 ★ (128 reviews)',
+        rating: '4.9 ★ (128 รีวิว)',
         verified: true,
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
       },
-      specs: ['428ci Cobra Jet V8 Engine', '4-Speed Toploader Manual', 'Pepper Gray with Black Stripes', 'Carroll Shelby Signed Dashboard'],
-      description: 'Fully restored numbers-matching 428 Cobra Jet V8, 4-speed manual transmission, finished in Pepper Gray with black Le Mans stripes. Verified Shelby registry documentation.',
+      specs: ['เครื่องยนต์ 428ci Cobra Jet V8 แท้', 'เกียร์ธรรมดา 4 สปีด Toploader', 'สีพิเศษ Pepper Gray คาดเส้นดำ Le Mans', 'ลายเซ็นแท้ Carroll Shelby บนแผงคอนโซล'],
+      description: 'เครื่องยนต์ 428 Cobra Jet V8 แท้ดั้งเดิม เกียร์ธรรมดา 4 สปีด สี Pepper Gray คาดลาย Le Mans สีดำ บูรณะเต็มระบบพร้อมเอกสารรับรองจาก Shelby Registry',
       endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 4 * 3600 * 1000).toISOString()
     },
     seedWonOrder,
@@ -528,7 +538,7 @@ function isUserHighestBidder(itemId) {
     const topBid = item.bidHistory[0];
     const topUser = (topBid.user || '').toLowerCase();
     const currentUserName = (typeof currentUser !== 'undefined' && currentUser && currentUser.fullName ? currentUser.fullName : 'Alexander Sterling').toLowerCase();
-    if (topUser.includes('(you)') || topUser.includes('alexander') || topUser.includes(currentUserName)) {
+    if (topUser.includes('(you)') || topUser.includes('(คุณ)') || topUser.includes('alexander') || topUser.includes(currentUserName)) {
       return true;
     }
   }
@@ -570,12 +580,12 @@ function loadNotifications() {
       type: 'outbid',
       itemId: 'auc-01',
       orderId: 'ORD-AUC-01',
-      title: "Outbid Alert: You've been outbid!",
-      message: 'Collector_Viper placed a higher bid of $500,000 on "1967 Shelby GT500 Fastback"',
+      title: 'แจ้งเตือน: มีผู้เสนอราคาแซงคุณแล้ว!',
+      message: 'Collector_Viper เสนอราคาสูงกว่าที่ ฿17,500,000 ใน "1967 Shelby GT500 Fastback"',
       itemTitle: '1967 Shelby GT500 Fastback "Eleanor Edition"',
-      newBid: 500000,
+      newBid: 17500000,
       bidder: 'Collector_Viper',
-      time: '12 mins ago',
+      time: '12 นาทีที่แล้ว',
       read: false,
       createdAt: new Date(Date.now() - 12 * 60 * 1000).toISOString()
     }
@@ -605,7 +615,7 @@ function updateNotificationBadge() {
   });
 
   countTags.forEach(ct => {
-    ct.textContent = `${unreadCount} new`;
+    ct.textContent = `${unreadCount} ข้อความใหม่`;
   });
 
   btns.forEach(btn => {
@@ -649,7 +659,7 @@ function renderNotificationsList() {
     listEl.innerHTML = `
       <div class="notification-empty">
         <i class="fa-regular fa-bell-slash"></i>
-        <span>No notifications at the moment</span>
+        <span>ไม่มีการแจ้งเตือนในขณะนี้</span>
       </div>
     `;
     return;
@@ -670,10 +680,10 @@ function renderNotificationsList() {
           <div class="notif-message">${n.message}</div>
           <div class="notif-actions">
             <button type="button" class="btn-notif-raise" onclick="handleNotifRaiseBid('${n.itemId}', '${n.id}', event)">
-              <i class="fa-solid fa-gavel"></i> Raise Bid
+              <i class="fa-solid fa-gavel"></i> เสนอราคาเพิ่ม
             </button>
             <a href="ordersdetail.html?id=${encodeURIComponent(n.itemId)}" class="notif-order-link" onclick="event.stopPropagation()">
-              View Order &rarr;
+              ดูคำสั่งซื้อ &rarr;
             </a>
           </div>
         </div>
@@ -700,7 +710,7 @@ function markAllNotificationsRead(event) {
   saveNotifications(notifications);
   updateNotificationBadge();
   renderNotificationsList();
-  showToast('Marked all notifications as read');
+  showToast('อ่านการแจ้งเตือนทั้งหมดแล้ว');
 }
 
 function handleNotifRaiseBid(itemId, notifId, event) {
@@ -729,7 +739,7 @@ function simulateOutbid(event) {
 
   const outbidders = ['Collector_Viper', 'CyberTitan_99', 'ApexMotors_NY', 'KyotoVault_Trader', 'VintageHunter_SG'];
   const randomOutbidder = outbidders[Math.floor(Math.random() * outbidders.length)];
-  const increment = targetItem.bidIncrement || 5000;
+  const increment = targetItem.bidIncrement || 50000;
   const newBidAmount = targetItem.currentBid + increment;
 
   // Update auction item
@@ -739,7 +749,7 @@ function simulateOutbid(event) {
   targetItem.bidHistory.unshift({
     user: randomOutbidder,
     amount: newBidAmount,
-    time: 'Just now'
+    time: 'เมื่อสักครู่'
   });
 
   // Re-sort items by bid
@@ -751,8 +761,8 @@ function simulateOutbid(event) {
   if (targetOrder) {
     targetOrder.currentBid = newBidAmount;
     targetOrder.status = 'OUTBID';
-    targetOrder.statusLabel = 'Outbid (Action Needed)';
-    targetOrder.updatedAt = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    targetOrder.statusLabel = 'โดนแซงราคาแล้ว (ต้องเสนอราคาเพิ่ม)';
+    targetOrder.updatedAt = new Date().toLocaleString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     const orderIdx = orders.findIndex(o => o.orderId === targetOrder.orderId);
     if (orderIdx >= 0) {
       orders[orderIdx] = targetOrder;
@@ -766,12 +776,12 @@ function simulateOutbid(event) {
     type: 'outbid',
     itemId: targetItem.id,
     orderId: targetOrder ? targetOrder.orderId : 'ORD-' + targetItem.id.toUpperCase(),
-    title: "Outbid Alert: You've been outbid!",
-    message: `${randomOutbidder} placed a higher bid of ${formatCurrency(newBidAmount)} on "${targetItem.title}"!`,
+    title: 'แจ้งเตือน: มีผู้เสนอราคาแซงคุณแล้ว!',
+    message: `${randomOutbidder} เสนอราคาสูงกว่าที่ ${formatCurrency(newBidAmount)} ในรายการ "${targetItem.title}"!`,
     itemTitle: targetItem.title,
     newBid: newBidAmount,
     bidder: randomOutbidder,
-    time: 'Just now',
+    time: 'เมื่อสักครู่',
     read: false,
     createdAt: new Date().toISOString()
   };
@@ -813,10 +823,10 @@ function showOutbidAlertToast(notif) {
       <span style="font-size:0.84rem; color:#cbd5e1; display:block; margin: 2px 0 6px;">${notif.message}</span>
       <div style="display:flex; gap:8px; align-items:center;">
         <button type="button" class="btn-toast-raise" onclick="openBidModal('${notif.itemId}')">
-          <i class="fa-solid fa-gavel"></i> Raise Bid Now
+          <i class="fa-solid fa-gavel"></i> เสนอราคาสู้ทันที
         </button>
         <a href="ordersdetail.html?id=${encodeURIComponent(notif.itemId)}" style="font-size:0.78rem; color:#34d399; text-decoration:none; font-weight:600;">
-          View Order &rarr;
+          ดูคำสั่งซื้อ &rarr;
         </a>
       </div>
     </div>
@@ -845,13 +855,13 @@ function showHighestBidderLockToast(item) {
   toast.innerHTML = `
     <i class="fa-solid fa-lock toast-icon" style="color: #f59e0b; font-size: 1.3rem;"></i>
     <div style="flex: 1;">
-      <strong style="display:block; font-size:0.95rem; color:#fbbf24;">You Hold the Highest Bid! (คุณเป็นผู้นำการประมูล)</strong>
+      <strong style="display:block; font-size:0.95rem; color:#fbbf24;">คุณเป็นผู้นำการประมูล! (ราคาสูงสุดขณะนี้)</strong>
       <span style="font-size:0.84rem; color:#cbd5e1; display:block; margin: 3px 0 6px;">
         ข้อเสนอราคาของคุณอยู่ที่ <strong>${formatCurrency(item.currentBid)}</strong> สูงที่สุดในขณะนี้ คุณไม่สามารถเสนอราคาแข่งกับตัวเองได้จนกว่าจะมีผู้ประมูลอื่นเสนอราคาสูงกว่า
       </span>
       <div style="display:flex; gap:8px; align-items:center;">
         <a href="ordersdetail.html?id=${encodeURIComponent(item.id)}" style="font-size:0.8rem; color:#34d399; text-decoration:none; font-weight:700; display:inline-flex; align-items:center; gap:4px;">
-          <i class="fa-solid fa-receipt"></i> ดูสถานะคำสั่งซื้อ (View Order) &rarr;
+          <i class="fa-solid fa-receipt"></i> ดูสถานะคำสั่งซื้อ &rarr;
         </a>
       </div>
     </div>
@@ -868,11 +878,11 @@ function showHighestBidderLockToast(item) {
 
 function getCategoryLabel(category) {
   switch (category) {
-    case 'cars': return 'Car Models';
-    case 'cards': return 'Collectible Cards';
-    case 'tech': return 'Tech & Computing';
-    case 'trees': return 'Rare Trees & Flora';
-    default: return 'Special Collectible';
+    case 'cars': return 'โมเดลรถยนต์ & ซูเปอร์คาร์';
+    case 'cards': return 'การ์ดสะสมหายาก';
+    case 'tech': return 'เทคโนโลยี & ซูเปอร์คอมพิวเตอร์';
+    case 'trees': return 'บอนไซ & ไม้ด่างหายาก';
+    default: return 'ของสะสมพิเศษ';
   }
 }
 
@@ -885,9 +895,9 @@ let selectedItemForDetail = null;
 
 // Helpers
 function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('th-TH', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'THB',
     maximumFractionDigits: 0
   }).format(amount);
 }
@@ -922,7 +932,7 @@ function renderCards() {
   });
 
   if (itemsCountEl) {
-    itemsCountEl.textContent = `Showing ${filtered.length} of ${AUCTION_ITEMS.length} featured items`;
+    itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${AUCTION_ITEMS.length} รายการยอดนิยม`;
   }
 
   if (filtered.length === 0) {
@@ -940,12 +950,12 @@ function renderCards() {
     const timeDisplay = isInactive
       ? 'แบบร่าง (ยังไม่เปิด)'
       : (time.expired 
-        ? 'Auction Closed' 
-        : `${time.days}d ${time.hours}h ${time.minutes}m ${time.seconds}s left`);
+        ? 'สิ้นสุดการประมูลแล้ว' 
+        : `${time.days} วัน ${time.hours} ชม. ${time.minutes} นาที ${time.seconds} วิ`);
 
     const rankClass = item.rank === 1 ? 'top-1' : item.rank === 2 ? 'top-2' : item.rank === 3 ? 'top-3' : '';
     const draftTag = isInactive
-      ? `<span class="category-tag" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4);"><i class="fa-solid fa-pause"></i> Draft</span>`
+      ? `<span class="category-tag" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4);"><i class="fa-solid fa-pause"></i> แบบร่าง</span>`
       : '';
 
     let bidButtonHtml;
@@ -959,9 +969,9 @@ function renderCards() {
           <div class="bid-active-group">
             <button class="btn btn-bid-active btn-won" onclick="navigateToOrderChat('${item.id}')" title="คุณชนะการประมูลรายการนี้แล้ว! คลิกเพื่อเปิดห้องแชต P2P กับผู้ขาย">
               <i class="fa-solid fa-trophy"></i>
-              <span class="bid-active-text">Won: ${formatCurrency(userOrder.userBid)} <small>(P2P Chat)</small></span>
+              <span class="bid-active-text">ชนะแล้ว: ${formatCurrency(userOrder.userBid)} <small>(แชต P2P)</small></span>
             </button>
-            <button class="btn btn-raise-bid btn-p2p-open" onclick="navigateToOrderChat('${item.id}')" title="เปิดห้องสนทนากับผู้ขาย [@${userOrder.seller ? userOrder.seller.nickname : 'Seller'}]">
+            <button class="btn btn-raise-bid btn-p2p-open" onclick="navigateToOrderChat('${item.id}')" title="เปิดห้องสนทนากับผู้ขาย [@${userOrder.seller ? userOrder.seller.nickname : 'ผู้ขาย'}]">
               <i class="fa-solid fa-comments"></i>
             </button>
           </div>
@@ -971,7 +981,7 @@ function renderCards() {
           <div class="bid-active-group">
             <button class="btn btn-bid-active btn-winning" onclick="navigateToOrder('${item.id}')" title="คุณเป็นผู้ให้ราคาสูงสุด (${formatCurrency(userOrder.userBid)}) - คลิกดูคำสั่งซื้อ">
               <i class="fa-solid fa-crown"></i>
-              <span class="bid-active-text">Winning: ${formatCurrency(userOrder.userBid)} <small>(Highest Bidder)</small></span>
+              <span class="bid-active-text">กำลังนำ: ${formatCurrency(userOrder.userBid)} <small>(ราคาสูงสุด)</small></span>
             </button>
             <button class="btn btn-raise-bid btn-bid-locked" disabled title="คุณเป็นผู้ให้ราคาสูงสุดแล้ว (${formatCurrency(item.currentBid)}) - ไม่สามารถเปิดเสนอราคาซ้ำจนกว่าจะมีผู้ประมูลอื่นเสนอราคาแข่ง">
               <i class="fa-solid fa-lock"></i>
@@ -983,7 +993,7 @@ function renderCards() {
           <div class="bid-active-group">
             <button class="btn btn-bid-active btn-outbid" onclick="navigateToOrder('${item.id}')" title="คุณถูกเสนอราคาแซงแล้ว! คลิกดูหน้ารายละเอียดคำสั่งซื้อ">
               <i class="fa-solid fa-triangle-exclamation"></i>
-              <span class="bid-active-text">Outbid: ${formatCurrency(userOrder.userBid)} <small>(Raise Now)</small></span>
+              <span class="bid-active-text">โดนแซง: ${formatCurrency(userOrder.userBid)} <small>(เคาะสู้เลย)</small></span>
             </button>
             <button class="btn btn-raise-bid btn-outbid-unlocked" onclick="openBidModal('${item.id}')" title="ปลดล็อกแล้ว! เสนอราคาเพิ่มเพื่อชิงตำแหน่งผู้นำ">
               <i class="fa-solid fa-arrow-trend-up"></i>
@@ -992,7 +1002,7 @@ function renderCards() {
         `;
       }
     } else {
-      bidButtonHtml = `<button class="btn btn-bid" onclick="openBidModal('${item.id}')"><i class="fa-solid fa-gavel"></i> Open Auction Bid</button>`;
+      bidButtonHtml = `<button class="btn btn-bid" onclick="openBidModal('${item.id}')"><i class="fa-solid fa-gavel"></i> เปิดเสนอราคาประมูล</button>`;
     }
 
     return `
@@ -1003,7 +1013,7 @@ function renderCards() {
           
           <div class="card-overlay-top">
             <span class="rank-badge ${rankClass}">
-              <i class="fa-solid fa-trophy"></i> #${item.rank} Highest Bid
+              <i class="fa-solid fa-trophy"></i> #${item.rank} ข้อเสนอสูงสุด
             </span>
             <div style="display:flex; gap:6px; align-items:center;">
               ${draftTag}
@@ -1026,13 +1036,13 @@ function renderCards() {
           <div class="price-container">
             <div class="price-col price-col-start">
               <span class="price-label">
-                <i class="fa-solid fa-flag"></i> Start Price
+                <i class="fa-solid fa-flag"></i> ราคาเริ่มต้น
               </span>
               <span class="start-price">${formatCurrency(item.startPrice)}</span>
             </div>
             <div class="price-col price-col-current">
               <span class="price-label">
-                <i class="fa-solid fa-gavel"></i> Current Bid (${item.bidsCount} bids)
+                <i class="fa-solid fa-gavel"></i> ราคาเสนอสูงสุด (${item.bidsCount} เสนอ)
               </span>
               <span class="current-bid">${formatCurrency(item.currentBid)}</span>
             </div>
@@ -1041,20 +1051,20 @@ function renderCards() {
           <!-- Auction Start & End Dates -->
           <div class="auction-dates">
             <div class="date-row date-row-start">
-              <span class="label"><i class="fa-regular fa-calendar-check"></i> Start Date</span>
+              <span class="label"><i class="fa-regular fa-calendar-check"></i> วันเริ่มต้น</span>
               <span class="value">${item.startDate}</span>
             </div>
             <div class="date-row date-row-end">
-              <span class="label"><i class="fa-regular fa-calendar-xmark"></i> End Date</span>
-              <span class="value">${new Date(item.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+              <span class="label"><i class="fa-regular fa-calendar-xmark"></i> วันสิ้นสุด</span>
+              <span class="value">${new Date(item.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           </div>
 
           <!-- Action Buttons -->
           <div class="card-actions">
             ${bidButtonHtml}
-            <button class="btn btn-view" onclick="openDetailModal('${item.id}')" title="View Details">
-              <i class="fa-regular fa-eye"></i> View
+            <button class="btn btn-view" onclick="openDetailModal('${item.id}')" title="ดูรายละเอียด">
+              <i class="fa-regular fa-eye"></i> ดูรายละเอียด
             </button>
           </div>
         </div>
@@ -1073,10 +1083,10 @@ function updateCountdowns() {
     const textEl = badge.querySelector('.timer-text');
     if (textEl) {
       if (time.expired) {
-        textEl.textContent = 'Auction Closed';
+        textEl.textContent = 'สิ้นสุดการประมูลแล้ว';
         badge.style.color = '#ef4444';
       } else {
-        textEl.textContent = `${time.days}d ${time.hours}h ${time.minutes}m ${time.seconds}s left`;
+        textEl.textContent = `${time.days} วัน ${time.hours} ชม. ${time.minutes} นาที ${time.seconds} วิ`;
       }
     }
   });
@@ -1086,10 +1096,10 @@ function updateCountdowns() {
   if (orderTimerText && currentSelectedOrder && currentSelectedOrder.endDate) {
     const time = getTimeRemaining(currentSelectedOrder.endDate);
     if (time.expired) {
-      orderTimerText.textContent = 'Auction Closed';
+      orderTimerText.textContent = 'สิ้นสุดการประมูลแล้ว';
       orderTimerText.style.color = '#ef4444';
     } else {
-      orderTimerText.textContent = `${time.days}d ${time.hours}h ${time.minutes}m ${time.seconds}s left`;
+      orderTimerText.textContent = `${time.days} วัน ${time.hours} ชม. ${time.minutes} นาที ${time.seconds} วิ`;
     }
   }
 }
@@ -1113,7 +1123,7 @@ function setupCategoryFilters() {
       
       if (activeHint) {
         const labelText = btn.textContent.trim().replace(/[0-9]+$/, '').trim();
-        activeHint.textContent = currentCategory === 'all' ? 'All Auctions' : labelText;
+        activeHint.textContent = currentCategory === 'all' ? 'การประมูลทั้งหมด' : labelText;
       }
 
       renderCards();
@@ -1197,7 +1207,7 @@ function openBidModal(itemId) {
   if (submitBtn) {
     submitBtn.disabled = false;
     submitBtn.className = 'btn btn-bid';
-    submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Confirm & Submit Bid';
+    submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> ยืนยันการเสนอราคาประมูล';
   }
 
   if (previewImg) previewImg.src = item.image;
@@ -1205,7 +1215,7 @@ function openBidModal(itemId) {
   if (previewCategory) previewCategory.textContent = item.categoryLabel;
   if (currentBidEl) currentBidEl.textContent = formatCurrency(item.currentBid);
 
-  const step = item.bidIncrement || 1000;
+  const step = item.bidIncrement || 50000;
   const minNext = item.currentBid + step;
   if (minNextBidEl) minNextBidEl.textContent = formatCurrency(minNext);
   if (bidInput) {
@@ -1253,7 +1263,7 @@ function submitBid() {
   const newAmount = parseInt(bidInput.value, 10);
 
   if (isNaN(newAmount) || newAmount <= selectedItemForBid.currentBid) {
-    alert(`Your bid must be higher than current bid of ${formatCurrency(selectedItemForBid.currentBid)}!`);
+    alert(`ราคาเสนอของคุณต้องสูงกว่าราคาปัจจุบัน ${formatCurrency(selectedItemForBid.currentBid)}!`);
     return;
   }
 
@@ -1262,9 +1272,9 @@ function submitBid() {
   selectedItemForBid.bidsCount = (selectedItemForBid.bidsCount || 0) + 1;
   if (!selectedItemForBid.bidHistory) selectedItemForBid.bidHistory = [];
   selectedItemForBid.bidHistory.unshift({
-    user: 'Alexander Sterling (You)',
+    user: 'Alexander Sterling (คุณ)',
     amount: newAmount,
-    time: 'Just now'
+    time: 'เมื่อสักครู่'
   });
 
   // Re-sort Top items by currentBid descending and update ranks
@@ -1278,7 +1288,7 @@ function submitBid() {
   // Create or Update Order in localStorage startass_orders
   const orders = loadOrders();
   const existingIndex = orders.findIndex(o => o.itemId === selectedItemForBid.id);
-  const nowFormatted = new Date().toLocaleString('en-US', {
+  const nowFormatted = new Date().toLocaleString('th-TH', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -1298,15 +1308,15 @@ function submitBid() {
     userBid: newAmount,
     currentBid: newAmount,
     startPrice: selectedItemForBid.startPrice,
-    bidIncrement: selectedItemForBid.bidIncrement || 1000,
+    bidIncrement: selectedItemForBid.bidIncrement || 50000,
     status: 'WINNING',
-    statusLabel: 'Active Winning (Highest Bidder)',
+    statusLabel: 'กำลังนำการประมูล (ราคาสูงสุด)',
     placedAt: existingIndex >= 0 ? orders[existingIndex].placedAt : nowFormatted,
     updatedAt: nowFormatted,
     seller: selectedItemForBid.seller || {
       nickname: 'ApexMotors_NY',
       name: 'Apex Classic Motoring LLC',
-      rating: '4.9 ★ (128 reviews)',
+      rating: '4.9 ★ (128 รีวิว)',
       verified: true,
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
     },
@@ -1332,7 +1342,7 @@ function submitBid() {
     renderOrderDetail(orderId);
   }
 
-  showToast(`Bid Placed: ${formatCurrency(newAmount)} on ${selectedItemForBid.title}! Order #${orderId} updated.`);
+  showToast(`เสนอราคาสำเร็จ: ${formatCurrency(newAmount)} สำหรับ ${selectedItemForBid.title}! อัปเดตคำสั่งซื้อ #${orderId} เรียบร้อยแล้ว`);
 }
 
 // Product Detail Modal Logic
@@ -1359,7 +1369,7 @@ function openDetailModal(itemId) {
   if (startPrice) startPrice.textContent = formatCurrency(item.startPrice);
   if (currentBid) currentBid.textContent = formatCurrency(item.currentBid);
   if (startDate) startDate.textContent = item.startDate;
-  if (endDate) endDate.textContent = new Date(item.endDate).toLocaleString();
+  if (endDate) endDate.textContent = new Date(item.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   // Multi-image gallery for detail view
   const detailThumbs = document.getElementById('detailThumbnailsStrip');
@@ -1369,7 +1379,7 @@ function openDetailModal(itemId) {
       detailThumbs.style.display = 'flex';
       detailThumbs.innerHTML = allImages.map((u, i) => `
         <div class="thumb-item ${u === item.image ? 'active' : ''}" onclick="switchDetailImage('${u}', this)" title="ดูรูปที่ ${i + 1}">
-          <img src="${u}" alt="Thumbnail ${i + 1}">
+          <img src="${u}" alt="รูปขนาดย่อ ${i + 1}">
         </div>
       `).join('');
     } else {
@@ -1395,7 +1405,7 @@ function openDetailModal(itemId) {
       detailBidBtn.disabled = false;
       detailBidBtn.className = 'btn btn-bid btn-won-cta';
       detailBidBtn.title = 'คุณชนะการประมูลรายการนี้! คลิกเพื่อเปิดห้องแชต P2P กับผู้ขาย';
-      detailBidBtn.innerHTML = '<i class="fa-solid fa-comments"></i> Open P2P Chat with Seller';
+      detailBidBtn.innerHTML = '<i class="fa-solid fa-comments"></i> เปิดแชต P2P กับผู้ขาย';
       detailBidBtn.onclick = () => {
         closeDetailModal();
         navigateToOrderChat(item.id);
@@ -1410,13 +1420,13 @@ function openDetailModal(itemId) {
       detailBidBtn.disabled = true;
       detailBidBtn.className = 'btn btn-bid btn-bid-locked';
       detailBidBtn.title = `คุณเป็นผู้ให้ราคาสูงสุดแล้ว (${formatCurrency(item.currentBid)}) - ไม่สามารถเปิดบิดซ้ำจนกว่าจะมีผู้ประมูลอื่นเสนอราคา`;
-      detailBidBtn.innerHTML = '<i class="fa-solid fa-lock"></i> You Hold Highest Bid';
+      detailBidBtn.innerHTML = '<i class="fa-solid fa-lock"></i> คุณเป็นผู้ให้ราคาสูงสุดแล้ว';
       detailBidBtn.onclick = switchFromDetailToBid;
     } else {
       detailBidBtn.disabled = false;
       detailBidBtn.className = 'btn btn-bid';
       detailBidBtn.title = 'เสนอราคาประมูลสินค้าชิ้นนี้';
-      detailBidBtn.innerHTML = '<i class="fa-solid fa-gavel"></i> Place Bid Now';
+      detailBidBtn.innerHTML = '<i class="fa-solid fa-gavel"></i> เสนอราคาประมูลตอนนี้';
       detailBidBtn.onclick = switchFromDetailToBid;
     }
   }
@@ -1456,9 +1466,6 @@ function switchFromDetailToBid() {
 }
 
 // ==========================================================================
-// CREATE AUCTION MODAL & LISTING ENGINE
-// ==========================================================================
-// ==========================================================================
 // CREATE AUCTION MODAL & LISTING ENGINE (MULTI-IMAGE BROWSE & PREVIEW)
 // ==========================================================================
 let uploadedImagesList = [];
@@ -1487,7 +1494,8 @@ function openCreateModal() {
 
 function closeCreateModal() {
   const modal = document.getElementById('createModal');
-  if (modal) modal.classList.remove('open');
+  if (!modal) return;
+  modal.classList.remove('open');
   clearSelectedImage();
 }
 
@@ -1578,7 +1586,7 @@ function renderImagePreviews() {
     thumbnailsStrip.style.display = 'flex';
     thumbnailsStrip.innerHTML = uploadedImagesList.map((url, idx) => `
       <div class="thumb-item ${idx === activePreviewIndex ? 'active' : ''}" onclick="selectPreviewImage(${idx})" title="คลิกเพื่อดูรูปที่ ${idx + 1}">
-        <img src="${url}" alt="Thumbnail ${idx + 1}">
+        <img src="${url}" alt="รูปขนาดย่อ ${idx + 1}">
         <button type="button" class="btn-thumb-remove" onclick="removeImageAtIndex(event, ${idx})" title="ลบรูปนี้">&times;</button>
       </div>
     `).join('');
@@ -1680,7 +1688,7 @@ function handleCreateAuction(event) {
   const allImages = uploadedImagesList.length > 0 ? [...uploadedImagesList] : [primaryImage];
 
   const startPrice = parseFloat(priceInput ? priceInput.value : 0) || 0;
-  const bidIncrement = parseInt(incrementInput ? incrementInput.value : 1000, 10) || 1000;
+  const bidIncrement = parseInt(incrementInput ? incrementInput.value : 50000, 10) || 50000;
   const isActive = activeInput ? activeInput.checked : true;
   const startDateVal = startInput && startInput.value ? startInput.value : new Date().toISOString();
   const endDateVal = endInput && endInput.value ? endInput.value : new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString();
@@ -1693,7 +1701,7 @@ function handleCreateAuction(event) {
   }
 
   if (startPrice <= 0) {
-    alert('ราคาเริ่มต้นการประมูลต้องมากกว่า $0!');
+    alert('ราคาเริ่มต้นการประมูลต้องมากกว่า ฿0!');
     return;
   }
 
@@ -1710,13 +1718,13 @@ function handleCreateAuction(event) {
     currentBid: startPrice,
     bidIncrement: bidIncrement,
     isActive: isActive,
-    startDate: new Date(startDateVal).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    startDate: new Date(startDateVal).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
     endDate: new Date(endDateVal).toISOString(),
     bidsCount: 0,
     specs: specs,
     seller: {
       nickname: (currentUser && currentUser.isLoggedIn) ? 'Alexander_Sterling' : 'Collector_Seller',
-      name: (currentUser && currentUser.isLoggedIn) ? currentUser.fullName : 'Verified Collector',
+      name: (currentUser && currentUser.isLoggedIn) ? currentUser.fullName : 'ผู้สะสมยืนยันตัวตนแล้ว',
       rating: '5.0 ★',
       reviewsCount: 1,
       verified: true,
@@ -1755,9 +1763,9 @@ function updateStatsRibbon() {
   if (AUCTION_ITEMS.length > 0) {
     const highestBid = Math.max(...AUCTION_ITEMS.map(i => i.currentBid));
     if (statHighestBid) statHighestBid.textContent = formatCurrency(highestBid);
-    if (statTotalItems) statTotalItems.textContent = `${AUCTION_ITEMS.length} Items`;
+    if (statTotalItems) statTotalItems.textContent = `${AUCTION_ITEMS.length} รายการ`;
     const totalBids = AUCTION_ITEMS.reduce((sum, i) => sum + (i.bidsCount || 0), 0);
-    if (statTotalBids) statTotalBids.textContent = `${totalBids} Total Bids`;
+    if (statTotalBids) statTotalBids.textContent = `${totalBids} การเสนอราคา`;
   }
 }
 
@@ -1776,7 +1784,7 @@ function showToast(message) {
   toast.innerHTML = `
     <i class="fa-solid fa-circle-check toast-icon"></i>
     <div>
-      <strong style="display:block; font-size:0.95rem;">Success!</strong>
+      <strong style="display:block; font-size:0.95rem;">สำเร็จ!</strong>
       <span style="font-size:0.85rem; color:#cbd5e1;">${message}</span>
     </div>
   `;
@@ -1795,7 +1803,7 @@ function showToast(message) {
 // ==========================================================================
 let currentUser = {
   fullName: 'Alexander Sterling',
-  role: 'Verified Collector',
+  role: 'ผู้สะสมระดับพรีเมียม (ยืนยันตัวตนแล้ว)',
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
   isLoggedIn: true
 };
@@ -1873,10 +1881,10 @@ function getStatusClass(status) {
 
 function getStatusLabel(status) {
   switch ((status || '').toUpperCase()) {
-    case 'WINNING': return 'Active Winning (Highest Bidder)';
-    case 'OUTBID': return 'Outbid (Action Needed)';
-    case 'WON': return 'Auction Won (Pending Checkout)';
-    default: return 'Auction Closed';
+    case 'WINNING': return 'กำลังนำการประมูล (ราคาสูงสุด)';
+    case 'OUTBID': return 'โดนแซงราคา (ต้องเสนอเพิ่ม)';
+    case 'WON': return 'ชนะการประมูลแล้ว (รอชำระเงิน/จัดส่ง)';
+    default: return 'สิ้นสุดการประมูลแล้ว';
   }
 }
 
@@ -1901,34 +1909,34 @@ const DEFAULT_P2P_CHATS = {
     itemId: 'auc-02',
     title: '1st Edition Shadowless Charizard #4/102 (PSA 10 Gem Mint)',
     category: 'cards',
-    categoryLabel: 'Collectible Cards',
+    categoryLabel: 'การ์ดสะสมหายาก',
     image: 'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80',
-    winningBid: 360000,
-    latestBid: 360000,
+    winningBid: 12500000,
+    latestBid: 12500000,
     status: 'WON',
     seller: {
       nickname: 'KyotoVault_Cards',
       name: 'Kyoto Rare Collectibles Japan',
-      rating: '5.0 ★ (94 reviews)',
+      rating: '5.0 ★ (94 รีวิว)',
       verified: true,
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-      onlineStatus: 'Active now'
+      onlineStatus: 'ออนไลน์ขณะนี้'
     },
     unreadCount: 1,
-    lastMessageSnippet: 'We are preparing the UV-acrylic display case and botanical export clearance. Could you please verify...',
-    lastMessageDate: 'Sep 8, 2026',
-    lastMessageTime: '02:20 PM',
-    lastMessageFull: 'Sep 8, 2026 • 02:20 PM',
+    lastMessageSnippet: 'เรากำลังจัดเตรียมเคสอะคริลิกกันรังสี UV และเอกสารอนุญาตส่งออก รบกวนคุณ Alexander ยืนยันที่อยู่จัดส่ง...',
+    lastMessageDate: '8 ก.ย. 2026',
+    lastMessageTime: '14:20',
+    lastMessageFull: '8 ก.ย. 2026 • 14:20',
     lastMessageIsRead: false,
     messages: [
       {
         id: 'msg-sys-1',
         sender: 'system',
         isOwner: false,
-        text: '🏆 Congratulations Alexander! You won this auction. Direct P2P communication with [@KyotoVault_Cards] is now unlocked under STARTASS Escrow Vault protection.',
-        date: 'Sep 8, 2026',
-        time: '02:15 PM',
-        fullTimestamp: 'Sep 8, 2026, 02:15 PM',
+        text: '🏆 ขอแสดงความยินดีกับคุณ Alexander! คุณชนะการประมูลรายการนี้แล้ว ช่องทางสนทนาส่วนตัว P2P กับ [@KyotoVault_Cards] ปลดล็อกแล้วภายใต้การคุ้มครองของ STARTASS Escrow Vault',
+        date: '8 ก.ย. 2026',
+        time: '14:15',
+        fullTimestamp: '8 ก.ย. 2026, 14:15',
         isRead: true
       },
       {
@@ -1943,14 +1951,14 @@ const DEFAULT_P2P_CHATS = {
           title: '1st Edition Shadowless Charizard #4/102 (PSA 10 Gem Mint)',
           image: 'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80',
           category: 'cards',
-          categoryLabel: 'Collectible Cards',
-          latestBid: 360000,
-          bidStatus: 'Winning Bid (ผู้ชนะการประมูล)'
+          categoryLabel: 'การ์ดสะสมหายาก',
+          latestBid: 12500000,
+          bidStatus: 'ราคาชนะการประมูล (ผู้ชนะการประมูล)'
         },
-        text: 'Konnichiwa Alexander! Congratulations on winning the Shadowless Charizard PSA 10 Gem Mint. The card is currently safely stored in our museum-grade climate vault in Kyoto.',
-        date: 'Sep 8, 2026',
-        time: '02:18 PM',
-        fullTimestamp: 'Sep 8, 2026, 02:18 PM',
+        text: 'สวัสดีครับคุณ Alexander! ขอแสดงความยินดีด้วยที่คุณชนะการประมูล Shadowless Charizard PSA 10 Gem Mint ขณะนี้การ์ดถูกเก็บรักษาอย่างปลอดภัยในห้องนิรภัยควบคุมอุณหภูมิระดับพิพิธภัณฑ์ของเราที่เกียวโต',
+        date: '8 ก.ย. 2026',
+        time: '14:18',
+        fullTimestamp: '8 ก.ย. 2026, 14:18',
         isRead: true
       },
       {
@@ -1965,14 +1973,14 @@ const DEFAULT_P2P_CHATS = {
           title: '1st Edition Shadowless Charizard #4/102 (PSA 10 Gem Mint)',
           image: 'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80',
           category: 'cards',
-          categoryLabel: 'Collectible Cards',
-          latestBid: 360000,
-          bidStatus: 'Winning Bid (ผู้ชนะการประมูล)'
+          categoryLabel: 'การ์ดสะสมหายาก',
+          latestBid: 12500000,
+          bidStatus: 'ราคาชนะการประมูล (ผู้ชนะการประมูล)'
         },
-        text: 'We are preparing the UV-acrylic display case and botanical export clearance. Could you please verify your preferred delivery address and DHL Express Insured destination?',
-        date: 'Sep 8, 2026',
-        time: '02:20 PM',
-        fullTimestamp: 'Sep 8, 2026, 02:20 PM',
+        text: 'เรากำลังจัดเตรียมเคสอะคริลิกกันรังสี UV และเอกสารอนุญาตส่งออก รบกวนคุณ Alexander ยืนยันที่อยู่จัดส่งและปลายทางรับมอบสำหรับบริการขนส่งด่วน DHL Express พร้อมประกันภัยด้วยครับ',
+        date: '8 ก.ย. 2026',
+        time: '14:20',
+        fullTimestamp: '8 ก.ย. 2026, 14:20',
         isRead: false
       }
     ]
@@ -1980,36 +1988,36 @@ const DEFAULT_P2P_CHATS = {
   'ORD-AUC-03': {
     orderId: 'ORD-AUC-03',
     itemId: 'auc-03',
-    title: 'Patek Philippe Grandmaster Chime 6300G-001 White Gold',
+    title: 'Patek Philippe Grandmaster Chime 6300G-001 ทองคำขาว',
     category: 'tech',
-    categoryLabel: 'Luxury Timepieces',
+    categoryLabel: 'นาฬิกาหรูระดับมาสเตอร์พีซ',
     image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80',
-    winningBid: 4200000,
-    latestBid: 4200000,
+    winningBid: 145000000,
+    latestBid: 145000000,
     status: 'WON',
     seller: {
       nickname: 'GenevaVault_CH',
       name: 'Geneva Horology Antiquities SA',
-      rating: '5.0 ★ (62 reviews)',
+      rating: '5.0 ★ (62 รีวิว)',
       verified: true,
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
-      onlineStatus: 'Active 15m ago'
+      onlineStatus: 'ออนไลน์เมื่อ 15 นาทีที่แล้ว'
     },
     unreadCount: 0,
-    lastMessageSnippet: 'The armored transit has been scheduled with Brinks Global for tomorrow morning.',
-    lastMessageDate: 'Sep 8, 2026',
-    lastMessageTime: '11:45 AM',
-    lastMessageFull: 'Sep 8, 2026 • 11:45 AM',
+    lastMessageSnippet: 'รถขนส่งนิรภัยหุ้มเกราะ Brinks Global มีกำหนดการเข้ารับสินค้าเพื่อเริ่มส่งมอบในวันพรุ่งนี้ช่วงเช้าครับ',
+    lastMessageDate: '8 ก.ย. 2026',
+    lastMessageTime: '11:45',
+    lastMessageFull: '8 ก.ย. 2026 • 11:45',
     lastMessageIsRead: true,
     messages: [
       {
         id: 'msg-sys-3',
         sender: 'system',
         isOwner: false,
-        text: '🏆 Congratulations Alexander! You won the Patek Philippe Grandmaster Chime. Escrow vault hold confirmed for $4,200,000.',
-        date: 'Sep 8, 2026',
-        time: '11:30 AM',
-        fullTimestamp: 'Sep 8, 2026, 11:30 AM',
+        text: '🏆 ขอแสดงความยินดีกับคุณ Alexander! คุณชนะการประมูล Patek Philippe Grandmaster Chime ได้รับการยืนยันยอด Escrow Vault เรียบร้อยแล้วที่ ฿145,000,000',
+        date: '8 ก.ย. 2026',
+        time: '11:30',
+        fullTimestamp: '8 ก.ย. 2026, 11:30',
         isRead: true
       },
       {
@@ -2021,17 +2029,17 @@ const DEFAULT_P2P_CHATS = {
         product: {
           id: 'auc-03',
           orderId: 'ORD-AUC-03',
-          title: 'Patek Philippe Grandmaster Chime 6300G-001 White Gold',
+          title: 'Patek Philippe Grandmaster Chime 6300G-001 ทองคำขาว',
           image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80',
           category: 'tech',
-          categoryLabel: 'Luxury Timepieces',
-          latestBid: 4200000,
-          bidStatus: 'Winning Bid (ผู้ชนะการประมูล)'
+          categoryLabel: 'นาฬิกาหรูระดับมาสเตอร์พีซ',
+          latestBid: 145000000,
+          bidStatus: 'ราคาชนะการประมูล (ผู้ชนะการประมูล)'
         },
-        text: 'Bonjour Alexander! We have sealed the double-faced timepiece in the presentation chest alongside the original Certificate of Origin.',
-        date: 'Sep 8, 2026',
-        time: '11:40 AM',
-        fullTimestamp: 'Sep 8, 2026, 11:40 AM',
+        text: 'สวัสดีครับคุณ Alexander! เราได้บรรจุนาฬิกาตัวเรือนสองหน้าลงในหีบนำเสนอพิเศษพร้อมสูติบัตรและใบรับรองแท้ดั้งเดิมจาก Patek Philippe เรียบร้อยแล้ว',
+        date: '8 ก.ย. 2026',
+        time: '11:40',
+        fullTimestamp: '8 ก.ย. 2026, 11:40',
         isRead: true
       },
       {
@@ -2043,17 +2051,17 @@ const DEFAULT_P2P_CHATS = {
         product: {
           id: 'auc-03',
           orderId: 'ORD-AUC-03',
-          title: 'Patek Philippe Grandmaster Chime 6300G-001 White Gold',
+          title: 'Patek Philippe Grandmaster Chime 6300G-001 ทองคำขาว',
           image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80',
           category: 'tech',
-          categoryLabel: 'Luxury Timepieces',
-          latestBid: 4200000,
-          bidStatus: 'Winning Bid (ผู้ชนะการประมูล)'
+          categoryLabel: 'นาฬิกาหรูระดับมาสเตอร์พีซ',
+          latestBid: 145000000,
+          bidStatus: 'ราคาชนะการประมูล (ผู้ชนะการประมูล)'
         },
-        text: 'The armored transit has been scheduled with Brinks Global for tomorrow morning.',
-        date: 'Sep 8, 2026',
-        time: '11:45 AM',
-        fullTimestamp: 'Sep 8, 2026, 11:45 AM',
+        text: 'รถขนส่งนิรภัยหุ้มเกราะ Brinks Global มีกำหนดการเข้ารับสินค้าเพื่อเริ่มส่งมอบในวันพรุ่งนี้ช่วงเช้าครับ',
+        date: '8 ก.ย. 2026',
+        time: '11:45',
+        fullTimestamp: '8 ก.ย. 2026, 11:45',
         isRead: true
       }
     ]
@@ -2063,24 +2071,24 @@ const DEFAULT_P2P_CHATS = {
     itemId: 'auc-01',
     title: '1967 Shelby GT500 Fastback "Eleanor Edition"',
     category: 'cars',
-    categoryLabel: 'Car Models',
+    categoryLabel: 'โมเดลรถยนต์ & ซูเปอร์คาร์',
     image: 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80',
-    winningBid: 485000,
-    latestBid: 485000,
+    winningBid: 16800000,
+    latestBid: 16800000,
     status: 'WINNING',
     seller: {
       nickname: 'ApexMotors_NY',
       name: 'Apex Classic Motoring LLC',
-      rating: '4.9 ★ (128 reviews)',
+      rating: '4.9 ★ (128 รีวิว)',
       verified: true,
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-      onlineStatus: 'Active now'
+      onlineStatus: 'ออนไลน์ขณะนี้'
     },
     unreadCount: 0,
-    lastMessageSnippet: 'We have verified your latest bid of $485,000. Carroll Shelby registry documentation is staged.',
-    lastMessageDate: 'Sep 8, 2026',
-    lastMessageTime: '09:15 AM',
-    lastMessageFull: 'Sep 8, 2026 • 09:15 AM',
+    lastMessageSnippet: 'เราได้ตรวจสอบราคาเสนอสูงสุดของคุณที่ ฿16,800,000 แล้ว เอกสารรับรองจาก Shelby Registry พร้อมส่งมอบแล้วครับ',
+    lastMessageDate: '8 ก.ย. 2026',
+    lastMessageTime: '09:15',
+    lastMessageFull: '8 ก.ย. 2026 • 09:15',
     lastMessageIsRead: true,
     messages: [
       {
@@ -2095,14 +2103,14 @@ const DEFAULT_P2P_CHATS = {
           title: '1967 Shelby GT500 Fastback "Eleanor Edition"',
           image: 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80',
           category: 'cars',
-          categoryLabel: 'Car Models',
-          latestBid: 485000,
-          bidStatus: 'Highest Current Bid (ราคาสูงสุดขณะนี้)'
+          categoryLabel: 'โมเดลรถยนต์ & ซูเปอร์คาร์',
+          latestBid: 16800000,
+          bidStatus: 'ราคาเสนอสูงสุดขณะนี้'
         },
-        text: 'Hello Alexander! We have verified your latest bid of $485,000 on the Eleanor GT500. Carroll Shelby registry documentation is staged.',
-        date: 'Sep 8, 2026',
-        time: '09:15 AM',
-        fullTimestamp: 'Sep 8, 2026, 09:15 AM',
+        text: 'สวัสดีครับคุณ Alexander! เราได้ตรวจสอบราคาเสนอสูงสุดของคุณที่ ฿16,800,000 ในรายการ Eleanor GT500 เรียบร้อยแล้ว เอกสารรับรองจาก Carroll Shelby Registry ได้รับการจัดเตรียมไว้พร้อมแล้วครับ',
+        date: '8 ก.ย. 2026',
+        time: '09:15',
+        fullTimestamp: '8 ก.ย. 2026, 09:15',
         isRead: true
       }
     ]
@@ -2156,13 +2164,13 @@ function initP2PChatForOrder(order) {
     const seller = order.seller || {
       nickname: 'ApexMotors_NY',
       name: 'Apex Classic Motoring LLC',
-      rating: '4.9 ★ (128 reviews)',
+      rating: '4.9 ★ (128 รีวิว)',
       verified: true,
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-      onlineStatus: 'Active now'
+      onlineStatus: 'ออนไลน์ขณะนี้'
     };
-    const todayDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    const nowTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const todayDate = new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' });
+    const nowTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
     const fullTs = `${todayDate}, ${nowTime}`;
 
     chats[order.orderId] = {
@@ -2170,14 +2178,14 @@ function initP2PChatForOrder(order) {
       itemId: order.itemId,
       title: order.title,
       category: order.category || 'collectibles',
-      categoryLabel: order.categoryLabel || 'Exclusive Items',
+      categoryLabel: order.categoryLabel || 'ของสะสมพิเศษ',
       image: order.image,
       winningBid: order.userBid,
       latestBid: order.currentBid || order.userBid,
       status: order.status || 'WON',
       seller: seller,
       unreadCount: 1,
-      lastMessageSnippet: `Hello Alexander! Congratulations on winning "${order.title}".`,
+      lastMessageSnippet: `สวัสดีครับคุณ Alexander! ขอแสดงความยินดีที่คุณชนะการประมูล "${order.title}"`,
       lastMessageDate: todayDate,
       lastMessageTime: nowTime,
       lastMessageFull: `${todayDate} • ${nowTime}`,
@@ -2187,7 +2195,7 @@ function initP2PChatForOrder(order) {
           id: 'msg-sys-' + Date.now(),
           sender: 'system',
           isOwner: false,
-          text: `🏆 Congratulations Alexander! You won this auction for "${order.title}". Direct P2P Seller Chat is now unlocked under STARTASS Escrow Vault protection.`,
+          text: `🏆 ขอแสดงความยินดีกับคุณ Alexander! คุณชนะการประมูลรายการ "${order.title}" แล้ว ช่องทางสนทนาส่วนตัว P2P กับผู้ขายปลดล็อกแล้วภายใต้การคุ้มครองของ STARTASS Escrow Vault`,
           date: todayDate,
           time: nowTime,
           fullTimestamp: fullTs,
@@ -2205,11 +2213,11 @@ function initP2PChatForOrder(order) {
             title: order.title,
             image: order.image,
             category: order.category || 'collectibles',
-            categoryLabel: order.categoryLabel || 'Exclusive Items',
+            categoryLabel: order.categoryLabel || 'ของสะสมพิเศษ',
             latestBid: order.userBid,
-            bidStatus: 'Winning Bid (ผู้ชนะการประมูล)'
+            bidStatus: 'ราคาชนะการประมูล (ผู้ชนะการประมูล)'
           },
-          text: `Hello Alexander! Congratulations on winning "${order.title}". We have verified your winning bid of ${formatCurrency(order.userBid)}. Please share your delivery instructions and preferred schedule.`,
+          text: `สวัสดีครับคุณ Alexander! ขอแสดงความยินดีที่คุณชนะการประมูล "${order.title}" เราได้ตรวจสอบยอดชนะประมูลของคุณที่ ${formatCurrency(order.userBid)} เรียบร้อยแล้ว รบกวนแจ้งคำแนะนำการจัดส่งและวันเวลาที่สะดวกรับมอบสินค้าด้วยครับ`,
           date: todayDate,
           time: nowTime,
           fullTimestamp: fullTs,
@@ -2249,13 +2257,13 @@ function showP2PLockNotice(sellerNickname) {
   toast.innerHTML = `
     <i class="fa-solid fa-lock toast-icon" style="color: #f59e0b; font-size: 1.3rem;"></i>
     <div style="flex: 1;">
-      <strong style="display:block; font-size:0.95rem; color:#fbbf24;">P2P Seller Chat Rights Locked</strong>
+      <strong style="display:block; font-size:0.95rem; color:#fbbf24;">สิทธิ์การสนทนา P2P ยังไม่เปิดใช้งาน</strong>
       <span style="font-size:0.84rem; color:#cbd5e1; display:block; margin: 3px 0 6px;">
-        สิทธิ์การสนทนา P2P โดยตรงกับผู้ขาย [@${sellerNickname || 'Seller'}] จะปลดล็อกเฉพาะผู้ที่ชนะการประมูล (Auction Won) เท่านั้นเพื่อความปลอดภัย
+        สิทธิ์การสนทนา P2P โดยตรงกับผู้ขาย [@${sellerNickname || 'ผู้ขาย'}] จะปลดล็อกเฉพาะผู้ที่ชนะการประมูล (Auction Won) เท่านั้นเพื่อความปลอดภัย
       </span>
       <div style="display:flex; gap:8px; align-items:center;">
         <button type="button" class="btn-toast-raise" onclick="simulateAuctionWon(null, event)">
-          <i class="fa-solid fa-trophy"></i> ⚡ Simulate Won เพื่อทดสอบ P2P Chat
+          <i class="fa-solid fa-trophy"></i> ⚡ จำลองการชนะประมูลเพื่อทดสอบ P2P Chat
         </button>
       </div>
     </div>
@@ -2292,7 +2300,7 @@ function handleSendP2PMessage(event, orderId) {
   const chat = chats[orderId] || initP2PChatForOrder(currentSelectedOrder);
   if (!chat) return;
 
-  const nowStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
   const newMsg = {
     id: 'msg-u-' + Date.now(),
     sender: 'user',
@@ -2300,7 +2308,7 @@ function handleSendP2PMessage(event, orderId) {
     time: nowStr
   };
   chat.messages.push(newMsg);
-  chat.lastMessageTime = 'Just now';
+  chat.lastMessageTime = 'เมื่อสักครู่';
   saveP2PChats(chats);
 
   input.value = '';
@@ -2314,12 +2322,12 @@ function handleSendP2PMessage(event, orderId) {
     const currentChat = updatedChats[orderId];
     if (!currentChat) return;
 
-    const sellerName = currentChat.seller ? currentChat.seller.nickname : 'Seller';
+    const sellerName = currentChat.seller ? currentChat.seller.nickname : 'ผู้ขาย';
     const autoReplies = [
-      `Thank you for confirming, Alexander! Our dispatch team is preparing the paperwork for "${currentChat.title}". We will update the white-glove transport tracking number within the hour.`,
-      `Received! We have recorded this in your Escrow security file for order #${orderId}. All certificates of authenticity and documentation are packed in tamper-proof casings.`,
-      `Understood, Alexander. The insured transport courier has confirmed the delivery slot. We will dispatch the live GPS telemetry tracking link shortly.`,
-      `Got it! Thank you for the quick communication. We are in direct coordination with STARTASS Escrow to confirm authorization.`
+      `ขอบคุณสำหรับการยืนยันครับคุณ Alexander! ทีมงานฝ่ายจัดส่งของเรากำลังเตรียมเอกสารสำหรับ "${currentChat.title}" เราจะแจ้งหมายเลขติดตามรถขนส่ง White-Glove ภายใน 1 ชั่วโมงนี้ครับ`,
+      `รับทราบเรียบร้อยครับ! เราได้บันทึกข้อมูลนี้ลงในแฟ้มความปลอดภัย Escrow สำหรับคำสั่งซื้อ #${orderId} แล้ว ใบรับรองและเอกสารทั้งหมดถูกบรรจุในซีลกันการปลอมแปลงเรียบร้อยครับ`,
+      `เข้าใจแล้วครับคุณ Alexander ทางบริษัทขนส่งนิรภัยพร้อมประกันภัยเต็มวงเงินได้ยืนยันรอบเวลาการจัดส่งแล้ว เราจะส่งลิงก์ติดตามตำแหน่ง GPS แบบเรียลไทม์ให้ในห้องแชตนี้เร็วๆ นี้ครับ`,
+      `รับทราบครับ! ขอบคุณสำหรับการประสานงานที่รวดเร็ว เรากำลังประสานงานโดยตรงกับฝ่าย Escrow ของ STARTASS เพื่อยืนยันการส่งมอบครับ`
     ];
     const replyText = autoReplies[Math.floor(Math.random() * autoReplies.length)];
 
@@ -2327,15 +2335,15 @@ function handleSendP2PMessage(event, orderId) {
       id: 'msg-s-' + Date.now(),
       sender: 'seller',
       text: replyText,
-      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
     });
-    currentChat.lastMessageTime = 'Just now';
+    currentChat.lastMessageTime = 'เมื่อสักครู่';
     saveP2PChats(updatedChats);
 
     renderP2PActiveChatMessages(orderId);
     renderP2PConversationsList();
     scrollP2PChatToBottom();
-    showToast(`New message from [@${sellerName}]: "${replyText.slice(0, 48)}..."`);
+    showToast(`ข้อความใหม่จาก [@${sellerName}]: "${replyText.slice(0, 48)}..."`);
   }, 1500);
 }
 
@@ -2379,7 +2387,7 @@ function renderP2PActiveChatMessages(orderId) {
     const avatar = isUser
       ? (currentUser && currentUser.avatar ? currentUser.avatar : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80')
       : (selectedChat.seller ? selectedChat.seller.avatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80');
-    const senderName = isUser ? 'Alexander Sterling (You)' : `[ @${selectedChat.seller ? selectedChat.seller.nickname : 'Seller'} ]`;
+    const senderName = isUser ? 'Alexander Sterling (คุณ)' : `[ @${selectedChat.seller ? selectedChat.seller.nickname : 'ผู้ขาย'} ]`;
 
     return `
       <div class="p2p-msg-row ${isUser ? 'msg-user' : 'msg-seller'}">
@@ -2412,9 +2420,9 @@ function renderP2PConversationsList() {
     const isSel = o.orderId === selectedP2PChatOrderId;
     const lastMsg = chatData.messages && chatData.messages.length > 0
       ? chatData.messages[chatData.messages.length - 1].text
-      : 'Ready for conversation...';
-    const lastTime = chatData.lastMessageTime || 'Just now';
-    const seller = o.seller || { nickname: 'Seller', avatar: '' };
+      : 'พร้อมเริ่มการสนทนา...';
+    const lastTime = chatData.lastMessageTime || 'เมื่อสักครู่';
+    const seller = o.seller || { nickname: 'ผู้ขาย', avatar: '' };
 
     return `
       <div class="p2p-conv-item ${isSel ? 'active' : ''}" onclick="selectP2PChat('${o.orderId}')" title="${o.title}">
@@ -2457,8 +2465,8 @@ function simulateAuctionWon(orderId, event) {
   }
 
   targetOrder.status = 'WON';
-  targetOrder.statusLabel = 'Auction Won (Pending Delivery)';
-  targetOrder.updatedAt = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  targetOrder.statusLabel = 'ชนะการประมูลแล้ว (รอประสานงานจัดส่ง)';
+  targetOrder.updatedAt = new Date().toLocaleString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   // Update auction item endDate to past to mark as closed
   const targetItem = AUCTION_ITEMS.find(i => i.id === targetOrder.itemId);
@@ -2479,10 +2487,10 @@ function simulateAuctionWon(orderId, event) {
     type: 'won',
     itemId: targetOrder.itemId,
     orderId: targetOrder.orderId,
-    title: '🏆 You Won the Auction!',
-    message: `Congratulations! You won "${targetOrder.title}" for ${formatCurrency(targetOrder.userBid)}. P2P Seller Chat is now unlocked!`,
+    title: '🏆 คุณชนะการประมูลแล้ว!',
+    message: `ยินดีด้วย! คุณชนะการประมูล "${targetOrder.title}" ในราคา ${formatCurrency(targetOrder.userBid)} ห้องสนทนาส่วนตัว P2P กับผู้ขายปลดล็อกแล้ว!`,
     itemTitle: targetOrder.title,
-    time: 'Just now',
+    time: 'เมื่อสักครู่',
     read: false,
     createdAt: new Date().toISOString()
   };
@@ -2491,7 +2499,7 @@ function simulateAuctionWon(orderId, event) {
 
   updateNotificationBadge();
   renderNotificationsList();
-  showToast(`🎉 Congratulations! You won auction #${targetOrder.orderId}! P2P Direct Chat with [@${targetOrder.seller ? targetOrder.seller.nickname : 'Seller'}] is now unlocked!`);
+  showToast(`🎉 ขอแสดงความยินดี! คุณชนะการประมูลคำสั่งซื้อ #${targetOrder.orderId}! ห้องแชต P2P โดยตรงกับ [@${targetOrder.seller ? targetOrder.seller.nickname : 'ผู้ขาย'}] ปลดล็อกแล้ว!`);
 
   // Switch to chat tab or select standalone chat
   if (document.getElementById('standaloneChatContainer')) {
@@ -2531,43 +2539,43 @@ function renderP2PSection(orderId) {
             <i class="fa-solid fa-lock"></i>
           </div>
           <div class="p2p-locked-titles">
-            <h3>P2P Seller Chat Rights Locked (สิทธิ์การสนทนา P2P ยังไม่เปิด)</h3>
+            <h3>สิทธิ์การสนทนา P2P ยังไม่เปิดใช้งาน</h3>
             <p>
-              ห้องสนทนาส่วนตัวแบบ P2P ระหว่างผู้ซื้อและผู้ขาย <strong>[@${currentOrder.seller ? currentOrder.seller.nickname : 'Seller'}]</strong> จะเปิดให้ใช้งาน <strong>เฉพาะผู้ชนะการประมูล (Auction Won)</strong> เท่านั้น เพื่อความปลอดภัยของระบบ Escrow และการประสานงานจัดส่งระดับ White-Glove
+              ห้องสนทนาส่วนตัวแบบ P2P ระหว่างผู้ซื้อและผู้ขาย <strong>[@${currentOrder.seller ? currentOrder.seller.nickname : 'ผู้ขาย'}]</strong> จะเปิดให้ใช้งาน <strong>เฉพาะผู้ชนะการประมูล</strong> เท่านั้น เพื่อความปลอดภัยของระบบ Escrow และการประสานงานจัดส่งระดับพรีเมียม White-Glove
             </p>
           </div>
         </div>
 
         <div class="p2p-locked-status-box">
           <div class="status-item">
-            <span class="label">Current Auction Order:</span>
+            <span class="label">คำสั่งซื้อการประมูล:</span>
             <span class="val">#${currentOrder.orderId} (${currentOrder.title})</span>
           </div>
           <div class="status-item">
-            <span class="label">Your Auction Status:</span>
+            <span class="label">สถานะการประมูลของคุณ:</span>
             <span class="val status-pill status-${currentOrder.status.toLowerCase()}">${currentOrder.statusLabel || currentOrder.status}</span>
           </div>
           <div class="status-item">
-            <span class="label">P2P Channel Access:</span>
-            <span class="val" style="color:#ef4444;"><i class="fa-solid fa-ban"></i> Restricted until Auction Won</span>
+            <span class="label">สิทธิ์การเข้าถึงห้องแชต P2P:</span>
+            <span class="val" style="color:#ef4444;"><i class="fa-solid fa-ban"></i> จำกัดสิทธิ์จนกว่าจะชนะการประมูล</span>
           </div>
         </div>
 
         <div class="p2p-locked-actions">
           <button type="button" class="btn btn-simulate-won-cta" onclick="simulateAuctionWon('${currentOrder.orderId}')">
             <i class="fa-solid fa-trophy"></i>
-            <span>⚡ Simulate Auction Won (จำลองการชนะประมูลเพื่อปลดล็อก P2P ทันที)</span>
+            <span>⚡ จำลองการชนะประมูลเพื่อปลดล็อก P2P ทันที</span>
           </button>
         </div>
 
         ${wonOrders.length > 0 ? `
           <div class="p2p-other-won-notice">
-            <span><i class="fa-solid fa-circle-check" style="color:#10b981;"></i> คุณมีคำสั่งซื้ออื่นที่ชนะการประมูลแล้วและมีสิทธิ์สนทนา P2P:</span>
+            <span><i class="fa-solid fa-circle-check" style="color:#10b981;"></i> คุณมีคำสั่งซื้ออื่นที่ชนะการประมูลแล้วและสามารถสนทนา P2P ได้:</span>
             <div class="p2p-won-chips">
               ${wonOrders.map(wo => `
                 <button type="button" class="btn-p2p-chip" onclick="openSellerP2PChat('${wo.orderId}')">
                   <img src="${wo.image}" alt="${wo.title}">
-                  <span>#${wo.orderId} - @${wo.seller ? wo.seller.nickname : 'Seller'}</span>
+                  <span>#${wo.orderId} - @${wo.seller ? wo.seller.nickname : 'ผู้ขาย'}</span>
                   <i class="fa-solid fa-arrow-right"></i>
                 </button>
               `).join('')}
@@ -2587,9 +2595,9 @@ function renderP2PSection(orderId) {
     const isSel = o.orderId === selectedChat.orderId;
     const lastMsg = chatData.messages && chatData.messages.length > 0
       ? chatData.messages[chatData.messages.length - 1].text
-      : 'Ready for conversation...';
-    const lastTime = chatData.lastMessageTime || 'Just now';
-    const seller = o.seller || { nickname: 'Seller', avatar: '' };
+      : 'พร้อมสำหรับการสนทนา...';
+    const lastTime = chatData.lastMessageTime || 'เมื่อสักครู่';
+    const seller = o.seller || { nickname: 'ผู้ขาย', avatar: '' };
 
     return `
       <div class="p2p-conv-item ${isSel ? 'active' : ''}" onclick="selectP2PChat('${o.orderId}')" title="${o.title}">
@@ -2628,7 +2636,7 @@ function renderP2PSection(orderId) {
     const avatar = isUser
       ? (currentUser && currentUser.avatar ? currentUser.avatar : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80')
       : (selectedChat.seller ? selectedChat.seller.avatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80');
-    const senderName = isUser ? 'Alexander Sterling (You)' : `[ @${selectedChat.seller ? selectedChat.seller.nickname : 'Seller'} ]`;
+    const senderName = isUser ? 'Alexander Sterling (คุณ)' : `[ @${selectedChat.seller ? selectedChat.seller.nickname : 'ผู้ขาย'} ]`;
 
     return `
       <div class="p2p-msg-row ${isUser ? 'msg-user' : 'msg-seller'}">
@@ -2655,14 +2663,14 @@ function renderP2PSection(orderId) {
         <div class="p2p-conv-header">
           <div class="p2p-conv-heading">
             <i class="fa-solid fa-comments"></i>
-            <span>Conversations</span>
+            <span>รายการสนทนา</span>
           </div>
-          <span class="p2p-won-badge"><i class="fa-solid fa-trophy"></i> ${wonOrders.length} Won Deals</span>
+          <span class="p2p-won-badge"><i class="fa-solid fa-trophy"></i> ${wonOrders.length} ดีลที่ชนะ</span>
         </div>
 
         <div class="p2p-conv-search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="p2pSearchInput" placeholder="Search seller or item..." oninput="filterP2PConversations(this.value)">
+          <input type="text" id="p2pSearchInput" placeholder="ค้นหาผู้ขายหรือสินค้า..." oninput="filterP2PConversations(this.value)">
         </div>
 
         <div class="p2p-conversations-list" id="p2pConversationsList">
@@ -2677,25 +2685,25 @@ function renderP2PSection(orderId) {
         <header class="p2p-chat-header">
           <div class="p2p-chat-seller-info">
             <div class="p2p-header-avatar-box">
-              <img src="${selectedChat.seller ? selectedChat.seller.avatar : ''}" alt="Seller Avatar" class="p2p-header-avatar">
+              <img src="${selectedChat.seller ? selectedChat.seller.avatar : ''}" alt="รูปโปรไฟล์ผู้ขาย" class="p2p-header-avatar">
               <span class="p2p-online-indicator"></span>
             </div>
             <div>
               <div class="p2p-header-nickname">
-                <span>[ @${selectedChat.seller ? selectedChat.seller.nickname : 'Seller'} ]</span>
-                <span class="seller-verified-mini"><i class="fa-solid fa-shield-check"></i> Verified</span>
+                <span>[ @${selectedChat.seller ? selectedChat.seller.nickname : 'ผู้ขาย'} ]</span>
+                <span class="seller-verified-mini"><i class="fa-solid fa-shield-check"></i> ยืนยันตัวตนแล้ว</span>
               </div>
               <div class="p2p-header-subtext">
-                <span>${selectedChat.seller ? selectedChat.seller.name : 'Verified Seller'}</span>
+                <span>${selectedChat.seller ? selectedChat.seller.name : 'ผู้ขายที่ยืนยันแล้ว'}</span>
                 <span>•</span>
-                <span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Active now</span>
+                <span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> ใช้งานอยู่</span>
               </div>
             </div>
           </div>
 
           <div class="p2p-chat-header-actions">
             <span class="p2p-escrow-pill">
-              <i class="fa-solid fa-lock"></i> Escrow Deal Protected
+              <i class="fa-solid fa-lock"></i> คุ้มครองด้วยระบบ Escrow
             </span>
           </div>
         </header>
@@ -2704,9 +2712,9 @@ function renderP2PSection(orderId) {
         <div class="p2p-deal-product-strip">
           <img src="${selectedChat.image}" alt="${selectedChat.title}" class="p2p-strip-thumb">
           <div class="p2p-strip-meta">
-            <span class="p2p-strip-won-tag"><i class="fa-solid fa-trophy"></i> Won Auction</span>
+            <span class="p2p-strip-won-tag"><i class="fa-solid fa-trophy"></i> ชนะการประมูล</span>
             <strong class="p2p-strip-title">${selectedChat.title}</strong>
-            <span class="p2p-strip-price">Winning Bid: <strong>${formatCurrency(selectedChat.winningBid)}</strong> (Order #${selectedChat.orderId})</span>
+            <span class="p2p-strip-price">ราคาชนะประมูล: <strong>${formatCurrency(selectedChat.winningBid)}</strong> (คำสั่งซื้อ #${selectedChat.orderId})</span>
           </div>
         </div>
 
@@ -2717,32 +2725,32 @@ function renderP2PSection(orderId) {
 
         <!-- Quick Prompt Chips -->
         <div class="p2p-quick-prompts-bar">
-          <span class="quick-prompts-label"><i class="fa-solid fa-bolt"></i> Quick Actions:</span>
+          <span class="quick-prompts-label"><i class="fa-solid fa-bolt"></i> เมนูลัด:</span>
           <div class="quick-prompts-scroll">
             <button type="button" class="btn-quick-prompt" onclick="handleQuickPrompt('${selectedChat.orderId}', '📍 ยืนยันที่อยู่จัดส่ง: 450 Lexington Ave, New York, NY 10017 พร้อมรับมอบสินค้าครับ')">
-              📍 Confirm Address
+              📍 ยืนยันที่อยู่จัดส่ง
             </button>
             <button type="button" class="btn-quick-prompt" onclick="handleQuickPrompt('${selectedChat.orderId}', '📜 รบกวนส่งเอกสาร Certificate of Authenticity และผลตรวจสอบเบื้องต้นให้ดูทางนี้ด้วยครับ')">
-              📜 Request Certificate
+              📜 ขอใบรับรอง COA
             </button>
             <button type="button" class="btn-quick-prompt" onclick="handleQuickPrompt('${selectedChat.orderId}', '🛡️ เงินมัดจำ Escrow ปลอดภัยเรียบร้อย พร้อมประสานงานปล่อยยอดเมื่อได้รับของครับ')">
-              🛡️ Escrow Verified
+              🛡️ ยืนยันระบบ Escrow
             </button>
             <button type="button" class="btn-quick-prompt" onclick="handleQuickPrompt('${selectedChat.orderId}', '🚚 รบกวนแจ้งเวลาที่รถขนส่ง White-Glove พร้อมเข้ามาส่งมอบด้วยครับ')">
-              🚚 Delivery Schedule
+              🚚 นัดหมายเวลาจัดส่ง
             </button>
           </div>
         </div>
 
         <!-- Message Composer Input Bar -->
         <form class="p2p-chat-input-bar" onsubmit="handleSendP2PMessage(event, '${selectedChat.orderId}')">
-          <button type="button" class="btn-chat-attach" title="แนบเอกสารหรือรูปภาพ (Attach File)" onclick="showToast('ระบบแนบไฟล์สำหรับส่งหลักฐาน Escrow พร้อมใช้งาน')">
+          <button type="button" class="btn-chat-attach" title="แนบเอกสารหรือรูปภาพ" onclick="showToast('ระบบแนบไฟล์สำหรับส่งหลักฐาน Escrow พร้อมใช้งาน')">
             <i class="fa-solid fa-paperclip"></i>
           </button>
-          <input type="text" id="p2pMessageInput" class="p2p-message-input" placeholder="Type message to [ @${selectedChat.seller ? selectedChat.seller.nickname : 'Seller'} ]..." autocomplete="off" required>
-          <button type="submit" class="btn-chat-send" title="ส่งข้อความ (Send)">
+          <input type="text" id="p2pMessageInput" class="p2p-message-input" placeholder="พิมพ์ข้อความถึง [ @${selectedChat.seller ? selectedChat.seller.nickname : 'ผู้ขาย'} ]..." autocomplete="off" required>
+          <button type="submit" class="btn-chat-send" title="ส่งข้อความ">
             <i class="fa-solid fa-paper-plane"></i>
-            <span>Send</span>
+            <span>ส่ง</span>
           </button>
         </form>
 
@@ -2807,8 +2815,8 @@ function renderOrderDetail(orderId) {
   const currentBidAmount = liveItem ? liveItem.currentBid : order.currentBid;
   const bidsCount = liveItem ? (liveItem.bidsCount || 42) : 42;
   const bidHistory = (liveItem && liveItem.bidHistory && liveItem.bidHistory.length > 0) ? liveItem.bidHistory : [
-    { user: 'Alexander Sterling (You)', amount: order.userBid, time: 'Just now' },
-    { user: order.seller ? order.seller.nickname : 'ApexMotors_NY', amount: order.startPrice, time: '2 hours ago' }
+    { user: 'Alexander Sterling (คุณ)', amount: order.userBid, time: 'เมื่อสักครู่' },
+    { user: order.seller ? order.seller.nickname : 'ApexMotors_NY', amount: order.startPrice, time: '2 ชั่วโมงที่แล้ว' }
   ];
 
   // Check if auction is won or winning
@@ -2817,22 +2825,22 @@ function renderOrderDetail(orderId) {
   const currentStatus = isWon ? 'WON' : (isWinning ? 'WINNING' : 'OUTBID');
   const statusClass = getStatusClass(currentStatus);
   const statusLabel = isWon
-    ? (order.statusLabel || 'Auction Won (Pending Delivery)')
-    : (isWinning ? 'Active Winning (Highest Bidder)' : 'Outbid (Action Needed)');
+    ? (order.statusLabel || 'ชนะการประมูลแล้ว (รอการจัดส่ง)')
+    : (isWinning ? 'กำลังนำการประมูล (ราคาสูงสุด)' : 'โดนแซงราคาแล้ว (ต้องเสนอราคาเพิ่ม)');
 
   const images = (order.images && order.images.length > 0) ? order.images : [order.image];
   const seller = order.seller || {
     nickname: 'ApexMotors_NY',
     name: 'Apex Classic Motoring LLC',
-    rating: '4.9 ★ (128 reviews)',
+    rating: '4.9 ★ (รีวิว 128 รายการ)',
     verified: true,
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
   };
 
   const time = getTimeRemaining(order.endDate || new Date(Date.now() + 2 * 86400000).toISOString());
   const timerText = isWon
-    ? 'Auction Won'
-    : (time.expired ? 'Auction Closed' : `${time.days}d ${time.hours}h ${time.minutes}m ${time.seconds}s left`);
+    ? 'ชนะการประมูลแล้ว'
+    : (time.expired ? 'ปิดการประมูลแล้ว' : `${time.days} วัน ${time.hours} ชม. ${time.minutes} นาที ${time.seconds} วิ`);
 
   // Order Switcher Chips HTML
   const chipsHtml = orders.map(o => {
@@ -2840,7 +2848,7 @@ function renderOrderDetail(orderId) {
     const isWonItem = o.status === 'WON';
     const oWinning = !isWonItem && isUserHighestBidder(o.itemId);
     const badgeClass = isWonItem ? 'status-won' : (oWinning ? 'status-winning' : 'status-outbid');
-    const badgeText = isWonItem ? 'WON' : (oWinning ? 'WINNING' : 'OUTBID');
+    const badgeText = isWonItem ? 'ชนะแล้ว' : (oWinning ? 'กำลังนำ' : 'โดนแซง');
     return `
       <div class="order-chip ${isAct ? 'active' : ''}" onclick="renderOrderDetail('${o.orderId}')" title="${o.title}">
         <img src="${o.image}" alt="${o.title}" class="order-chip-thumb">
@@ -2860,7 +2868,7 @@ function renderOrderDetail(orderId) {
 
   // Timeline entries HTML for History View
   const historyHtml = bidHistory.map((b, idx) => {
-    const isUser = b.user.includes('Alexander') || b.user.includes('You');
+    const isUser = b.user.includes('Alexander') || b.user.includes('You') || b.user.includes('คุณ');
     const isHighest = idx === 0;
     const itemClass = isHighest ? 'highest' : (isUser ? 'user-bid' : '');
     return `
@@ -2871,8 +2879,8 @@ function renderOrderDetail(orderId) {
             <i class="fa-solid fa-circle-user"></i>
             <div>
               <span class="bidder-name-text">${b.user}</span>
-              ${isUser ? '<span class="bidder-tag-user">Your Bid</span>' : ''}
-              ${isHighest ? '<span class="bidder-tag-highest"><i class="fa-solid fa-trophy"></i> Highest</span>' : ''}
+              ${isUser ? '<span class="bidder-tag-user">ราคาเสนอของคุณ</span>' : ''}
+              ${isHighest ? '<span class="bidder-tag-highest"><i class="fa-solid fa-trophy"></i> ราคาสูงสุด</span>' : ''}
             </div>
           </div>
           <div class="timeline-amount-cell">
@@ -2895,18 +2903,18 @@ function renderOrderDetail(orderId) {
   container.innerHTML = `
     <!-- Breadcrumbs -->
     <nav class="order-breadcrumbs" aria-label="Breadcrumb">
-      <a href="HomePage.html"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="HomePage.html"><i class="fa-solid fa-house"></i> หน้าแรก</a>
       <span class="crumb-sep">/</span>
-      <a href="HomePage.html">Auctions</a>
+      <a href="HomePage.html">การประมูล</a>
       <span class="crumb-sep">/</span>
-      <span class="crumb-active">Order Details #${order.orderId}</span>
+      <span class="crumb-active">รายละเอียดคำสั่งซื้อ #${order.orderId}</span>
     </nav>
 
     <!-- Orders Switcher Strip -->
     <div class="order-switcher-container">
       <div class="order-switcher-header">
         <span class="order-switcher-title">
-          <i class="fa-solid fa-layer-group"></i> Your Active Auction Orders (${orders.length})
+          <i class="fa-solid fa-layer-group"></i> รายการคำสั่งซื้อของคุณ (${orders.length})
         </span>
         <small style="color: #64748b;">คลิกเพื่อสลับดูคำสั่งซื้ออื่น</small>
       </div>
@@ -2919,36 +2927,36 @@ function renderOrderDetail(orderId) {
     <section class="order-header-banner">
       <div class="order-header-main">
         <div class="order-meta-row">
-          <span class="order-id-badge">ORDER #${order.orderId}</span>
+          <span class="order-id-badge">คำสั่งซื้อ #${order.orderId}</span>
           <span class="order-status-badge ${statusClass}">
             <span class="status-pulse-dot"></span>
             ${statusLabel}
           </span>
         </div>
         <div class="order-timestamps">
-          <span><i class="fa-regular fa-calendar-check"></i> Placed: <strong>${order.placedAt || 'Sep 8, 2026, 17:30'}</strong></span>
-          <span><i class="fa-regular fa-clock"></i> Updated: <strong>${order.updatedAt || 'Sep 8, 2026, 18:45'}</strong></span>
+          <span><i class="fa-regular fa-calendar-check"></i> เสนอราคาเมื่อ: <strong>${order.placedAt || '8 ก.ย. 2026, 17:30'}</strong></span>
+          <span><i class="fa-regular fa-clock"></i> อัปเดตล่าสุด: <strong>${order.updatedAt || '8 ก.ย. 2026, 18:45'}</strong></span>
         </div>
       </div>
       <div class="order-header-actions">
         <a href="HomePage.html" class="btn btn-view" title="กลับไปหน้าหลัก">
-          <i class="fa-solid fa-arrow-left"></i> All Auctions
+          <i class="fa-solid fa-arrow-left"></i> การประมูลทั้งหมด
         </a>
         ${isWon ? `
           <button type="button" class="btn btn-order-p2p" onclick="openSellerP2PChat('${order.orderId}')" title="เปิดห้องแชตคุยกับผู้ขายโดยตรง">
-            <i class="fa-solid fa-comments"></i> P2P Chat with Seller
+            <i class="fa-solid fa-comments"></i> แชต P2P กับผู้ขาย
           </button>
         ` : `
           <button type="button" class="btn btn-simulate-won-cta-mini" onclick="simulateAuctionWon('${order.orderId}', event)" title="จำลองการชนะประมูลเพื่อปลดล็อกสิทธิ์ P2P Chat">
-            <i class="fa-solid fa-trophy"></i> ⚡ Simulate Won
+            <i class="fa-solid fa-trophy"></i> ⚡ จำลองชนะประมูล
           </button>
           ${isWinning ? `
-            <button type="button" class="btn btn-order-raise btn-bid-locked" disabled title="คุณเป็นผู้ให้ราคาสูงสุดแล้ว (${formatCurrency(order.userBid)}) ไม่สามารถเปิดบิดซ้ำจนกว่าจะมีผู้ประมูลอื่นเสนอราคาแข่ง">
-              <i class="fa-solid fa-lock"></i> Highest Bidder (Locked)
+            <button type="button" class="btn btn-order-raise btn-bid-locked" disabled title="คุณเป็นผู้ให้ราคาสูงสุดแล้ว (${formatCurrency(order.userBid)}) ไม่สามารถเสนอราคาซ้ำจนกว่าจะมีผู้ประมูลอื่นเสนอราคาแข่ง">
+              <i class="fa-solid fa-lock"></i> ผู้นำประมูล (ล็อก)
             </button>
           ` : `
             <button type="button" class="btn btn-order-raise btn-outbid-pulse" onclick="openBidModal('${order.itemId}')" title="คุณถูกเสนอราคาแซงแล้ว! คลิกเพื่อเสนอราคาเพิ่ม">
-              <i class="fa-solid fa-arrow-trend-up"></i> Raise Bid Now
+              <i class="fa-solid fa-arrow-trend-up"></i> เสนอราคาเพิ่มทันที
             </button>
           `}
         `}
@@ -2970,7 +2978,7 @@ function renderOrderDetail(orderId) {
                 <i class="${getCategoryIcon(order.category)}"></i> ${order.categoryLabel}
               </span>
               <span class="order-status-badge ${statusClass}" style="background: rgba(11, 15, 25, 0.75); backdrop-filter: blur(8px);">
-                <span class="status-pulse-dot"></span> ${currentStatus}
+                <span class="status-pulse-dot"></span> ${isWon ? 'ชนะการประมูล' : (isWinning ? 'กำลังนำการประมูล' : 'โดนแซงราคา')}
               </span>
             </div>
           </div>
@@ -2983,10 +2991,10 @@ function renderOrderDetail(orderId) {
         <div class="order-seller-card">
           <div class="seller-header-row">
             <span class="seller-title-label">
-              <i class="fa-solid fa-store"></i> Seller Information (ข้อมูลผู้ขาย)
+              <i class="fa-solid fa-store"></i> ข้อมูลผู้ขาย
             </span>
             <span class="seller-verified-pill">
-              <i class="fa-solid fa-shield-halved"></i> Verified Seller
+              <i class="fa-solid fa-shield-halved"></i> ผู้ขายยืนยันตัวตนแล้ว
             </span>
           </div>
 
@@ -3002,9 +3010,9 @@ function renderOrderDetail(orderId) {
               <div class="seller-stats-strip">
                 <span class="seller-stat-pill"><i class="fa-solid fa-star"></i> ${seller.rating || '4.9 ★'}</span>
                 <span>•</span>
-                <span>${seller.reviewsCount || 128} Verified Sales</span>
+                <span>ขายสำเร็จ ${seller.reviewsCount || 128} รายการ</span>
                 <span>•</span>
-                <span style="color: #34d399;"><i class="fa-solid fa-lock"></i> Escrow Protected</span>
+                <span style="color: #34d399;"><i class="fa-solid fa-lock"></i> คุ้มครองโดย Escrow</span>
               </div>
             </div>
           </div>
@@ -3015,22 +3023,22 @@ function renderOrderDetail(orderId) {
               <div class="p2p-unlocked-notice">
                 <div class="p2p-notice-text">
                   <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
-                  <span><strong>สิทธิ์การสนทนา P2P ปลดล็อกแล้ว:</strong> คุณชนะการประมูลรายการนี้ สามารถติดต่อผู้ขาย [ @${seller.nickname || 'Seller'} ] เพื่อประสานงานจัดส่ง</span>
+                  <span><strong>สิทธิ์การสนทนา P2P ปลดล็อกแล้ว:</strong> คุณชนะการประมูลรายการนี้ สามารถติดต่อผู้ขาย [ @${seller.nickname || 'ผู้ขาย'} ] เพื่อประสานงานจัดส่ง</span>
                 </div>
                 <button type="button" class="btn btn-p2p-direct" onclick="openSellerP2PChat('${order.orderId}')">
                   <i class="fa-solid fa-comments"></i>
-                  <span>💬 Direct P2P Chat with [ @${seller.nickname || 'Seller'} ]</span>
+                  <span>💬 แชต P2P โดยตรงกับ [ @${seller.nickname || 'ผู้ขาย'} ]</span>
                 </button>
               </div>
             ` : `
               <div class="p2p-locked-notice">
                 <div class="p2p-notice-text">
                   <i class="fa-solid fa-lock" style="color: #f59e0b;"></i>
-                  <span><strong>P2P Direct Chat Locked:</strong> สงวนสิทธิ์การแชตกับ [ @${seller.nickname || 'Seller'} ] เฉพาะผู้ชนะประมูลเท่านั้น</span>
+                  <span><strong>ห้องแชต P2P ยังล็อกอยู่:</strong> สงวนสิทธิ์การสนทนากับ [ @${seller.nickname || 'ผู้ขาย'} ] เฉพาะผู้ชนะประมูลเท่านั้น</span>
                 </div>
-                <button type="button" class="btn btn-p2p-locked" onclick="showP2PLockNotice('${seller.nickname || 'Seller'}')">
+                <button type="button" class="btn btn-p2p-locked" onclick="showP2PLockNotice('${seller.nickname || 'ผู้ขาย'}')">
                   <i class="fa-solid fa-lock"></i>
-                  <span>P2P Chat Locked (Requires Auction Win)</span>
+                  <span>แชต P2P ล็อกอยู่ (เฉพาะผู้ชนะการประมูล)</span>
                 </button>
               </div>
             `}
@@ -3050,37 +3058,37 @@ function renderOrderDetail(orderId) {
             <div class="matrix-main-prices">
               <div class="price-box-item">
                 <span class="price-box-label">
-                  <i class="fa-solid fa-trophy"></i> Highest Current Bid
+                  <i class="fa-solid fa-trophy"></i> ราคาเสนอสูงสุดปัจจุบัน
                 </span>
                 <span class="price-box-val-emerald">${formatCurrency(currentBidAmount)}</span>
-                <span style="font-size: 0.8rem; color: #94a3b8;">${bidsCount} total bids placed</span>
+                <span style="font-size: 0.8rem; color: #94a3b8;">เสนอราคาทั้งหมด ${bidsCount} ครั้ง</span>
               </div>
 
               <div class="price-box-item">
                 <span class="price-box-label">
-                  <i class="fa-solid fa-user-tag"></i> Your Placed Bid
+                  <i class="fa-solid fa-user-tag"></i> ราคาที่คุณเสนอ
                 </span>
                 <span class="price-box-val-gold">${formatCurrency(order.userBid)}</span>
                 ${isWon 
-                  ? `<span class="price-user-callout" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.4);"><i class="fa-solid fa-trophy"></i> Won - P2P Rights Unlocked</span>`
+                  ? `<span class="price-user-callout" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.4);"><i class="fa-solid fa-trophy"></i> ชนะการประมูล - ปลดล็อกสิทธิ์ P2P แชต</span>`
                   : (isWinning 
-                    ? `<span class="price-user-callout"><i class="fa-solid fa-crown"></i> You are highest bidder</span>` 
-                    : `<span class="price-user-callout" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5;"><i class="fa-solid fa-triangle-exclamation"></i> Outbid - Raise to win</span>`)}
+                    ? `<span class="price-user-callout"><i class="fa-solid fa-crown"></i> คุณเป็นผู้นำการประมูล</span>` 
+                    : `<span class="price-user-callout" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5;"><i class="fa-solid fa-triangle-exclamation"></i> โดนแซงราคา - เสนอเพิ่มเพื่อชนะ</span>`)}
               </div>
             </div>
 
             <div class="matrix-secondary-row">
               <div class="matrix-sub-item">
-                <span class="label">Start Price</span>
+                <span class="label">ราคาเริ่มต้น</span>
                 <span class="value">${formatCurrency(order.startPrice)}</span>
               </div>
               <div class="matrix-sub-item">
-                <span class="label">Min. Increment</span>
+                <span class="label">ขั้นต่ำการเสนอราคา</span>
                 <span class="value">+${formatCurrency(order.bidIncrement || 1000)}</span>
               </div>
               <div class="matrix-sub-item">
-                <span class="label">Order Status</span>
-                <span class="value" style="color: ${isWon ? '#10b981' : (isWinning ? '#34d399' : '#fb923c')}; font-weight: 700;">${currentStatus}</span>
+                <span class="label">สถานะคำสั่งซื้อ</span>
+                <span class="value" style="color: ${isWon ? '#10b981' : (isWinning ? '#34d399' : '#fb923c')}; font-weight: 700;">${isWon ? 'ชนะการประมูล' : (isWinning ? 'กำลังนำการประมูล' : 'โดนแซงราคา')}</span>
               </div>
             </div>
           </div>
@@ -3090,30 +3098,30 @@ function renderOrderDetail(orderId) {
             <div class="timer-label-box">
               <i class="${isWon ? 'fa-solid fa-trophy' : 'fa-regular fa-clock'}" style="${isWon ? 'color: #f59e0b;' : ''}"></i>
               <div>
-                <strong style="display: block; font-size: 0.88rem; color: #fff;">${isWon ? 'Auction Concluded (การประมูลสิ้นสุดแล้ว)' : 'Time Remaining (เวลาประมูลคงเหลือ)'}</strong>
-                <span style="font-size: 0.78rem; color: #94a3b8;">${isWon ? 'คุณเป็นผู้ชนะการประมูลอันดับ 1' : `สิ้นสุด: ${new Date(order.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}</span>
+                <strong style="display: block; font-size: 0.88rem; color: #fff;">${isWon ? 'การประมูลสิ้นสุดแล้ว' : 'เวลาประมูลคงเหลือ'}</strong>
+                <span style="font-size: 0.78rem; color: #94a3b8;">${isWon ? 'คุณเป็นผู้ชนะการประมูลอันดับ 1' : `สิ้นสุด: ${new Date(order.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}</span>
               </div>
             </div>
-            <span class="timer-countdown-text" style="${isWon ? 'color: #10b981;' : ''}">${isWon ? '<i class="fa-solid fa-circle-check"></i> Won' : timerText}</span>
+            <span class="timer-countdown-text" style="${isWon ? 'color: #10b981;' : ''}">${isWon ? '<i class="fa-solid fa-circle-check"></i> ชนะแล้ว' : timerText}</span>
           </div>
 
           <!-- CTA Buttons & Lock Notice -->
           <div class="order-cta-group">
             ${isWon ? `
               <button type="button" class="btn btn-order-p2p-cta" onclick="openSellerP2PChat('${order.orderId}')">
-                <i class="fa-solid fa-comments"></i> Open P2P Chat with Seller
+                <i class="fa-solid fa-comments"></i> เปิดห้องแชต P2P กับผู้ขาย
               </button>
             ` : (isWinning ? `
-              <button type="button" class="btn btn-order-raise btn-bid-locked" disabled title="คุณเป็นผู้ให้ราคาสูงสุดแล้ว (${formatCurrency(order.userBid)}) ไม่สามารถเปิดบิดซ้ำจนกว่าจะมีผู้ประมูลอื่นเสนอราคาแข่ง">
-                <i class="fa-solid fa-lock"></i> You Hold Highest Bid (รอผู้ประมูลอื่น)
+              <button type="button" class="btn btn-order-raise btn-bid-locked" disabled title="คุณเป็นผู้ให้ราคาสูงสุดแล้ว (${formatCurrency(order.userBid)}) ไม่สามารถเสนอราคาซ้ำจนกว่าจะมีผู้ประมูลอื่นเสนอราคาแข่ง">
+                <i class="fa-solid fa-lock"></i> คุณเป็นผู้นำการประมูล (รอผู้ประมูลอื่น)
               </button>
             ` : `
               <button type="button" class="btn btn-order-raise btn-outbid-pulse" onclick="openBidModal('${order.itemId}')">
-                <i class="fa-solid fa-gavel"></i> Raise Bid (เสนอราคาเพิ่ม)
+                <i class="fa-solid fa-gavel"></i> เสนอราคาเพิ่ม (Raise Bid)
               </button>
             `)}
             <button type="button" class="btn btn-order-secondary" onclick="openDetailModal('${order.itemId}')">
-              <i class="fa-regular fa-file-lines"></i> View Full Specs
+              <i class="fa-regular fa-file-lines"></i> ดูข้อมูลสเปกฉบับเต็ม
             </button>
           </div>
 
@@ -3122,7 +3130,7 @@ function renderOrderDetail(orderId) {
             <div class="order-won-banner">
               <div class="won-banner-icon"><i class="fa-solid fa-trophy"></i></div>
               <div class="won-banner-info">
-                <strong>Auction Won — Escrow & P2P Rights Active!</strong>
+                <strong>ชนะการประมูลแล้ว — เปิดสิทธิ์ Escrow และห้องแชต P2P!</strong>
                 <span>ยินดีด้วย! คุณชนะการประมูลรายการนี้ในราคา <strong>${formatCurrency(order.userBid)}</strong> สิทธิ์การสนทนาส่วนตัว (P2P Chat) กับผู้ขาย [@${seller.nickname}] เปิดใช้งานแล้ว พร้อมระบบ STARTASS Escrow คุ้มครองความปลอดภัย 100%</span>
               </div>
             </div>
@@ -3130,7 +3138,7 @@ function renderOrderDetail(orderId) {
             <div class="order-bid-lock-banner">
               <div class="bid-lock-icon"><i class="fa-solid fa-shield-halved"></i></div>
               <div class="bid-lock-info">
-                <strong>Bidding Locked — You Hold the Highest Bid</strong>
+                <strong>ระบบล็อกการเสนอราคา — คุณเป็นผู้นำการประมูลอยู่แล้ว</strong>
                 <span>คุณได้เสนอราคาสูงสุดไว้ที่ <strong>${formatCurrency(order.userBid)}</strong> ขณะนี้คุณเป็นผู้นำการประมูล ระบบจะล็อกไม่ให้เสนอราคาซ้ำจนกว่าจะมีผู้ประมูลรายอื่นเสนอราคาสูงกว่าคุณ</span>
               </div>
             </div>
@@ -3138,7 +3146,7 @@ function renderOrderDetail(orderId) {
             <div class="order-bid-outbid-banner">
               <div class="bid-outbid-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
               <div class="bid-outbid-info">
-                <strong>Bidding Unlocked — You Have Been Outbid!</strong>
+                <strong>ปลดล็อกการเสนอราคา — คุณถูกเสนอราคาแซงแล้ว!</strong>
                 <span>มีผู้เสนอราคาสูงกว่าคุณที่ <strong>${formatCurrency(currentBidAmount)}</strong> ขณะนี้ระบบปลดล็อกให้คุณสามารถเสนอราคาเพิ่ม (Raise Bid) เพื่อกลับมาเป็นผู้นำได้ทันที!</span>
               </div>
             </div>
@@ -3154,19 +3162,19 @@ function renderOrderDetail(orderId) {
       <div class="order-toggle-tabs" role="tablist">
         <button type="button" class="order-tab-btn ${activeOrderTab === 'current' ? 'active' : ''}" id="tabBtnCurrent" onclick="switchOrderTab('current')">
           <i class="fa-solid fa-chart-pie"></i>
-          <span>Current View (ภาพรวมคำสั่งซื้อปัจจุบัน)</span>
+          <span>ภาพรวมคำสั่งซื้อ</span>
         </button>
         <button type="button" class="order-tab-btn ${activeOrderTab === 'history' ? 'active' : ''}" id="tabBtnHistory" onclick="switchOrderTab('history')">
           <i class="fa-solid fa-clock-rotate-left"></i>
-          <span>History View (ประวัติการเสนอราคาทั้งหมด)</span>
+          <span>ประวัติการเสนอราคา</span>
           <span class="order-tab-badge">${bidHistory.length}</span>
         </button>
         <button type="button" class="order-tab-btn ${activeOrderTab === 'chat' ? 'active' : ''}" id="tabBtnChat" onclick="switchOrderTab('chat')">
           <i class="fa-solid fa-comments"></i>
-          <span>P2P Seller Chat (สนทนากับผู้ขาย)</span>
+          <span>แชต P2P กับผู้ขาย</span>
           ${isWon 
-            ? `<span class="order-tab-badge badge-p2p-unlocked"><i class="fa-solid fa-lock-open"></i> P2P Active</span>` 
-            : `<span class="order-tab-badge badge-p2p-locked"><i class="fa-solid fa-lock"></i> Locked</span>`}
+            ? `<span class="order-tab-badge badge-p2p-unlocked"><i class="fa-solid fa-lock-open"></i> เปิดใช้งาน</span>` 
+            : `<span class="order-tab-badge badge-p2p-locked"><i class="fa-solid fa-lock"></i> ล็อกอยู่</span>`}
         </button>
       </div>
 
@@ -3179,7 +3187,7 @@ function renderOrderDetail(orderId) {
             
             <!-- Specifications & Features -->
             <div class="info-box-card">
-              <h4><i class="fa-solid fa-certificate"></i> Certified Specifications (คุณสมบัติและสเปก)</h4>
+              <h4><i class="fa-solid fa-certificate"></i> คุณสมบัติและสเปกที่ได้รับการรับรอง</h4>
               <ul class="order-spec-list">
                 ${specsHtml}
               </ul>
@@ -3187,7 +3195,7 @@ function renderOrderDetail(orderId) {
 
             <!-- Escrow & Buyer Protection Terms -->
             <div class="info-box-card">
-              <h4><i class="fa-solid fa-shield-check"></i> Escrow & Buyer Guarantee (การคุ้มครองผู้ซื้อ)</h4>
+              <h4><i class="fa-solid fa-shield-check"></i> ระบบ Escrow และการคุ้มครองผู้ซื้อ</h4>
               
               <div class="escrow-feature-item">
                 <div class="escrow-icon"><i class="fa-solid fa-vault"></i></div>
@@ -3200,7 +3208,7 @@ function renderOrderDetail(orderId) {
               <div class="escrow-feature-item">
                 <div class="escrow-icon"><i class="fa-solid fa-truck-fast"></i></div>
                 <div class="escrow-text">
-                  <strong>White-Glove Insured Delivery</strong>
+                  <strong>บริการจัดส่ง White-Glove พร้อมประกันภัย</strong>
                   <span>ขนส่งพร้อมประกันภัยเต็มมูลค่า พร้อมเจ้าหน้าที่ตรวจสอบความถูกต้องก่อนส่งมอบ</span>
                 </div>
               </div>
@@ -3208,7 +3216,7 @@ function renderOrderDetail(orderId) {
               <div class="escrow-feature-item" style="margin-bottom: 0;">
                 <div class="escrow-icon"><i class="fa-solid fa-handshake"></i></div>
                 <div class="escrow-text">
-                  <strong>Seller Authenticity Bond</strong>
+                  <strong>การันตีของแท้ 100% โดยผู้ขาย</strong>
                   <span>ผู้ขาย [@${seller.nickname || 'ApexMotors_NY'}] ผ่านการยืนยันตัวตนและการันตีของแท้ 100%</span>
                 </div>
               </div>
@@ -3223,7 +3231,7 @@ function renderOrderDetail(orderId) {
           <div class="history-timeline-container">
             <div class="history-timeline-header">
               <span class="history-timeline-title">
-                <i class="fa-solid fa-list-ol"></i> Bidding Audit Log (บันทึกไทม์ไลน์การเสนอราคาทั้งหมด)
+                <i class="fa-solid fa-list-ol"></i> บันทึกไทม์ไลน์การเสนอราคา (Bidding Audit Log)
               </span>
               <span style="font-size: 0.84rem; color: #94a3b8;">
                 อัปเดตล่าสุด: ${order.updatedAt || 'เมื่อสักครู่'}
@@ -3376,14 +3384,14 @@ function renderStandaloneChatConversations(filterType = 'all') {
 
   const badgeCount = document.getElementById('chatConvCountBadge');
   if (badgeCount) {
-    badgeCount.textContent = `${chatList.length} Active`;
+    badgeCount.textContent = `${chatList.length} บทสนทนา`;
   }
 
   if (chatList.length === 0) {
     listContainer.innerHTML = `
       <div class="chat-conv-empty">
         <i class="fa-regular fa-comment-dots" style="font-size:2rem; color:#64748b; margin-bottom:8px;"></i>
-        <span style="color:#94a3b8; font-size:0.86rem;">No conversations found in this filter</span>
+        <span style="color:#94a3b8; font-size:0.86rem;">ไม่พบบทสนทนาในตัวกรองนี้</span>
       </div>
     `;
     return;
@@ -3391,11 +3399,11 @@ function renderStandaloneChatConversations(filterType = 'all') {
 
   listContainer.innerHTML = chatList.map(chat => {
     const isAct = chat.orderId === activeStandaloneChatOrderId;
-    const seller = chat.seller || { nickname: 'Seller', avatar: '', name: 'Verified Seller' };
+    const seller = chat.seller || { nickname: 'ผู้ขาย', avatar: '', name: 'ผู้ขายที่ยืนยันแล้ว' };
     const hasUnread = (chat.unreadCount > 0) || (chat.lastMessageIsRead === false);
-    const lastMsgDate = chat.lastMessageDate || 'Today';
-    const lastMsgTime = chat.lastMessageTime || 'Just now';
-    const snippet = chat.lastMessageSnippet || (chat.messages && chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].text : 'Ready for conversation...');
+    const lastMsgDate = chat.lastMessageDate || 'วันนี้';
+    const lastMsgTime = chat.lastMessageTime || 'เมื่อสักครู่';
+    const snippet = chat.lastMessageSnippet || (chat.messages && chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].text : 'พร้อมสำหรับการสนทนา...');
 
     return `
       <div class="chat-conv-item ${isAct ? 'active' : ''} ${hasUnread ? 'unread-item' : ''}" onclick="selectStandaloneChat('${chat.orderId}')" title="${chat.title}">
@@ -3423,13 +3431,13 @@ function renderStandaloneChatConversations(filterType = 'all') {
               ${hasUnread ? `
                 <span class="badge-read-status unread">
                   <span class="unread-pulse-dot"></span>
-                  <span>Unread</span>
+                  <span>ยังไม่อ่าน</span>
                 </span>
                 ${chat.unreadCount > 0 ? `<span class="conv-unread-number-badge">${chat.unreadCount}</span>` : ''}
               ` : `
                 <span class="badge-read-status read">
                   <i class="fa-solid fa-check-double"></i>
-                  <span>Read (อ่านแล้ว)</span>
+                  <span>อ่านแล้ว</span>
                 </span>
               `}
             </div>
@@ -3451,18 +3459,18 @@ function renderStandaloneCurrentChat(orderId) {
   if (!chat) return;
 
   const seller = chat.seller || {
-    nickname: 'Seller',
-    name: 'Verified Seller',
+    nickname: 'ผู้ขาย',
+    name: 'ผู้ขายที่ยืนยันแล้ว',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
     rating: '5.0 ★',
     verified: true,
-    onlineStatus: 'Active now'
+    onlineStatus: 'ใช้งานอยู่'
   };
 
   // 1. Render Header
   headerEl.innerHTML = `
     <div class="chat-header-profile-row">
-      <button type="button" class="btn-chat-mobile-back" onclick="toggleStandaloneMobileSidebar()" title="Back to conversations">
+      <button type="button" class="btn-chat-mobile-back" onclick="toggleStandaloneMobileSidebar()" title="กลับสู่รายการสนทนา">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
 
@@ -3474,15 +3482,15 @@ function renderStandaloneCurrentChat(orderId) {
       <div class="chat-header-user-meta">
         <div class="chat-header-name-row">
           <span class="chat-header-username">[ @${seller.nickname} ]</span>
-          <span class="chat-seller-verified-badge"><i class="fa-solid fa-shield-check"></i> Verified Seller</span>
-          <span class="chat-escrow-badge"><i class="fa-solid fa-lock"></i> Escrow Deal</span>
+          <span class="chat-seller-verified-badge"><i class="fa-solid fa-shield-check"></i> ผู้ขายยืนยันตัวตนแล้ว</span>
+          <span class="chat-escrow-badge"><i class="fa-solid fa-lock"></i> ธุรกรรมคุ้มครอง Escrow</span>
         </div>
         <div class="chat-header-subinfo">
           <span>${seller.name}</span>
           <span>•</span>
           <span class="seller-rating-pill"><i class="fa-solid fa-star"></i> ${seller.rating || '5.0 ★'}</span>
           <span>•</span>
-          <span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.45rem;"></i> ${seller.onlineStatus || 'Active now'}</span>
+          <span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.45rem;"></i> ${seller.onlineStatus || 'ใช้งานอยู่'}</span>
         </div>
       </div>
     </div>
@@ -3490,10 +3498,10 @@ function renderStandaloneCurrentChat(orderId) {
     <div class="chat-header-action-group">
       <a href="ordersdetail.html?orderId=${chat.orderId}" class="btn-view-order-link" title="เปิดหน้าดูคำสั่งซื้อแบบละเอียด">
         <i class="fa-solid fa-receipt"></i>
-        <span>Order #${chat.orderId}</span>
+        <span>คำสั่งซื้อ #${chat.orderId}</span>
       </a>
       <span class="chat-rights-pill">
-        <i class="fa-solid fa-certificate"></i> P2P Rights Unlocked
+        <i class="fa-solid fa-certificate"></i> ปลดล็อกสิทธิ์ P2P แล้ว
       </span>
     </div>
   `;
@@ -3506,19 +3514,19 @@ function renderStandaloneCurrentChat(orderId) {
         <div class="deal-strip-badge-row">
           <span class="deal-status-pill ${chat.status === 'WON' ? 'won' : 'active'}">
             <i class="${chat.status === 'WON' ? 'fa-solid fa-trophy' : 'fa-solid fa-gavel'}"></i>
-            ${chat.status === 'WON' ? 'Won Auction' : 'Active Winning'}
+            ${chat.status === 'WON' ? 'ชนะการประมูล' : 'กำลังนำการประมูล'}
           </span>
-          <span class="deal-category-pill">${chat.categoryLabel || 'Exclusive Collectible'}</span>
-          <span class="deal-order-tag">Order #${chat.orderId}</span>
+          <span class="deal-category-pill">${chat.categoryLabel || 'ของสะสมระดับพรีเมียม'}</span>
+          <span class="deal-order-tag">คำสั่งซื้อ #${chat.orderId}</span>
         </div>
         <h4 class="deal-strip-product-title">${chat.title}</h4>
       </div>
     </div>
 
     <div class="deal-strip-price-matrix">
-      <span class="deal-price-label"><i class="fa-solid fa-trophy"></i> Price Bids Latest:</span>
+      <span class="deal-price-label"><i class="fa-solid fa-trophy"></i> ราคาเสนอประมูลล่าสุด:</span>
       <span class="deal-price-amount">${formatCurrency(chat.latestBid || chat.winningBid)}</span>
-      <span class="deal-price-subtitle">${chat.status === 'WON' ? 'Winning Final Bid' : 'Highest Placed Bid'}</span>
+      <span class="deal-price-subtitle">${chat.status === 'WON' ? 'ราคาเคาะชนะประมูลสุทธิ' : 'ราคาเสนอสูงสุดขณะนี้'}</span>
     </div>
   `;
 
@@ -3533,7 +3541,7 @@ function renderStandaloneCurrentChat(orderId) {
             <span>${m.text}</span>
           </div>
           <span class="chat-system-timestamp">
-            <i class="fa-regular fa-clock"></i> ${m.date || 'Sep 8, 2026'}, ${m.time || '12:00 PM'}
+            <i class="fa-regular fa-clock"></i> ${m.date || '8 ก.ย. 2026'}, ${m.time || '12:00'}
           </span>
         </div>
       `;
@@ -3544,7 +3552,7 @@ function renderStandaloneCurrentChat(orderId) {
     const avatar = isUser
       ? (currentUser && currentUser.avatar ? currentUser.avatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80')
       : (seller.avatar);
-    const senderLabel = isUser ? 'Alexander Sterling (You)' : `[ @${seller.nickname} ] (Owner / Seller)`;
+    const senderLabel = isUser ? 'Alexander Sterling (คุณ)' : `[ @${seller.nickname} ] (เจ้าของรายการ / ผู้ขาย)`;
 
     // IF PART OWNER MESSAGES: SHOW PRODUCT AND PRICE BIDS LATEST
     let ownerProductCardHtml = '';
@@ -3557,24 +3565,24 @@ function renderStandaloneCurrentChat(orderId) {
         category: chat.category,
         categoryLabel: chat.categoryLabel,
         latestBid: chat.latestBid || chat.winningBid,
-        bidStatus: chat.status === 'WON' ? 'Winning Bid (ผู้ชนะการประมูล)' : 'Highest Current Bid'
+        bidStatus: chat.status === 'WON' ? 'ชนะการประมูลแล้ว' : 'ราคาสูงสุดขณะนี้'
       };
 
       ownerProductCardHtml = `
         <div class="owner-product-bids-card">
           <div class="owner-card-top-bar">
-            <span class="owner-card-tag"><i class="fa-solid fa-store"></i> Owner Auction Listing</span>
-            <span class="owner-card-order-id">Order #${prod.orderId || chat.orderId}</span>
+            <span class="owner-card-tag"><i class="fa-solid fa-store"></i> รายการประมูลของเจ้าของโพสต์</span>
+            <span class="owner-card-order-id">คำสั่งซื้อ #${prod.orderId || chat.orderId}</span>
           </div>
           <div class="owner-card-main-content">
             <img src="${prod.image || chat.image}" alt="${prod.title || chat.title}" class="owner-card-thumb">
             <div class="owner-card-meta">
-              <span class="owner-card-category"><i class="fa-solid fa-layer-group"></i> ${prod.categoryLabel || 'Exclusive Collectible'}</span>
+              <span class="owner-card-category"><i class="fa-solid fa-layer-group"></i> ${prod.categoryLabel || 'ของสะสมระดับพรีเมียม'}</span>
               <h5 class="owner-card-title">${prod.title || chat.title}</h5>
               <div class="owner-card-bids-strip">
-                <span class="owner-bid-label"><i class="fa-solid fa-gavel"></i> Price Bids Latest:</span>
+                <span class="owner-bid-label"><i class="fa-solid fa-gavel"></i> ราคาเสนอประมูลล่าสุด:</span>
                 <span class="owner-bid-val">${formatCurrency(prod.latestBid || chat.winningBid)}</span>
-                <span class="owner-bid-badge">${prod.bidStatus || 'Winning Bid'}</span>
+                <span class="owner-bid-badge">${prod.bidStatus || 'ชนะการประมูลแล้ว'}</span>
               </div>
             </div>
           </div>
@@ -3582,8 +3590,8 @@ function renderStandaloneCurrentChat(orderId) {
       `;
     }
 
-    const msgDate = m.date || 'Sep 8, 2026';
-    const msgTime = m.time || '12:00 PM';
+    const msgDate = m.date || '8 ก.ย. 2026';
+    const msgTime = m.time || '12:00';
     const isRead = m.isRead !== false; // true unless explicitly false
 
     return `
@@ -3608,8 +3616,8 @@ function renderStandaloneCurrentChat(orderId) {
             </span>
             <span class="msg-read-status ${isRead ? 'read' : 'sent'}">
               ${isRead 
-                ? '<i class="fa-solid fa-check-double"></i> Read (อ่านแล้ว)' 
-                : '<i class="fa-solid fa-check"></i> Sent (ส่งแล้ว)'}
+                ? '<i class="fa-solid fa-check-double"></i> อ่านแล้ว' 
+                : '<i class="fa-solid fa-check"></i> ส่งแล้ว'}
             </span>
           </div>
         </div>
@@ -3623,7 +3631,7 @@ function renderStandaloneCurrentChat(orderId) {
   // Update Breadcrumb Current
   const breadcrumb = document.getElementById('chatBreadcrumbCurrent');
   if (breadcrumb) {
-    breadcrumb.textContent = `P2P Chat: [ @${seller.nickname} ] - #${chat.orderId}`;
+    breadcrumb.textContent = `แชต P2P: [ @${seller.nickname} ] - #${chat.orderId}`;
   }
 }
 
@@ -3675,8 +3683,8 @@ function handleSendStandaloneChatMessage(event) {
   const chat = chats[activeStandaloneChatOrderId];
   if (!chat) return;
 
-  const todayDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  const nowTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const todayDate = new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' });
+  const nowTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
   const fullTs = `${todayDate}, ${nowTime}`;
 
   const newMsg = {
@@ -3716,17 +3724,17 @@ function handleSendStandaloneChatMessage(event) {
     const activeChat = updatedChats[activeStandaloneChatOrderId];
     if (!activeChat) return;
 
-    const seller = activeChat.seller || { nickname: 'Seller', avatar: '', name: 'Verified Seller' };
+    const seller = activeChat.seller || { nickname: 'ผู้ขาย', avatar: '', name: 'ผู้ขายที่ยืนยันแล้ว' };
     const replyReplies = [
-      `Thank you for confirming, Alexander! Our curator team has logged your instructions for "${activeChat.title}". All original Certificates of Authenticity (COA) and security-sealed packaging are completed.`,
-      `Received loud and clear, Alexander! Escrow disbursement clearance has been verified with STARTASS Vault. White-glove insured carrier dispatch is being arranged.`,
-      `Understood, Alexander. We have securely prepped order #${activeChat.orderId} with museum UV-proof casing and climate stabilization for safe transport.`,
-      `Got it! Thank you for the quick follow-up. Tracking telemetry and driver contact details will be shared directly in this P2P channel.`
+      `ขอบคุณที่ยืนยันข้อมูลครับคุณ Alexander! ทีมผู้เชี่ยวชาญของเราบันทึกข้อมูลสำหรับ "${activeChat.title}" เรียบร้อย เอกสาร Certificate of Authenticity (COA) ฉบับจริงและบรรจุภัณฑ์ซีลนิรภัยเตรียมพร้อมแล้วครับ`,
+      `รับทราบเรียบร้อยครับคุณ Alexander! ระบบ Escrow ได้รับการตรวจสอบและยืนยันยอดจาก STARTASS Vault แล้ว ขณะนี้กำลังเตรียมรถขนส่ง White-Glove พร้อมประกันภัยเต็มวงเงินครับ`,
+      `เข้าใจเรียบร้อยครับคุณ Alexander สำหรับคำสั่งซื้อ #${activeChat.orderId} เราได้จัดเก็บในกล่องควบคุมอุณหภูมิและป้องกัน UV มาตรฐานพิพิธภัณฑ์เพื่อความปลอดภัยสูงสุดในการขนส่งครับ`,
+      `เรียบร้อยครับ! ขอบคุณสำหรับการประสานงานอย่างรวดเร็ว ข้อมูลคนขับและระบบติดตามพิกัด GPS จะส่งให้ในช่องแชต P2P นี้ทันทีเมื่อเริ่มออกเดินทางครับ`
     ];
     const replyText = replyReplies[Math.floor(Math.random() * replyReplies.length)];
 
-    const replyDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    const replyTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const replyDate = new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' });
+    const replyTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 
     const ownerReplyMsg = {
       id: 'msg-s-' + Date.now(),
@@ -3742,7 +3750,7 @@ function handleSendStandaloneChatMessage(event) {
         category: activeChat.category,
         categoryLabel: activeChat.categoryLabel,
         latestBid: activeChat.latestBid || activeChat.winningBid,
-        bidStatus: activeChat.status === 'WON' ? 'Winning Bid (ผู้ชนะการประมูล)' : 'Highest Current Bid'
+        bidStatus: activeChat.status === 'WON' ? 'ชนะการประมูลแล้ว' : 'ราคาสูงสุดขณะนี้'
       },
       text: replyText,
       date: replyDate,
@@ -3762,7 +3770,7 @@ function handleSendStandaloneChatMessage(event) {
     renderStandaloneCurrentChat(activeStandaloneChatOrderId);
     renderStandaloneChatConversations(activeStandaloneChatFilter);
     scrollStandaloneChatToBottom();
-    showToast(`💬 New reply from [ @${seller.nickname} ]: "${replyText.slice(0, 48)}..."`);
+    showToast(`💬 ข้อความใหม่จาก [ @${seller.nickname} ]: "${replyText.slice(0, 48)}..."`);
   }, 2000);
 }
 

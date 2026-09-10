@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>STARTASS - Top 10 Highest Bid Auctions</title>
+  <title>STARTASS - 10 อันดับการประมูลราคาสูงสุด (Top 10 High-Value Auctions)</title>
   
   <!-- Browser Tab Icon (Favicon) -->
   <link rel="icon" type="image/png" href="../images/logo.png">
   <link rel="shortcut icon" type="image/png" href="../images/logo.png">
   <link rel="apple-touch-icon" href="../images/logo.png">
   
-  <!-- Google Fonts: Plus Jakarta Sans -->
+  <!-- Google Fonts: Prompt & Kanit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -35,14 +35,14 @@
         <!-- My Orders Navigation Button -->
         <a href="ordersdetail.html" class="btn-orders-nav" id="navOrdersBtn" title="ดูรายการคำสั่งซื้อ / การประมูลของฉัน">
           <i class="fa-solid fa-receipt"></i>
-          <span>My Orders</span>
+          <span>คำสั่งซื้อของฉัน</span>
           <span class="orders-nav-badge" id="navOrdersBadge" style="display: none;">0</span>
         </a>
 
         <!-- Messages Navigation Button -->
         <a href="chat.html" class="btn-chat-nav" id="navChatBtn" title="ข้อความและการสนทนา P2P (Messages & P2P Chat)">
           <i class="fa-solid fa-comments"></i>
-          <span>Messages</span>
+          <span>ข้อความ</span>
           <span class="chat-nav-badge" id="navChatBadge" style="display: none;">0</span>
         </a>
 
@@ -63,11 +63,11 @@
             <div class="notification-dropdown-header">
               <div class="notification-header-title">
                 <i class="fa-solid fa-bell" style="color: var(--accent-gold);"></i>
-                <span>Notifications</span>
-                <span class="notification-count-tag" id="notificationCountTag">0 new</span>
+                <span>การแจ้งเตือน</span>
+                <span class="notification-count-tag" id="notificationCountTag">0 รายการใหม่</span>
               </div>
               <button type="button" class="btn-clear-notifications" onclick="markAllNotificationsRead(event)" title="ทำเครื่องหมายว่าอ่านแล้วทั้งหมด">
-                <i class="fa-solid fa-check-double"></i> Mark read
+                <i class="fa-solid fa-check-double"></i> อ่านทั้งหมด
               </button>
             </div>
 
@@ -79,11 +79,11 @@
             <div class="notification-dropdown-footer">
               <button type="button" class="btn-simulate-outbid" onclick="simulateOutbid(event)" title="จำลองสถานการณ์เมื่อมีคนอื่นมาบิดแซงเรา">
                 <i class="fa-solid fa-bolt"></i>
-                <span>⚡ Simulate Outbid Alert (ทดสอบโดนบิดแซง)</span>
+                <span>⚡ จำลองการโดนเสนอราคาแซง (Simulate Outbid)</span>
               </button>
               <button type="button" class="btn-simulate-outbid" onclick="simulateAuctionWon(null, event)" title="จำลองสถานการณ์ชนะการประมูลเพื่อปลดล็อกสิทธิ์ P2P Chat กับผู้ขาย" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #34d399; margin-top: 6px;">
                 <i class="fa-solid fa-trophy"></i>
-                <span>⚡ Simulate Won Auction (ทดสอบชนะประมูล & ปลดล็อก P2P)</span>
+                <span>⚡ จำลองการชนะประมูล & ปลดล็อกสิทธิ์แชต P2P</span>
               </button>
             </div>
           </div>
@@ -100,9 +100,9 @@
             <div class="profile-dropdown-header">
               <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Avatar" class="dropdown-avatar-lg" id="menuProfileAvatar">
               <div class="profile-dropdown-user-info">
-                <span class="profile-full-name-label">Full Name</span>
+                <span class="profile-full-name-label">ชื่อผู้ใช้งาน</span>
                 <span class="profile-full-name" id="userFullName">Alexander Sterling</span>
-                <span class="profile-badge"><i class="fa-solid fa-certificate"></i> Verified Collector</span>
+                <span class="profile-badge"><i class="fa-solid fa-certificate"></i> ผู้สะสมระดับยืนยันตัวตน</span>
               </div>
             </div>
 
@@ -112,13 +112,13 @@
               <li>
                 <a href="ordersdetail.html" class="profile-menu-item" style="text-decoration: none;">
                   <i class="fa-solid fa-file-invoice-dollar"></i>
-                  <span>คำสั่งซื้อ & รายการประมูล (My Orders)</span>
+                  <span>คำสั่งซื้อ & รายการประมูลของฉัน (My Orders)</span>
                 </a>
               </li>
               <li>
                 <a href="chat.html" class="profile-menu-item" style="text-decoration: none;">
                   <i class="fa-solid fa-comments"></i>
-                  <span>ข้อความและการสนทนา (Messages / P2P Chat)</span>
+                  <span>กล่องข้อความ & แชต P2P กับผู้ขาย (Messages)</span>
                 </a>
               </li>
               <li>
@@ -140,11 +140,11 @@
     <!-- Page Header -->
     <header class="auction-header">
       <div class="header-badge">
-        <span class="pulse-dot"></span> Live Bidding Marketplace
+        <span class="pulse-dot"></span> ตลาดประมูลสดระดับพรีเมียม
       </div>
-      <h1 class="main-title">Top 10 Highest Current Bids</h1>
+      <h1 class="main-title">10 อันดับการประมูลราคาสูงสุด</h1>
       <p class="main-subtitle">
-        Explore elite high-value auctions with the fiercest bidding wars. Place your bids or track the highest-valued collector items in real time.
+        ร่วมประมูลสินค้าระดับลักชัวรีและของสะสมหายากที่มีมูลค่าสูงสุดในตลาด เสนอราคาแบบเรียลไทม์พร้อมระบบคุ้มครอง Escrow ปลอดภัย 100%
       </p>
 
       <!-- Key Marketplace Stats Ribbon -->
@@ -152,32 +152,32 @@
         <div class="stat-item">
           <i class="fa-solid fa-trophy stat-icon"></i>
           <div class="stat-content">
-            <div class="stat-value" id="statHighestBid">$485,000</div>
-            <div class="stat-label">Highest Active Bid</div>
+            <div class="stat-value" id="statHighestBid">฿16,800,000</div>
+            <div class="stat-label">ราคาประมูลสูงสุดปัจจุบัน</div>
           </div>
         </div>
 
         <div class="stat-item">
           <i class="fa-solid fa-fire stat-icon" style="color: #f97316;"></i>
           <div class="stat-content">
-            <div class="stat-value" id="statTotalItems">10 Items</div>
-            <div class="stat-label">Featured Showcase</div>
+            <div class="stat-value" id="statTotalItems">10 รายการ</div>
+            <div class="stat-label">รายการแนะนำพิเศษ</div>
           </div>
         </div>
 
         <div class="stat-item">
           <i class="fa-solid fa-shield-halved stat-icon" style="color: #10b981;"></i>
           <div class="stat-content">
-            <div class="stat-value">100% Verified</div>
-            <div class="stat-label">Authenticity Guaranteed</div>
+            <div class="stat-value">การันตีแท้ 100%</div>
+            <div class="stat-label">รับประกันของแท้ตรวจสอบได้</div>
           </div>
         </div>
 
         <div class="stat-item">
           <i class="fa-solid fa-bolt stat-icon" style="color: #6366f1;"></i>
           <div class="stat-content">
-            <div class="stat-value" id="statTotalBids">312 Total Bids</div>
-            <div class="stat-label">Active Competitors</div>
+            <div class="stat-value" id="statTotalBids">312 เคาะประมูล</div>
+            <div class="stat-label">ยอดเสนอราคาทั้งหมด</div>
           </div>
         </div>
       </div>
@@ -188,8 +188,8 @@
       <!-- Search Input Bar -->
       <div class="search-bar-wrapper">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="itemSearch" placeholder="Search auctions by title, category, or keyword..." autocomplete="off">
-        <button type="button" id="clearSearchBtn" class="search-clear-btn" aria-label="Clear search" style="display: none;">
+        <input type="text" id="itemSearch" placeholder="ค้นหารายการประมูลตามชื่อสินค้า, หมวดหมู่ หรือคำสำคัญ..." autocomplete="off">
+        <button type="button" id="clearSearchBtn" class="search-clear-btn" aria-label="ล้างการค้นหา" style="display: none;">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -197,28 +197,28 @@
       <!-- Categories Filter Pills Bar -->
       <div class="category-filters-container">
         <div class="category-filters-header">
-          <span class="category-filters-title"><i class="fa-solid fa-sliders"></i> Categories:</span>
-          <span class="category-filters-active-hint" id="activeCategoryHint">All Auctions</span>
+          <span class="category-filters-title"><i class="fa-solid fa-sliders"></i> หมวดหมู่สินค้า:</span>
+          <span class="category-filters-active-hint" id="activeCategoryHint">ทุกรายการประมูล</span>
         </div>
         <div class="category-filters" role="tablist">
           <button class="category-btn active" data-category="all" role="tab" aria-selected="true">
-            <i class="fa-solid fa-border-all"></i> All Categories
+            <i class="fa-solid fa-border-all"></i> ทุกหมวดหมู่
             <span class="category-count" id="count-all">10</span>
           </button>
           <button class="category-btn" data-category="cars" role="tab" aria-selected="false">
-            <i class="fa-solid fa-car-side"></i> Car Models
+            <i class="fa-solid fa-car-side"></i> โมเดลรถยนต์ & ซูเปอร์คาร์
             <span class="category-count" id="count-cars">3</span>
           </button>
           <button class="category-btn" data-category="cards" role="tab" aria-selected="false">
-            <i class="fa-solid fa-ticket"></i> Collectible Cards
+            <i class="fa-solid fa-ticket"></i> การ์ดสะสมหายาก
             <span class="category-count" id="count-cards">2</span>
           </button>
           <button class="category-btn" data-category="tech" role="tab" aria-selected="false">
-            <i class="fa-solid fa-microchip"></i> Tech & Computing
+            <i class="fa-solid fa-microchip"></i> เทคโนโลยี & ซูเปอร์คอมพิวเตอร์
             <span class="category-count" id="count-tech">3</span>
           </button>
           <button class="category-btn" data-category="trees" role="tab" aria-selected="false">
-            <i class="fa-solid fa-tree"></i> Rare Trees & Flora
+            <i class="fa-solid fa-tree"></i> บอนไซ & ไม้ด่างหายาก
             <span class="category-count" id="count-trees">2</span>
           </button>
         </div>
@@ -227,9 +227,9 @@
       <!-- Section Title & Counter -->
       <div class="section-header-bar">
         <h2 class="section-title">
-          <i class="fa-solid fa-chart-line"></i> Current Leaderboard
+          <i class="fa-solid fa-chart-line"></i> กระดานผู้นำการประมูลล่าสุด
         </h2>
-        <span class="items-counter" id="itemsCount">Showing 10 of 10 featured items</span>
+        <span class="items-counter" id="itemsCount">แสดง 10 จาก 10 รายการแนะนำ</span>
       </div>
     </section>
 
@@ -241,8 +241,8 @@
     <!-- Empty State (When search/filter has no match) -->
     <div class="empty-state" id="emptyState">
       <i class="fa-solid fa-box-open"></i>
-      <h3>No auctions found</h3>
-      <p>Try selecting another category or searching with different keywords.</p>
+      <h3>ไม่พบรายการประมูลที่ค้นหา</h3>
+      <p>ลองเลือกหมวดหมู่อื่น หรือค้นหาด้วยคำสำคัญใหม่อีกครั้ง</p>
     </div>
 
     <!-- Footer -->
@@ -250,7 +250,7 @@
       <div class="footer-brand">
         <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i> STAR <span style="color: var(--accent-gold); margin-left: 3px;">TASS!</span>
       </div>
-      <p>Exclusive High-Value Auction Prototype &bull; Real-time Bidding Demonstration</p>
+      <p>ระบบจำลองแพลตฟอร์มการประมูลระดับลักชัวรี &bull; สาธิตการเสนอราคาแบบเรียลไทม์</p>
     </footer>
 
   </div>
@@ -260,17 +260,17 @@
     <div class="modal-container">
       <div class="modal-header">
         <h3 class="modal-title" id="bidModalTitle">
-          <i class="fa-solid fa-gavel"></i> Place Auction Bid
+          <i class="fa-solid fa-gavel"></i> เสนอราคาประมูลสินค้า
         </h3>
-        <button class="modal-close" onclick="closeBidModal()" aria-label="Close modal">&times;</button>
+        <button class="modal-close" onclick="closeBidModal()" aria-label="ปิดหน้าต่าง">&times;</button>
       </div>
       <div class="modal-body">
         <!-- Item Short Preview -->
         <div class="modal-item-preview">
           <img src="" id="modalPreviewImg" class="preview-img" alt="Product Preview">
           <div class="preview-info">
-            <span class="preview-badge" id="modalPreviewCategory">Category</span>
-            <h4 id="modalPreviewTitle">Auction Item Title</h4>
+            <span class="preview-badge" id="modalPreviewCategory">หมวดหมู่</span>
+            <h4 id="modalPreviewTitle">ชื่อรายการประมูล</h4>
           </div>
         </div>
 
@@ -280,33 +280,33 @@
 
           <div class="bid-status-row">
             <div class="bid-status-col">
-              <span>Current Highest Bid</span>
-              <strong id="modalCurrentBid">$0</strong>
+              <span>ราคาเสนอสูงสุดปัจจุบัน</span>
+              <strong id="modalCurrentBid">฿0</strong>
             </div>
             <div class="bid-status-col" style="text-align: right;">
-              <span>Minimum Next Bid</span>
-              <strong id="modalMinNextBid" style="color: var(--accent-gold);">$0</strong>
+              <span>ราคาเสนอขั้นต่ำรอบถัดไป</span>
+              <strong id="modalMinNextBid" style="color: var(--accent-gold);">฿0</strong>
             </div>
           </div>
 
-          <label class="bid-input-label" for="bidAmountInput">Your Maximum Bid Amount (USD)</label>
+          <label class="bid-input-label" for="bidAmountInput">ระบุราคาที่คุณต้องการเสนอ (บาท - THB)</label>
           <div class="bid-input-group">
-            <span class="bid-currency">$</span>
-            <input type="number" id="bidAmountInput" class="bid-input" step="500">
+            <span class="bid-currency">฿</span>
+            <input type="number" id="bidAmountInput" class="bid-input" step="5000">
           </div>
 
           <!-- Quick Increment Buttons -->
           <div class="quick-bids">
-            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(500)">+$500</button>
-            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(1000)">+$1,000</button>
-            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(5000)">+$5,000</button>
-            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(10000)">+$10,000</button>
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(5000)">+฿5,000</button>
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(10000)">+฿10,000</button>
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(50000)">+฿50,000</button>
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(100000)">+฿100,000</button>
           </div>
 
           <!-- Recent Bids History -->
           <div class="bid-history-title">
-            <span><i class="fa-solid fa-clock-rotate-left"></i> Recent Bids Activity</span>
-            <span style="font-size: 0.78rem; color: var(--text-muted);">Verified Bidders</span>
+            <span><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการเสนอราคาสดล่าสุด</span>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">ผู้ประมูลยืนยันตัวตนแล้ว</span>
           </div>
           <ul class="bid-history-list" id="modalBidHistory">
             <!-- Populated via JS -->
@@ -314,9 +314,9 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-view" onclick="closeBidModal()">Cancel</button>
+        <button class="btn btn-view" onclick="closeBidModal()">ยกเลิก</button>
         <button class="btn btn-bid" id="modalSubmitBidBtn" onclick="submitBid()">
-          <i class="fa-solid fa-check"></i> Confirm & Submit Bid
+          <i class="fa-solid fa-check"></i> ยืนยันการเสนอราคาประมูล
         </button>
       </div>
     </div>
@@ -327,9 +327,9 @@
     <div class="modal-container modal-detail-container">
       <div class="modal-header">
         <h3 class="modal-title">
-          <i class="fa-solid fa-circle-info"></i> Auction Item Details
+          <i class="fa-solid fa-circle-info"></i> รายละเอียดรายการประมูล
         </h3>
-        <button class="modal-close" onclick="closeDetailModal()" aria-label="Close modal">&times;</button>
+        <button class="modal-close" onclick="closeDetailModal()" aria-label="ปิดหน้าต่าง">&times;</button>
       </div>
       <div class="modal-body">
         <div class="detail-modal-media">
@@ -339,22 +339,22 @@
 
         <div class="detail-header-flex">
           <div class="detail-title-col">
-            <span id="detailCategory" class="category-tag">Category</span>
-            <h2 id="detailTitle" class="detail-title-text">Item Title</h2>
+            <span id="detailCategory" class="category-tag">หมวดหมู่</span>
+            <h2 id="detailTitle" class="detail-title-text">ชื่อรายการประมูล</h2>
           </div>
           <div class="detail-bid-col">
-            <div class="detail-bid-label">Current Highest Bid</div>
-            <div id="detailCurrentBid" class="detail-bid-value">$0</div>
+            <div class="detail-bid-label">ราคาเสนอสูงสุดปัจจุบัน</div>
+            <div id="detailCurrentBid" class="detail-bid-value">฿0</div>
           </div>
         </div>
 
         <p id="detailDesc" class="detail-description">
-          Description
+          คำอธิบายสินค้า
         </p>
 
         <!-- Specifications & Provenance -->
         <h4 class="detail-specs-heading">
-          <i class="fa-solid fa-list-check" style="color: var(--accent-gold);"></i> Key Specifications & Provenance
+          <i class="fa-solid fa-list-check" style="color: var(--accent-gold);"></i> ข้อมูลจำเพาะและการรับประกันสินค้า
         </h4>
         <ul id="detailSpecs" class="detail-specs-list">
           <!-- Populated via JS -->
@@ -363,23 +363,23 @@
         <!-- Timeline & Pricing Details -->
         <div class="auction-dates detail-dates-box">
           <div class="date-row">
-            <span class="label"><i class="fa-regular fa-calendar-check"></i> Auction Started</span>
+            <span class="label"><i class="fa-regular fa-calendar-check"></i> เริ่มเปิดการประมูล</span>
             <span class="value" id="detailStartDate">-</span>
           </div>
           <div class="date-row">
-            <span class="label"><i class="fa-solid fa-flag"></i> Reserve / Start Price</span>
+            <span class="label"><i class="fa-solid fa-flag"></i> ราคาเริ่มต้นขั้นต่ำ</span>
             <span class="value" id="detailStartPrice" style="color: var(--accent-gold);">-</span>
           </div>
           <div class="date-row" style="grid-column: 1 / -1; margin-top: 6px;">
-            <span class="label"><i class="fa-regular fa-calendar-xmark"></i> Auction Ending On</span>
+            <span class="label"><i class="fa-regular fa-calendar-xmark"></i> สิ้นสุดการประมูลวันที่</span>
             <span class="value" id="detailEndDate">-</span>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-view" onclick="closeDetailModal()">Close</button>
+        <button class="btn btn-view" onclick="closeDetailModal()">ปิดหน้าต่าง</button>
         <button class="btn btn-bid" id="detailModalBidBtn" onclick="switchFromDetailToBid()">
-          <i class="fa-solid fa-gavel"></i> Place Bid Now
+          <i class="fa-solid fa-gavel"></i> เข้าร่วมเสนอราคาประมูล
         </button>
       </div>
     </div>
@@ -392,7 +392,7 @@
         <h3 class="modal-title" id="createModalTitle">
           <i class="fa-solid fa-plus-circle" style="color: var(--accent-gold);"></i> สร้างโพสต์ประมูลสินค้า
         </h3>
-        <button class="modal-close" onclick="closeCreateModal()" aria-label="Close modal">&times;</button>
+        <button class="modal-close" onclick="closeCreateModal()" aria-label="ปิดหน้าต่าง">&times;</button>
       </div>
       <form id="createAuctionForm" onsubmit="handleCreateAuction(event)">
         <div class="modal-body create-modal-body">
@@ -403,7 +403,7 @@
               <!-- Product Name -->
               <div class="form-group form-col-full">
                 <label class="form-label" for="newProductName">
-                  <i class="fa-solid fa-tag"></i> Product Name (ชื่อสินค้า)
+                  <i class="fa-solid fa-tag"></i> ชื่อสินค้า (Product Name)
                 </label>
                 <input type="text" id="newProductName" class="form-input" placeholder="เช่น 1969 Ford Mustang Boss 429" required maxlength="120">
               </div>
@@ -412,19 +412,19 @@
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label" for="newProductCategory">
-                    <i class="fa-solid fa-layer-group"></i> Product Category (หมวดหมู่สินค้า)
+                    <i class="fa-solid fa-layer-group"></i> หมวดหมู่สินค้า (Product Category)
                   </label>
                   <select id="newProductCategory" class="form-select" required>
-                    <option value="cars">Car Models (โมเดลรถยนต์)</option>
-                    <option value="cards">Collectible Cards (การ์ดสะสมหายาก)</option>
-                    <option value="tech">Tech & Computing (เทคโนโลยีและคอมพิวเตอร์)</option>
-                    <option value="trees">Rare Trees & Flora (บอนไซและพันธุ์ไม้หายาก)</option>
+                    <option value="cars">โมเดลรถยนต์ & ซูเปอร์คาร์ (Car Models)</option>
+                    <option value="cards">การ์ดสะสมหายาก (Collectible Cards)</option>
+                    <option value="tech">เทคโนโลยี & ซูเปอร์คอมพิวเตอร์ (Tech & Computing)</option>
+                    <option value="trees">บอนไซ & ไม้ด่างหายาก (Rare Trees & Flora)</option>
                   </select>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label">
-                    <i class="fa-solid fa-toggle-on"></i> Status (สถานะการเปิดประมูล)
+                    <i class="fa-solid fa-toggle-on"></i> สถานะการเปิดประมูล (Status)
                   </label>
                   <div class="status-toggle-wrapper">
                     <label class="switch">
@@ -432,7 +432,7 @@
                       <span class="slider round"></span>
                     </label>
                     <span class="status-label active-status" id="statusToggleLabel">
-                      <i class="fa-solid fa-circle-check"></i> Active (เปิดประมูลทันที)
+                      <i class="fa-solid fa-circle-check"></i> เปิดประมูลทันที (Active)
                     </span>
                   </div>
                 </div>
@@ -442,25 +442,25 @@
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label" for="newStartPrice">
-                    <i class="fa-solid fa-dollar-sign"></i> Auction Price Start (ราคาเริ่มต้น USD)
+                    <i class="fa-solid fa-tag"></i> ราคาเริ่มต้น (บาท - THB)
                   </label>
                   <div class="input-prefix-wrapper">
-                    <span class="input-prefix">$</span>
-                    <input type="number" id="newStartPrice" class="form-input with-prefix" placeholder="50,000" min="100" step="100" required>
+                    <span class="input-prefix">฿</span>
+                    <input type="number" id="newStartPrice" class="form-input with-prefix" placeholder="1,500,000" min="1000" step="1000" required>
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label" for="newBidIncrement">
-                    <i class="fa-solid fa-arrow-up-right-dots"></i> Set Increments Of (ก้าวราคาขั้นต่ำ)
+                    <i class="fa-solid fa-arrow-up-right-dots"></i> ก้าวราคาขั้นต่ำ (Bid Increments)
                   </label>
                   <select id="newBidIncrement" class="form-select" required>
-                    <option value="250">+$250 USD</option>
-                    <option value="500">+$500 USD</option>
-                    <option value="1000" selected>+$1,000 USD (ค่าเริ่มต้นแนะนำ)</option>
-                    <option value="2500">+$2,500 USD</option>
-                    <option value="5000">+$5,000 USD</option>
-                    <option value="10000">+$10,000 USD</option>
+                    <option value="500">+฿500 THB</option>
+                    <option value="1000">+฿1,000 THB</option>
+                    <option value="5000">+฿5,000 THB</option>
+                    <option value="10000" selected>+฿10,000 THB (ค่าเริ่มต้นแนะนำ)</option>
+                    <option value="50000">+฿50,000 THB</option>
+                    <option value="100000">+฿100,000 THB</option>
                   </select>
                 </div>
               </div>
@@ -469,14 +469,14 @@
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label" for="newStartDate">
-                    <i class="fa-regular fa-calendar-check"></i> Start Date (วันเวลาเริ่มต้น)
+                    <i class="fa-regular fa-calendar-check"></i> วันเวลาเริ่มต้นประมูล
                   </label>
                   <input type="datetime-local" id="newStartDate" class="form-input" required>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label" for="newEndDate">
-                    <i class="fa-regular fa-calendar-xmark"></i> End Date (วันเวลาสิ้นสุด)
+                    <i class="fa-regular fa-calendar-xmark"></i> วันเวลาสิ้นสุดประมูล
                   </label>
                   <input type="datetime-local" id="newEndDate" class="form-input" required>
                 </div>
@@ -485,7 +485,7 @@
               <!-- Product Descriptions -->
               <div class="form-group form-col-full">
                 <label class="form-label" for="newProductDesc">
-                  <i class="fa-solid fa-align-left"></i> Product Descriptions (คำอธิบายสินค้า)
+                  <i class="fa-solid fa-align-left"></i> รายละเอียดและคำอธิบายสินค้า
                 </label>
                 <textarea id="newProductDesc" class="form-textarea" rows="3" placeholder="ระบุรายละเอียด สภาพของสินค้า ประวัติความเป็นมา เอกสารการันตี หรือข้อมูลสำคัญสำหรับการประมูล..." required></textarea>
               </div>
@@ -494,7 +494,7 @@
             <!-- RIGHT SIDE: Browse Images & Live Preview Display -->
             <div class="create-modal-right">
               <label class="form-label">
-                <i class="fa-solid fa-images"></i> Product Images (รูปภาพสินค้า - เลือกได้หลายรูป)
+                <i class="fa-solid fa-images"></i> รูปภาพสินค้า (เลือกได้มากกว่า 1 รูป)
               </label>
 
               <!-- Drag & Drop / Click to Browse Box -->
@@ -505,7 +505,7 @@
                   <span class="upload-title">คลิกเพื่อเลือกไฟล์รูปภาพ หรือลากรูปมาวางที่นี่</span>
                   <span class="upload-hint">รองรับไฟล์ JPG, PNG, WEBP, GIF (เลือกพร้อมกันได้มากกว่า 1 รูป)</span>
                   <button type="button" class="btn-browse-file" onclick="event.stopPropagation(); document.getElementById('newProductImageFile').click();">
-                    <i class="fa-solid fa-folder-open"></i> Browse Images (เลือกหลายรูป)
+                    <i class="fa-solid fa-folder-open"></i> เลือกรูปภาพ (หลายรูป)
                   </button>
                 </div>
               </div>

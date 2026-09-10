@@ -223,34 +223,57 @@
           <!-- Populated dynamically with all messages, date/time, read status, and owner product & price bids -->
         </div>
 
-        <!-- Quick Action Prompt Chips Bar -->
+        <!-- Typing Indicator Banner (Seller Typing Simulation) -->
+        <div class="chat-typing-indicator-row" id="chatTypingIndicator" style="display: none;">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Seller" class="chat-typing-avatar" id="typingSellerAvatar">
+          <div class="chat-typing-bubble">
+            <span class="chat-typing-name" id="typingSellerName">ผู้ขาย</span>
+            <span class="chat-typing-label">กำลังพิมพ์ข้อความ</span>
+            <span class="typing-dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Quick Action Prompt Chips Bar with Typing Simulator -->
         <div class="chat-quick-actions-bar" id="chatQuickActionsBar">
-          <span class="quick-label"><i class="fa-solid fa-bolt"></i> ตอบกลับด่วน:</span>
+          <span class="quick-label"><i class="fa-solid fa-wand-magic-sparkles"></i> จำลองพิมพ์:</span>
           <div class="quick-chips-scroll">
-            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('📍 ยืนยันที่อยู่จัดส่ง: 450 Lexington Ave, New York, NY 10017 พร้อมรับมอบสินค้าครับ')">
-              📍 ยืนยันที่อยู่จัดส่ง
+            <button type="button" class="btn-quick-chip btn-chip-sim" onclick="simulateTypingPrompt('📍 ยืนยันที่อยู่จัดส่ง: 450 Lexington Ave, New York, NY 10017 พร้อมรับมอบสินค้าครับ')" title="จำลองพิมพ์: ยืนยันที่อยู่">
+              <i class="fa-solid fa-keyboard"></i> ยืนยันที่อยู่
             </button>
-            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('📜 รบกวนส่งเอกสาร Certificate of Authenticity และผลตรวจสอบเบื้องต้นให้ดูทางนี้ด้วยครับ')">
-              📜 ขอเอกสาร COA
+            <button type="button" class="btn-quick-chip btn-chip-sim" onclick="simulateTypingPrompt('📜 รบกวนส่งเอกสาร Certificate of Authenticity และผลตรวจสอบเบื้องต้นให้ดูทางนี้ด้วยครับ')" title="จำลองพิมพ์: ขอเอกสาร COA">
+              <i class="fa-solid fa-keyboard"></i> ขอเอกสาร COA
             </button>
-            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('🛡️ เงินมัดจำ Escrow ได้รับการยืนยันเรียบร้อย พร้อมประสานงานปล่อยยอดเมื่อได้รับสินค้าครับ')">
-              🛡️ ยืนยัน Escrow
+            <button type="button" class="btn-quick-chip btn-chip-sim" onclick="simulateTypingPrompt('🛡️ เงินมัดจำ Escrow ได้รับการยืนยันเรียบร้อย พร้อมประสานงานปล่อยยอดเมื่อได้รับสินค้าครับ')" title="จำลองพิมพ์: ยืนยัน Escrow">
+              <i class="fa-solid fa-keyboard"></i> ยืนยัน Escrow
             </button>
-            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('🚚 รบกวนสอบถามตารางเวลาที่รถขนส่ง White-Glove พร้อมเข้ามาส่งมอบสินค้าด้วยครับ')">
-              🚚 นัดหมายการจัดส่ง
+            <button type="button" class="btn-quick-chip btn-chip-sim" onclick="simulateTypingPrompt('🚚 รบกวนสอบถามตารางเวลาที่รถขนส่ง White-Glove พร้อมเข้ามาส่งมอบสินค้าด้วยครับ')" title="จำลองพิมพ์: นัดหมายจัดส่ง">
+              <i class="fa-solid fa-keyboard"></i> นัดหมายจัดส่ง
+            </button>
+            <button type="button" class="btn-quick-chip btn-chip-seller-sim" onclick="simulateSellerResponseDirect()" title="⚡ จำลองให้ผู้ขายเริ่มพิมพ์และส่งข้อความตอบกลับ">
+              <i class="fa-solid fa-robot"></i> ⚡ จำลองผู้ขายตอบกลับ
             </button>
           </div>
         </div>
 
-        <!-- Message Composer Form Bar -->
+        <!-- Message Composer Form Bar with Typing Simulator Button -->
         <form class="chat-composer-bar" id="standaloneChatForm" onsubmit="handleSendStandaloneChatMessage(event)">
           <button type="button" class="btn-composer-attach" title="แนบไฟล์หรือเอกสาร COA" onclick="showToast('ระบบแนบไฟล์สำหรับส่งหลักฐาน Escrow และเอกสาร COA พร้อมใช้งาน')">
             <i class="fa-solid fa-paperclip"></i>
           </button>
-          <input type="text" id="standaloneMessageInput" class="composer-input" placeholder="พิมพ์ข้อความถึงผู้ขาย..." autocomplete="off" required>
-          <button type="submit" class="btn-composer-send" title="ส่งข้อความ (Send Message)">
+          <div class="composer-input-wrapper">
+            <input type="text" id="standaloneMessageInput" class="composer-input" placeholder="พิมพ์ข้อความถึงผู้ขาย หรือกดปุ่มจำลองพิมพ์..." autocomplete="off" required>
+            <button type="button" class="btn-composer-simulate-mini" onclick="simulateRandomBuyerTyping()" title="⚡ จำลองพิมพ์ข้อความอัตโนมัติ (Simulate Auto-Type)">
+              <i class="fa-solid fa-bolt"></i>
+              <span>จำลองพิมพ์</span>
+            </button>
+          </div>
+          <button type="submit" class="btn-composer-send" id="btnComposerSend" title="ส่งข้อความ (Send Message)">
             <i class="fa-solid fa-paper-plane"></i>
-            <span>ส่งข้อความ</span>
+            <span>ส่ง</span>
           </button>
         </form>
 

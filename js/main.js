@@ -520,7 +520,10 @@ function getUserOrder(itemId) {
 }
 
 function navigateToOrderChat(itemId) {
-  window.location.href = `ordersdetail.html?id=${encodeURIComponent(itemId)}&tab=chat`;
+  const orders = loadOrders();
+  const matched = orders.find(o => o.itemId === itemId || o.orderId === itemId);
+  const targetId = matched ? matched.orderId : itemId;
+  window.location.href = `chat.html?orderId=${encodeURIComponent(targetId)}`;
 }
 
 function isUserHighestBidder(itemId) {
@@ -2231,16 +2234,7 @@ function initP2PChatForOrder(order) {
 }
 
 function openSellerP2PChat(orderId) {
-  selectedP2PChatOrderId = orderId;
-  activeOrderTab = 'chat';
-  renderOrderDetail(orderId);
-  setTimeout(() => {
-    const chatPane = document.getElementById('paneChat');
-    if (chatPane) {
-      chatPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    scrollP2PChatToBottom();
-  }, 100);
+  window.location.href = `chat.html?orderId=${encodeURIComponent(orderId)}`;
 }
 
 function showP2PLockNotice(sellerNickname) {
@@ -2690,12 +2684,10 @@ function renderP2PSection(orderId) {
             </div>
             <div>
               <div class="p2p-header-nickname">
-                <span>[ @${selectedChat.seller ? selectedChat.seller.nickname : 'ผู้ขาย'} ]</span>
-                <span class="seller-verified-mini"><i class="fa-solid fa-shield-check"></i> ยืนยันตัวตนแล้ว</span>
+                <strong style="font-size:1.05rem; color:#fff;">${selectedChat.seller ? selectedChat.seller.name : 'ผู้ขาย'}</strong>
+                <span class="chat-header-username-small">@${selectedChat.seller ? selectedChat.seller.nickname : 'ผู้ขาย'}</span>
               </div>
               <div class="p2p-header-subtext">
-                <span>${selectedChat.seller ? selectedChat.seller.name : 'ผู้ขายที่ยืนยันแล้ว'}</span>
-                <span>•</span>
                 <span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> ใช้งานอยู่</span>
               </div>
             </div>
@@ -2761,7 +2753,10 @@ function renderP2PSection(orderId) {
 }
 
 function navigateToOrderChat(itemId) {
-  window.location.href = `ordersdetail.html?id=${encodeURIComponent(itemId)}&tab=chat`;
+  const orders = loadOrders();
+  const matched = orders.find(o => o.itemId === itemId || o.orderId === itemId);
+  const targetId = matched ? matched.orderId : itemId;
+  window.location.href = `chat.html?orderId=${encodeURIComponent(targetId)}`;
 }
 
 function initOrderDetailPage() {
@@ -2772,7 +2767,8 @@ function initOrderDetailPage() {
   const targetId = urlParams.get('id') || urlParams.get('orderId');
   const targetTab = urlParams.get('tab');
   if (targetTab === 'chat') {
-    activeOrderTab = 'chat';
+    window.location.href = `chat.html?orderId=${encodeURIComponent(targetId || 'ORD-AUC-02')}`;
+    return;
   }
 
   const orders = loadOrders();
@@ -3156,7 +3152,7 @@ function renderOrderDetail(orderId) {
 
     </div>
 
-    <!-- TOGGLE SECTION: History vs Current Views vs P2P Seller Chat -->
+    <!-- TOGGLE SECTION: History vs Current Views -->
     <section class="order-toggle-section">
       <!-- Tabs Switcher -->
       <div class="order-toggle-tabs" role="tablist">
@@ -3168,13 +3164,6 @@ function renderOrderDetail(orderId) {
           <i class="fa-solid fa-clock-rotate-left"></i>
           <span>ประวัติการเสนอราคา</span>
           <span class="order-tab-badge">${bidHistory.length}</span>
-        </button>
-        <button type="button" class="order-tab-btn ${activeOrderTab === 'chat' ? 'active' : ''}" id="tabBtnChat" onclick="switchOrderTab('chat')">
-          <i class="fa-solid fa-comments"></i>
-          <span>แชต P2P กับผู้ขาย</span>
-          ${isWon 
-            ? `<span class="order-tab-badge badge-p2p-unlocked"><i class="fa-solid fa-lock-open"></i> เปิดใช้งาน</span>` 
-            : `<span class="order-tab-badge badge-p2p-locked"><i class="fa-solid fa-lock"></i> ล็อกอยู่</span>`}
         </button>
       </div>
 
@@ -3245,35 +3234,25 @@ function renderOrderDetail(orderId) {
           </div>
         </div>
 
-        <!-- PANE 3: P2P Seller Chat -->
-        <div class="tab-pane ${activeOrderTab === 'chat' ? 'active' : ''}" id="paneChat">
-          ${renderP2PSection(order.orderId)}
-        </div>
-
       </div>
     </section>
   `;
 }
 
 function switchOrderTab(tabName) {
+  if (tabName !== 'current' && tabName !== 'history') {
+    tabName = 'current';
+  }
   activeOrderTab = tabName;
   const btnCurrent = document.getElementById('tabBtnCurrent');
   const btnHistory = document.getElementById('tabBtnHistory');
-  const btnChat = document.getElementById('tabBtnChat');
   const paneCurrent = document.getElementById('paneCurrent');
   const paneHistory = document.getElementById('paneHistory');
-  const paneChat = document.getElementById('paneChat');
 
   if (btnCurrent) btnCurrent.classList.toggle('active', tabName === 'current');
   if (btnHistory) btnHistory.classList.toggle('active', tabName === 'history');
-  if (btnChat) btnChat.classList.toggle('active', tabName === 'chat');
   if (paneCurrent) paneCurrent.classList.toggle('active', tabName === 'current');
   if (paneHistory) paneHistory.classList.toggle('active', tabName === 'history');
-  if (paneChat) paneChat.classList.toggle('active', tabName === 'chat');
-
-  if (tabName === 'chat') {
-    setTimeout(scrollP2PChatToBottom, 100);
-  }
 }
 
 function switchOrderMainImage(url, thumbEl) {
@@ -3299,7 +3278,16 @@ function initChatPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const targetOrderId = urlParams.get('orderId') || urlParams.get('id');
 
-  const chats = loadP2PChats();
+  let chats = loadP2PChats();
+  if (targetOrderId && !chats[targetOrderId]) {
+    const orders = loadOrders();
+    const matchedOrder = orders.find(o => o.orderId === targetOrderId || o.itemId === targetOrderId);
+    if (matchedOrder) {
+      initP2PChatForOrder(matchedOrder);
+      chats = loadP2PChats();
+    }
+  }
+
   const chatKeys = Object.keys(chats);
 
   if (targetOrderId && chats[targetOrderId]) {
@@ -3399,7 +3387,7 @@ function renderStandaloneChatConversations(filterType = 'all') {
 
   listContainer.innerHTML = chatList.map(chat => {
     const isAct = chat.orderId === activeStandaloneChatOrderId;
-    const seller = chat.seller || { nickname: 'ผู้ขาย', avatar: '', name: 'ผู้ขายที่ยืนยันแล้ว' };
+    const seller = chat.seller || { nickname: 'ผู้ขาย', avatar: '', name: 'ผู้ขาย' };
     const hasUnread = (chat.unreadCount > 0) || (chat.lastMessageIsRead === false);
     const lastMsgDate = chat.lastMessageDate || 'วันนี้';
     const lastMsgTime = chat.lastMessageTime || 'เมื่อสักครู่';
@@ -3414,9 +3402,12 @@ function renderStandaloneChatConversations(filterType = 'all') {
 
         <div class="conv-content-col">
           <div class="conv-top-line">
-            <span class="conv-user-name">[ @${seller.nickname} ]</span>
+            <div class="conv-name-wrapper">
+              <span class="conv-fullname">${seller.name || seller.nickname}</span>
+              <span class="conv-username-small">@${seller.nickname}</span>
+            </div>
             <span class="conv-timestamp">
-              <i class="fa-regular fa-calendar-check" style="font-size:0.68rem;"></i> ${lastMsgDate} • ${lastMsgTime}
+              <i class="fa-regular fa-clock" style="font-size:0.65rem;"></i> ${lastMsgTime}
             </span>
           </div>
 
@@ -3460,14 +3451,13 @@ function renderStandaloneCurrentChat(orderId) {
 
   const seller = chat.seller || {
     nickname: 'ผู้ขาย',
-    name: 'ผู้ขายที่ยืนยันแล้ว',
+    name: 'ผู้ขาย',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
     rating: '5.0 ★',
-    verified: true,
     onlineStatus: 'ใช้งานอยู่'
   };
 
-  // 1. Render Header
+  // 1. Render Header (Spacious, No Verified Badge, FullName as Title, Small Username)
   headerEl.innerHTML = `
     <div class="chat-header-profile-row">
       <button type="button" class="btn-chat-mobile-back" onclick="toggleStandaloneMobileSidebar()" title="กลับสู่รายการสนทนา">
@@ -3481,28 +3471,24 @@ function renderStandaloneCurrentChat(orderId) {
 
       <div class="chat-header-user-meta">
         <div class="chat-header-name-row">
-          <span class="chat-header-username">[ @${seller.nickname} ]</span>
-          <span class="chat-seller-verified-badge"><i class="fa-solid fa-shield-check"></i> ผู้ขายยืนยันตัวตนแล้ว</span>
-          <span class="chat-escrow-badge"><i class="fa-solid fa-lock"></i> ธุรกรรมคุ้มครอง Escrow</span>
+          <h3 class="chat-header-fullname">${seller.name}</h3>
+          <span class="chat-header-username-small">@${seller.nickname}</span>
         </div>
         <div class="chat-header-subinfo">
-          <span>${seller.name}</span>
+          <span class="chat-online-status-pill"><i class="fa-solid fa-circle"></i> ${seller.onlineStatus || 'ใช้งานอยู่'}</span>
           <span>•</span>
           <span class="seller-rating-pill"><i class="fa-solid fa-star"></i> ${seller.rating || '5.0 ★'}</span>
           <span>•</span>
-          <span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.45rem;"></i> ${seller.onlineStatus || 'ใช้งานอยู่'}</span>
+          <span class="chat-escrow-badge"><i class="fa-solid fa-shield-halved"></i> Escrow Protected</span>
         </div>
       </div>
     </div>
 
     <div class="chat-header-action-group">
-      <a href="ordersdetail.html?orderId=${chat.orderId}" class="btn-view-order-link" title="เปิดหน้าดูคำสั่งซื้อแบบละเอียด">
+      <a href="ordersdetail.html?orderId=${chat.orderId}" class="btn-view-order-link" title="เปิดดูรายละเอียดคำสั่งซื้อ #${chat.orderId}">
         <i class="fa-solid fa-receipt"></i>
         <span>คำสั่งซื้อ #${chat.orderId}</span>
       </a>
-      <span class="chat-rights-pill">
-        <i class="fa-solid fa-certificate"></i> ปลดล็อกสิทธิ์ P2P แล้ว
-      </span>
     </div>
   `;
 
@@ -3552,7 +3538,9 @@ function renderStandaloneCurrentChat(orderId) {
     const avatar = isUser
       ? (currentUser && currentUser.avatar ? currentUser.avatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80')
       : (seller.avatar);
-    const senderLabel = isUser ? 'Alexander Sterling (คุณ)' : `[ @${seller.nickname} ] (เจ้าของรายการ / ผู้ขาย)`;
+    const senderLabel = isUser 
+      ? '<span class="chat-msg-sender-fullname">Alexander Sterling</span> <span class="chat-msg-sender-handle">(คุณ)</span>' 
+      : `<span class="chat-msg-sender-fullname">${seller.name}</span> <span class="chat-msg-sender-handle">@${seller.nickname}</span>`;
 
     // IF PART OWNER MESSAGES: SHOW PRODUCT AND PRICE BIDS LATEST
     let ownerProductCardHtml = '';
@@ -3596,7 +3584,7 @@ function renderStandaloneCurrentChat(orderId) {
 
     return `
       <div class="chat-msg-row ${isUser ? 'msg-row-user' : 'msg-row-owner'}">
-        <img src="${avatar}" alt="${senderLabel}" class="chat-msg-avatar" title="${senderLabel}">
+        <img src="${avatar}" alt="Avatar" class="chat-msg-avatar">
 
         <div class="chat-msg-content-block">
           <div class="chat-msg-sender-name">${senderLabel}</div>
@@ -3631,7 +3619,7 @@ function renderStandaloneCurrentChat(orderId) {
   // Update Breadcrumb Current
   const breadcrumb = document.getElementById('chatBreadcrumbCurrent');
   if (breadcrumb) {
-    breadcrumb.textContent = `แชต P2P: [ @${seller.nickname} ] - #${chat.orderId}`;
+    breadcrumb.textContent = `แชต: ${seller.name} (@${seller.nickname}) - #${chat.orderId}`;
   }
 }
 
@@ -3670,6 +3658,145 @@ function scrollStandaloneChatToBottom() {
   if (timelineEl) {
     timelineEl.scrollTop = timelineEl.scrollHeight;
   }
+}
+
+let activeTypingSimulationTimer = null;
+
+function showSellerTypingIndicator(seller) {
+  const typingRow = document.getElementById('chatTypingIndicator');
+  const avatarEl = document.getElementById('typingSellerAvatar');
+  const nameEl = document.getElementById('typingSellerName');
+  if (typingRow) {
+    if (avatarEl && seller && seller.avatar) avatarEl.src = seller.avatar;
+    if (nameEl && seller && seller.name) nameEl.textContent = seller.name;
+    typingRow.style.display = 'flex';
+  }
+
+  const onlinePill = document.querySelector('.chat-online-status-pill');
+  if (onlinePill) {
+    onlinePill.innerHTML = '<i class="fa-solid fa-pencil fa-bounce" style="color:#f59e0b;"></i> <span style="color:#fbbf24; font-weight:700;">กำลังพิมพ์...</span>';
+  }
+
+  scrollStandaloneChatToBottom();
+}
+
+function hideSellerTypingIndicator(seller) {
+  const typingRow = document.getElementById('chatTypingIndicator');
+  if (typingRow) {
+    typingRow.style.display = 'none';
+  }
+
+  const onlinePill = document.querySelector('.chat-online-status-pill');
+  if (onlinePill) {
+    onlinePill.innerHTML = `<i class="fa-solid fa-circle"></i> ${seller && seller.onlineStatus ? seller.onlineStatus : 'ใช้งานอยู่'}`;
+  }
+}
+
+function simulateTypingPrompt(text, autoSend = true) {
+  const input = document.getElementById('standaloneMessageInput');
+  if (!input) return;
+
+  if (activeTypingSimulationTimer) {
+    clearInterval(activeTypingSimulationTimer);
+    activeTypingSimulationTimer = null;
+  }
+
+  input.value = '';
+  input.classList.add('is-typing');
+  input.focus();
+
+  let charIndex = 0;
+  const speed = Math.max(16, Math.min(32, Math.floor(800 / text.length)));
+
+  activeTypingSimulationTimer = setInterval(() => {
+    if (charIndex < text.length) {
+      input.value += text.charAt(charIndex);
+      charIndex++;
+      input.scrollLeft = input.scrollWidth;
+    } else {
+      clearInterval(activeTypingSimulationTimer);
+      activeTypingSimulationTimer = null;
+      input.classList.remove('is-typing');
+
+      if (autoSend) {
+        setTimeout(() => {
+          handleSendStandaloneChatMessage(null);
+        }, 350);
+      }
+    }
+  }, speed);
+}
+
+function simulateRandomBuyerTyping() {
+  const samplePrompts = [
+    '📍 ยืนยันที่อยู่จัดส่งเรียบร้อย พร้อมประสานงานรับมอบสินค้าครับ',
+    '📜 รบกวนขอใบรับรอง Certificate of Authenticity (COA) เพิ่มเติมด้วยครับ',
+    '🛡️ ยอดเงินมัดจำ Escrow ปลอดภัย 100% เรียบร้อยแล้วครับ',
+    '🚚 สะดวกรับสินค้าช่วงวันเสาร์นี้ ทางผู้ให้บริการขนส่งสะดวกเวลาไหนครับ',
+    '✨ ได้รับรายละเอียดเรียบร้อย ยืนยันคำสั่งซื้อเพื่อดำเนินการขั้นตอนถัดไปครับ'
+  ];
+  const chosen = samplePrompts[Math.floor(Math.random() * samplePrompts.length)];
+  simulateTypingPrompt(chosen, true);
+}
+
+function simulateSellerResponseDirect() {
+  const chats = loadP2PChats();
+  const activeChat = chats[activeStandaloneChatOrderId];
+  if (!activeChat) return;
+
+  const seller = activeChat.seller || { nickname: 'ผู้ขาย', avatar: '', name: 'ผู้ขาย' };
+  showSellerTypingIndicator(seller);
+  showToast(`⚡ จำลองผู้ขาย [${seller.name}] กำลังพิมพ์ข้อความตอบกลับ...`);
+
+  setTimeout(() => {
+    hideSellerTypingIndicator(seller);
+
+    const replyReplies = [
+      `สวัสดีครับคุณ Alexander! ทางเราได้ตรวจสอบความสมบูรณ์ของ "${activeChat.title}" ในห้องนิรภัยเรียบร้อย พร้อมออกใบกำกับและซีลรักษาความปลอดภัยแล้วครับ`,
+      `รับทราบคำขอครับคุณ Alexander! ระบบ Escrow ได้รับการตรวจสอบและบันทึกในระบบ STARTASS เรียบร้อย เราพร้อมปล่อยสินค้าให้ทีมขนส่งความปลอดภัยสูงทันทีครับ`,
+      `เอกสาร Certificate of Authenticity (COA) พร้อมตราประทับตรวจสภาพจากผู้เชี่ยวชาญได้รับการบรรจุลงในกล่องนิรภัยเรียบร้อยแล้วครับ`,
+      `สวัสดีครับ ทีมประสานงานฝ่ายจัดส่ง White-Glove ได้กำหนดรอบรถขนส่งพิเศษเรียบร้อยแล้ว จะแจ้งพิกัดการเดินทางแบบเรียลไทม์ให้ทราบทางนี้ครับ`
+    ];
+    const replyText = replyReplies[Math.floor(Math.random() * replyReplies.length)];
+    const replyDate = new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' });
+    const replyTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+    const ownerReplyMsg = {
+      id: 'msg-s-' + Date.now(),
+      sender: 'seller',
+      isOwner: true,
+      senderName: `[ @${seller.nickname} ]`,
+      senderAvatar: seller.avatar,
+      product: {
+        id: activeChat.itemId,
+        orderId: activeChat.orderId,
+        title: activeChat.title,
+        image: activeChat.image,
+        category: activeChat.category,
+        categoryLabel: activeChat.categoryLabel,
+        latestBid: activeChat.latestBid || activeChat.winningBid,
+        bidStatus: activeChat.status === 'WON' ? 'ชนะการประมูลแล้ว' : 'ราคาสูงสุดขณะนี้'
+      },
+      text: replyText,
+      date: replyDate,
+      time: replyTime,
+      fullTimestamp: `${replyDate}, ${replyTime}`,
+      isRead: true
+    };
+
+    activeChat.messages.push(ownerReplyMsg);
+    activeChat.lastMessageSnippet = replyText;
+    activeChat.lastMessageDate = replyDate;
+    activeChat.lastMessageTime = replyTime;
+    activeChat.lastMessageFull = `${replyDate} • ${replyTime}`;
+    activeChat.lastMessageIsRead = true;
+    saveP2PChats(chats);
+
+    renderStandaloneCurrentChat(activeStandaloneChatOrderId);
+    renderStandaloneChatConversations(activeStandaloneChatFilter);
+    scrollStandaloneChatToBottom();
+    showToast(`💬 ได้รับข้อความตอบกลับจาก [${seller.name}]: "${replyText.slice(0, 42)}..."`);
+  }, 1800);
 }
 
 function handleSendStandaloneChatMessage(event) {
@@ -3711,20 +3838,31 @@ function handleSendStandaloneChatMessage(event) {
   renderStandaloneChatConversations(activeStandaloneChatFilter);
   scrollStandaloneChatToBottom();
 
-  // Read receipt simulation after 1.2s
+  // Read receipt simulation after 1.0s
   setTimeout(() => {
     newMsg.isRead = true;
     saveP2PChats(chats);
     renderStandaloneCurrentChat(activeStandaloneChatOrderId);
-  }, 1200);
+  }, 1000);
 
-  // Automated realistic reply from Owner after 2.0s
+  // Seller typing simulation starts at 450ms
+  setTimeout(() => {
+    const updatedChats = loadP2PChats();
+    const activeChat = updatedChats[activeStandaloneChatOrderId];
+    if (activeChat) {
+      showSellerTypingIndicator(activeChat.seller);
+    }
+  }, 450);
+
+  // Automated realistic reply from Owner after 2.2s
   setTimeout(() => {
     const updatedChats = loadP2PChats();
     const activeChat = updatedChats[activeStandaloneChatOrderId];
     if (!activeChat) return;
 
-    const seller = activeChat.seller || { nickname: 'ผู้ขาย', avatar: '', name: 'ผู้ขายที่ยืนยันแล้ว' };
+    const seller = activeChat.seller || { nickname: 'ผู้ขาย', avatar: '', name: 'ผู้ขาย' };
+    hideSellerTypingIndicator(seller);
+
     const replyReplies = [
       `ขอบคุณที่ยืนยันข้อมูลครับคุณ Alexander! ทีมผู้เชี่ยวชาญของเราบันทึกข้อมูลสำหรับ "${activeChat.title}" เรียบร้อย เอกสาร Certificate of Authenticity (COA) ฉบับจริงและบรรจุภัณฑ์ซีลนิรภัยเตรียมพร้อมแล้วครับ`,
       `รับทราบเรียบร้อยครับคุณ Alexander! ระบบ Escrow ได้รับการตรวจสอบและยืนยันยอดจาก STARTASS Vault แล้ว ขณะนี้กำลังเตรียมรถขนส่ง White-Glove พร้อมประกันภัยเต็มวงเงินครับ`,
@@ -3771,15 +3909,11 @@ function handleSendStandaloneChatMessage(event) {
     renderStandaloneChatConversations(activeStandaloneChatFilter);
     scrollStandaloneChatToBottom();
     showToast(`💬 ข้อความใหม่จาก [ @${seller.nickname} ]: "${replyText.slice(0, 48)}..."`);
-  }, 2000);
+  }, 2200);
 }
 
 function handleStandaloneQuickPrompt(text) {
-  const input = document.getElementById('standaloneMessageInput');
-  if (input) {
-    input.value = text;
-    handleSendStandaloneChatMessage(null);
-  }
+  simulateTypingPrompt(text, true);
 }
 
 // Initialization on DOM Ready

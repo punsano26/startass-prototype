@@ -1970,16 +1970,6 @@ const DEFAULT_P2P_CHATS = {
         isOwner: true,
         senderName: '[ @KyotoVault_Cards ]',
         senderAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-        product: {
-          id: 'auc-02',
-          orderId: 'ORD-AUC-02',
-          title: '1st Edition Shadowless Charizard #4/102 (PSA 10 Gem Mint)',
-          image: 'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80',
-          category: 'cards',
-          categoryLabel: 'การ์ดสะสมหายาก',
-          latestBid: 12500000,
-          bidStatus: 'ราคาชนะการประมูล (ผู้ชนะการประมูล)'
-        },
         text: 'เรากำลังจัดเตรียมเคสอะคริลิกกันรังสี UV และเอกสารอนุญาตส่งออก รบกวนคุณ Alexander ยืนยันที่อยู่จัดส่งและปลายทางรับมอบสำหรับบริการขนส่งด่วน DHL Express พร้อมประกันภัยด้วยครับ',
         date: '8 ก.ย. 2026',
         time: '14:20',
@@ -2051,16 +2041,6 @@ const DEFAULT_P2P_CHATS = {
         isOwner: true,
         senderName: '[ @GenevaVault_CH ]',
         senderAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
-        product: {
-          id: 'auc-03',
-          orderId: 'ORD-AUC-03',
-          title: 'Patek Philippe Grandmaster Chime 6300G-001 ทองคำขาว',
-          image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80',
-          category: 'tech',
-          categoryLabel: 'นาฬิกาหรูระดับมาสเตอร์พีซ',
-          latestBid: 145000000,
-          bidStatus: 'ราคาชนะการประมูล (ผู้ชนะการประมูล)'
-        },
         text: 'รถขนส่งนิรภัยหุ้มเกราะ Brinks Global มีกำหนดการเข้ารับสินค้าเพื่อเริ่มส่งมอบในวันพรุ่งนี้ช่วงเช้าครับ',
         date: '8 ก.ย. 2026',
         time: '11:45',
@@ -2127,15 +2107,8 @@ function loadP2PChats() {
       const parsed = JSON.parse(saved);
       if (typeof parsed === 'object' && parsed !== null) {
         let needsSave = false;
-        if (!parsed['ORD-AUC-03']) {
-          parsed['ORD-AUC-03'] = JSON.parse(JSON.stringify(DEFAULT_P2P_CHATS['ORD-AUC-03']));
-          needsSave = true;
-        }
         for (const k in DEFAULT_P2P_CHATS) {
-          if (!parsed[k]) {
-            parsed[k] = JSON.parse(JSON.stringify(DEFAULT_P2P_CHATS[k]));
-            needsSave = true;
-          } else if (parsed[k].messages && parsed[k].messages.some(m => m.sender === 'seller' && !m.product)) {
+          if (!parsed[k] || !parsed[k].messages || parsed[k].messages.length === 0) {
             parsed[k] = JSON.parse(JSON.stringify(DEFAULT_P2P_CHATS[k]));
             needsSave = true;
           }
@@ -3402,18 +3375,15 @@ function renderStandaloneChatConversations(filterType = 'all') {
 
         <div class="conv-content-col">
           <div class="conv-top-line">
-            <div class="conv-name-wrapper">
-              <span class="conv-fullname">${seller.name || seller.nickname}</span>
-              <span class="conv-username-small">@${seller.nickname}</span>
-            </div>
+            <span class="conv-fullname" title="${seller.name || seller.nickname}">${seller.name || seller.nickname}</span>
             <span class="conv-timestamp">
               <i class="fa-regular fa-clock" style="font-size:0.65rem;"></i> ${lastMsgTime}
             </span>
           </div>
 
-          <div class="conv-product-tag">
-            <i class="fa-solid fa-tag"></i>
-            <span>#${chat.orderId} • ${chat.title}</span>
+          <div class="conv-sub-line">
+            <span class="conv-username-small">@${seller.nickname}</span>
+            <span class="conv-order-pill">#${chat.orderId}</span>
           </div>
 
           <div class="conv-preview-row">
@@ -3517,6 +3487,7 @@ function renderStandaloneCurrentChat(orderId) {
   `;
 
   // 3. Render Messages Timeline
+  let sellerProductCardShown = false;
   const messagesHtml = (chat.messages || []).map(m => {
     // System message
     if (m.sender === 'system') {
@@ -3543,8 +3514,10 @@ function renderStandaloneCurrentChat(orderId) {
       : `<span class="chat-msg-sender-fullname">${seller.name}</span> <span class="chat-msg-sender-handle">@${seller.nickname}</span>`;
 
     // IF PART OWNER MESSAGES: SHOW PRODUCT AND PRICE BIDS LATEST
+    // Only show once on the first seller message in the thread to keep layout compact and clean
     let ownerProductCardHtml = '';
-    if (isOwner) {
+    if (isOwner && !sellerProductCardShown) {
+      sellerProductCardShown = true;
       const prod = m.product || {
         id: chat.itemId,
         orderId: chat.orderId,

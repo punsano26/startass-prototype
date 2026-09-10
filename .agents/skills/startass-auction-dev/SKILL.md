@@ -179,111 +179,89 @@ Every auction item card must incorporate:
 
 ## 9. P2P Seller Chat & Won Auction Rights Architecture
 
-### A. Auction Won Rights Enforcement
-- **Exclusive Access**: Direct peer-to-peer (P2P) communication with the seller `[ @SellerNickname ]` is an exclusive right reserved strictly for winning bidders (`order.status === 'WON'`).
-- **Active / Outbid Locked State**: If the auction is still ongoing (`WINNING`, `OUTBID`), P2P chat remains locked:
-  - Tab 3 displays `<span class="order-tab-badge badge-p2p-locked"><i class="fa-solid fa-lock"></i> Locked</span>`.
-  - The chat pane renders `.p2p-locked-card` explaining that P2P direct chat unlocks once the auction is won under Escrow protection, providing a `⚡ Simulate Auction Won` trigger.
-  - The Seller Card displays `.btn-p2p-locked` which triggers `showP2PLockNotice()`.
-- **Won State Unlocked**: Once won:
-  - Tab 3 displays `<span class="order-tab-badge badge-p2p-unlocked"><i class="fa-solid fa-lock-open"></i> P2P Active</span>`.
-  - Seller card displays `.btn-p2p-direct` (`💬 Direct P2P Chat with [ @SellerNickname ]`).
-  - Right column displays `.order-won-banner` and primary CTA `Open P2P Chat with Seller`.
+### A. Auction Won Rights & Centralized Chat Architecture
+- **Centralized Messaging Hub**: All P2P conversations are centralized exclusively inside `pages/chat.html`. Do NOT embed duplicate chat panels or chat tabs inside `pages/ordersdetail.html`.
+- **Exclusive Access**: Direct peer-to-peer (P2P) communication with the seller is an exclusive right reserved strictly for winning bidders (`order.status === 'WON'`).
+- **Orders Detail View (`pages/ordersdetail.html`)**:
+  - Maintains strictly 2 tabs: `ภาพรวมคำสั่งซื้อ (Overview)` and `ประวัติการเสนอราคา (Bid History)`.
+  - When won, all chat CTA buttons (`.btn-order-p2p`, `.btn-p2p-direct`, `.btn-order-p2p-cta`) route directly to `pages/chat.html?orderId=<orderId>`.
+  - If a URL query parameter `tab=chat` is encountered on `ordersdetail.html`, `initOrderDetailPage()` automatically redirects to `chat.html?orderId=<orderId>`.
+- **Active / Ongoing Auction Locked State**: If the auction is still ongoing (`WINNING`, `OUTBID`), direct messaging remains locked and calls `showP2PLockNotice()`.
 
 ### B. Part Conversations ("Conversations List")
-- Located in `.p2p-conversations-sidebar`:
-  - **Header**: Displays total count of won deals with conversation rights (`.p2p-won-badge`).
-  - **Search Bar (`#p2pSearchInput`)**: Real-time filtering across seller nicknames and auction titles.
-  - **Item Row (`.p2p-conv-item`)**:
-    - Seller avatar with green online presence indicator (`.p2p-online-badge`).
-    - Seller nickname formatted in brackets: `[ @SellerNickname ]`.
-    - Won item title and last message snippet with relative timestamp.
-    - Unread message badge (`.p2p-conv-unread-pill`).
+- Located in `.standalone-chat-sidebar`:
+  - **Header**: Displays total conversation count badge (`#chatConvCountBadge`).
+  - **Search Bar (`#chatSearchInput`)**: Real-time filtering across seller nicknames, names, and auction titles.
+  - **Item Row (`.chat-conv-item`)**:
+    - Partner avatar with green online presence dot (`.conv-online-dot`).
+    - FullName rendered prominently in bold (`.conv-fullname`), paired with subtle username pill (`.conv-username-small`, `@nickname`).
+    - Won item title and last message snippet with relative timestamp (`.conv-timestamp`).
+    - Unread message badge (`.conv-unread-number-badge`).
     - Active selection highlight with gold accent border.
 
-### C. Selected Chat / Current Chat Window
-- Located in `.p2p-current-chat-window`:
-  - **Header**: Seller avatar, verified checkmark, company name, and STARTASS Escrow Protection guarantee badge.
-  - **Won Product Strip (`.p2p-deal-product-strip`)**: Sticky summary with item photo, won tag, winning bid price, and order ID.
-  - **Message Timeline (`.p2p-messages-history`)**:
-    - System Escrow guarantee notices.
-    - Seller messages (`.msg-seller`) with seller avatar and dark-slate speech bubbles.
-    - Buyer messages (`.msg-user`) with emerald speech bubbles and read checkmarks.
-  - **Quick Action Prompt Chips (`.p2p-quick-prompts-bar`)**:
-    - Fast one-tap chips: `📍 Confirm Address`, `📜 Request Certificate`, `🛡️ Escrow Verified`, `🚚 Delivery Schedule`.
-  - **Message Composer (`.p2p-chat-input-bar`)**:
-    - Attachment button with toast feedback.
-    - Dynamic text input (`#p2pMessageInput`).
-    - Send button with paper-plane icon.
-    - Automated realistic seller replies simulated after 1.5 seconds to provide engaging paired interaction.
-
-### D. Cross-Page Navigation & Simulation Triggers
-- **Homepage Card**: For won auctions, primary button becomes `.btn-bid-active.btn-won` (`Won: $XX,XXX (P2P Chat)`), linking directly to `ordersdetail.html?id=<itemId>&tab=chat`.
-- **Detail Modal**: For won items, CTA changes to `.btn-won-cta` (`Open P2P Chat with Seller`).
-- **Navbar Bell Dropdown**: Footer contains `⚡ Simulate Won Auction` alongside `⚡ Simulate Outbid Alert` for instant testing from any page.
+### C. Cross-Page Navigation & Simulation Triggers
+- **Homepage Card**: For won auctions, primary button links directly to `chat.html?orderId=<orderId>`.
+- **Orders Detail**: Won action buttons open `chat.html?orderId=<orderId>`.
+- **Navbar Bell Dropdown**: Footer contains `⚡ Simulate Won Auction` alongside `⚡ Simulate Outbid Alert` for instant testing across all views.
 
 ---
 
 ## 10. Standalone P2P Chat & Messages Architecture (`pages/chat.html`)
 
 ### A. Core Architecture & Route
-- **Dedicated Standalone Page**: `pages/chat.html` provides a persistent, full-screen direct messaging center for managing all peer-to-peer dialogues across won deals and active negotiations.
+- **Dedicated Standalone Page**: `pages/chat.html` provides a persistent, full-screen direct messaging center for managing all peer-to-peer dialogues across won deals.
 - **Global Navbar Integration**:
-  - All views (`HomePage.html`, `ordersdetail.html`, `chat.html`) feature `.btn-chat-nav` (`#navChatBtn`) displaying real-time unread message counts in an animated emerald pill badge (`#navChatBadge`).
+  - All views feature `.btn-chat-nav` (`#navChatBtn`) displaying real-time unread message counts in an animated emerald pill badge (`#navChatBadge`).
   - User profile dropdown menu includes a direct link: `Messages / P2P Chat`.
 
-### B. Part 1: Conversation History (Left Sidebar)
-- **Container (`.standalone-chat-sidebar`)**:
-  - **Header (`.chat-sidebar-header`)**: Title with active conversation count pill badge (`#chatConvCountBadge`).
-  - **Filter Chips Strip (`.chat-filter-chips-strip`)**: 1-click filter switches for `All`, `Unread` (with green status dot), and `Won Deals` (with gold trophy icon).
-  - **Search Bar (`.chat-search-box`)**: Real-time filtering across seller nicknames, order numbers, and item titles with instant tap-to-clear button (`#chatSearchClearBtn`).
-  - **Conversation Item (`.chat-conv-item`)**:
-    - **Image Profile**: Partner/seller avatar with active online presence indicator (`.conv-online-dot`).
-    - **User Name**: Prominently rendered in brackets: `[ @SellerNickname ]` in high-contrast gold.
-    - **Item Tag**: Order reference and item title `#ORD-AUC-XX • Title`.
-    - **Latest Message Snippet**: Truncated preview of the most recent exchange.
-    - **Time & Date**: Clear timestamp format: `Sep 8, 2026 • 02:20 PM`.
-    - **Is Read or Not Read Indicator**:
-      - Unread: `<span class="badge-read-status unread"><span class="unread-pulse-dot"></span> Unread</span>` + unread counter pill (`.conv-unread-number-badge`).
-      - Read: `<span class="badge-read-status read"><i class="fa-solid fa-check-double"></i> Read (อ่านแล้ว)</span>`.
+### B. Spacious Layout & Viewport Containment Standards
+- **Viewport Containment**: Set `body:has(.chat-page-wrapper) { height: 100vh; height: 100dvh; overflow: hidden; }` and `.chat-page-wrapper { height: calc(100vh - 68px); height: calc(100dvh - 68px); display: flex; flex-direction: column; overflow: hidden; }` so the browser outer window never scrolls.
+- **Container Sizing**: Set `.container.chat-page-wrapper` to `max-width: 1720px !important; width: 96% !important;` to ensure wide displays have an expansive, breathable UI.
+- **Grid Ratio**: Desktop layout uses `grid-template-columns: 330px 1fr` (sidebar + expansive conversation pane) with `flex: 1 1 0%; height: 100%; min-height: 0; overflow: hidden;`.
+- **Sidebar 3-Line Layout**: Avoid name truncation by splitting metadata into 3 rows:
+  - Row 1 (`.conv-top-line`): FullName (`.conv-fullname`) + Timestamp (`.conv-timestamp`).
+  - Row 2 (`.conv-sub-line`): Small username badge (`.conv-username-small`, `@nickname`) + Order badge (`#ORD-AUC-XX`).
+  - Row 3 (`.conv-preview-row`): Message snippet + Read/Unread status badge.
+- **No Verification Badges in Chat**: Do not display "ยืนยันตัวตนแล้ว" / `.chat-seller-verified-badge` in the chat UI to maintain a minimalist, clutter-free header.
+- **Name Display Hierarchy**:
+  - **FullName**: Render as the primary bold heading (`.chat-header-fullname`, `.conv-fullname`, `.chat-msg-sender-fullname`).
+  - **Username**: Render as a small, subtle sub-tag (`@nickname`, `.chat-header-username-small`, `.conv-username-small`).
 
-### C. Part 2: Current Chat Window (Right Main Panel)
+### C. Selected Chat / Current Chat Window & Strict Flexbox Pinning
 - **Container (`.standalone-chat-main`)**:
-  - **Header (`.chat-main-header`)**:
-    - Partner Profile Avatar + User Name: `[ @SellerNickname ]`.
-    - Verification and trust badges: `Verified Seller`, `Escrow Protected Deal`, online status (`Active now`).
-    - Direct CTA link to full auction order: `Order #ORD-AUC-XX`.
-  - **Sticky Live Deal Strip (`.chat-live-deal-strip`)**:
-    - High-res product thumbnail + category badge.
-    - Product title and Order ID.
-    - **Price Bids Latest**: Prominent display of `Price Bids Latest: $XXX,XXX` (`Winning Final Bid` or `Highest Placed Bid`).
-  - **All Messages Timeline (`.chat-messages-timeline`)**:
-    - System escrow audit notices.
-    - Buyer messages (`.msg-row-user`) right-aligned in emerald gradient bubbles.
-    - Owner/Seller messages (`.msg-row-owner`) left-aligned in dark slate bubbles.
-    - **Full Time & Date on Every Message**: `Sep 8, 2026, 02:20 PM`.
-    - **Is Read or Not Read Status on Every Message**:
-      - `Read (อ่านแล้ว)` with double checkmarks `✓✓`.
-      - `Sent (ส่งแล้ว)` with single checkmark `✓`.
-  - **Owner Messages Special Card ("If Part Owner Messages Show Product and Price Bids Latest")**:
-    - Whenever a message is sent by the listing owner/seller, an embedded `.owner-product-bids-card` is rendered directly within the message bubble block displaying:
-      - `Owner Auction Listing` badge + `Order #ORD-AUC-XX`.
-      - Product thumbnail photo.
-      - Category badge and full product title.
-      - High-contrast gold/emerald `Price Bids Latest: $XXX,XXX (Winning Bid)`.
-  - **Quick Action Prompts (`.chat-quick-actions-bar`)**:
-    - Fast one-tap prompt chips: `📍 Confirm Address`, `📜 Request Certificate`, `🛡️ Escrow Verified`, `🚚 Delivery Schedule`.
-  - **Composer Bar (`.chat-composer-bar`)**:
-    - Attachment button with Escrow COA proof toast.
-    - Text input (`#standaloneMessageInput`) and Send button.
-    - Simulated read receipt transitions (1.2s) and realistic owner replies (2.0s) with owner product deal cards.
+  - Requires `display: flex; flex-direction: column; height: 100%; min-height: 0; max-height: 100%; overflow: hidden;`.
+  - **Pinned Top Bars (`flex-shrink: 0;`)**:
+    - `.chat-main-header`: Profile avatar, FullName heading (`.chat-header-fullname`), small username pill, online dot, rating, and Escrow badge.
+    - `.chat-live-deal-strip`: High-res product thumbnail, title, Order ID, and latest bid amount.
+  - **Scrollable Middle Timeline (`flex: 1 1 0%; min-height: 0; overflow-y: auto;`)**:
+    - `.chat-messages-timeline`: Only this element scrolls. Its `min-height: 0` prevents large message cards from stretching the flex container.
+    - Full Time & Date on every message with read receipt checkmarks.
+  - **Owner Messages Deal Card**:
+    - When an owner/seller message is sent, an embedded compact `.owner-product-bids-card` (max-width: 440px, 48px thumb) is rendered only on the **first** seller message in the thread to prevent redundant clutter.
+  - **Pinned Bottom Bars (`flex-shrink: 0;`)**:
+    - `.chat-typing-indicator-row`: Seller typing animation banner (`flex-shrink: 0;`).
+    - `.chat-quick-actions-bar`: 1-tap quick action prompt chips with hidden scrollbars (`flex-shrink: 0;`).
+    - `.chat-composer-bar`: File attachment button, `#standaloneMessageInput` text field, mini typing simulation button, and submit send button permanently anchored at the bottom.
 
-### D. Responsive Mobile Standard
-- **Desktop (`> 768px`)**: Side-by-side 2-column layout (360px sidebar + 1fr chat window).
+### D. Interactive Typing Simulator & Typing Indicator Standards
+- **Buyer Typewriter Simulation (`simulateTypingPrompt`)**:
+  - Automatically types text into `#standaloneMessageInput` character-by-character with realistic keypress delays (16–32ms).
+  - While typing, applies `.is-typing` class with active glow animation (`@keyframes typingInputGlow`).
+  - Mini simulator button (`.btn-composer-simulate-mini`) placed inside the input wrapper (`[ ⚡ จำลองพิมพ์ ]`) for 1-click auto-typing.
+  - Quick action chips (`.btn-chip-sim`) trigger typewriter simulation before sending.
+- **Seller Typing Indicator (`#chatTypingIndicator`)**:
+  - When waiting for seller replies, display an animated 3-dot bouncing bubble (`.typing-dots` with `@keyframes typingDotBounce`).
+  - Temporarily update header online presence pill to `<i class="fa-solid fa-pencil fa-bounce"></i> กำลังพิมพ์...`.
+  - Automatically dissolve typing indicator when the incoming seller message bubble is rendered.
+- **On-Demand Seller Simulator (`simulateSellerResponseDirect`)**:
+  - Dedicated trigger button (`[ 🤖 ⚡ จำลองผู้ขายตอบกลับ ]`) to test the seller typing indicator and realistic response flows on demand.
+
+### E. Responsive Mobile Standard
+- **Desktop (`> 768px`)**: Side-by-side 2-column layout (330px sidebar + 1fr chat window).
 - **Mobile (`<= 768px`)**:
   - Automatically switches between conversation list and active chat view using `.mobile-chat-active` state.
   - Back button (`.btn-chat-mobile-back`) appears in chat header to return to conversation list.
-  - Input composer and deal strip scale for compact screens without horizontal overflow.
+  - Composer input wrapper scales smoothly; mini simulation button collapses to icon on compact phones (< 480px) and buttons maintain touch targets >= 40px. Safe area insets supported.
 
 
 

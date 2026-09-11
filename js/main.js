@@ -1373,7 +1373,10 @@ function openBidModal(itemId) {
   }
 
   selectedItemForBid = item;
-  const modal = document.getElementById('bidModal');
+  let modal = document.getElementById('bidModal');
+  if (!modal && typeof AuctionBidModal !== 'undefined') {
+    modal = AuctionBidModal.mount();
+  }
   const previewImg = document.getElementById('modalPreviewImg');
   const previewTitle = document.getElementById('modalPreviewTitle');
   const previewCategory = document.getElementById('modalPreviewCategory');

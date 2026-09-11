@@ -40,7 +40,6 @@
           <div class="detail-seller-info">
             <div class="detail-seller-name-row">
               <span id="detailSellerName" class="detail-seller-name">ผู้ขาย</span>
-              <span class="detail-seller-verified-badge"><i class="fa-solid fa-shield-halved"></i> ยืนยันแล้ว</span>
             </div>
             <div class="detail-seller-meta-row">
               <span id="detailSellerNick" class="detail-seller-nick">@nickname</span>
@@ -59,26 +58,19 @@
         คำอธิบายสินค้า
       </p>
 
-      <!-- Specifications & Authenticated Provenance Checklist -->
-      <h4 class="detail-specs-heading">
-        <i class="fa-solid fa-list-check" style="color: var(--accent-gold);"></i> ข้อมูลจำเพาะและการรับประกันสินค้า
-      </h4>
-      <ul id="detailSpecs" class="detail-specs-list">
-        <!-- Populated dynamically via JS -->
-      </ul>
 
-      <!-- Timeline & Pricing Summary Box -->
-      <div class="auction-dates detail-dates-box">
+      <!-- Timeline & Pricing Summary Box (Horizontal 3-Column Layout) -->
+      <div class="detail-dates-box">
         <div class="date-row">
-          <span class="label"><i class="fa-regular fa-calendar-check"></i> เริ่มเปิดการประมูล</span>
+          <span class="label"><i class="fa-regular fa-calendar-check" style="color: #38bdf8;"></i> เริ่มเปิดการประมูล</span>
           <span class="value" id="detailStartDate">-</span>
         </div>
-        <div class="date-row">
-          <span class="label"><i class="fa-solid fa-flag"></i> ราคาเริ่มต้นขั้นต่ำ</span>
-          <span class="value" id="detailStartPrice" style="color: var(--accent-gold);">-</span>
+        <div class="date-row date-row-highlight">
+          <span class="label"><i class="fa-solid fa-flag" style="color: var(--accent-gold);"></i> ราคาเริ่มต้นขั้นต่ำ</span>
+          <span class="value" id="detailStartPrice">-</span>
         </div>
-        <div class="date-row" style="grid-column: 1 / -1; margin-top: 6px;">
-          <span class="label"><i class="fa-regular fa-calendar-xmark"></i> สิ้นสุดการประมูลวันที่</span>
+        <div class="date-row">
+          <span class="label"><i class="fa-regular fa-calendar-xmark" style="color: #f43f5e;"></i> สิ้นสุดการประมูลวันที่</span>
           <span class="value" id="detailEndDate">-</span>
         </div>
       </div>

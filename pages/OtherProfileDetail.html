@@ -380,65 +380,8 @@
     </div>
   </div>
 
-  <!-- MODAL: Place Bid Modal -->
-  <div class="modal-backdrop" id="bidModal" role="dialog" aria-modal="true" aria-labelledby="bidModalTitle">
-    <div class="modal-container modal-bid-container">
-      <div class="modal-header">
-        <h3 class="modal-title" id="bidModalTitle">
-          <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i> เสนอราคาประมูล (Place Your Bid)
-        </h3>
-        <button class="modal-close" onclick="closeBidModal()" aria-label="ปิดหน้าต่าง">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-item-preview">
-          <img id="modalPreviewImg" src="" alt="Auction Item" class="preview-thumb">
-          <div class="preview-info">
-            <span class="preview-badge" id="modalPreviewCategory">หมวดหมู่</span>
-            <h4 id="modalPreviewTitle">ชื่อรายการประมูล</h4>
-          </div>
-        </div>
-
-        <div class="bidding-box">
-          <div id="modalBidLockNotice" class="modal-bid-lock-notice" style="display: none;"></div>
-
-          <div class="bid-status-row">
-            <div class="bid-status-col">
-              <span class="label">ราคาเสนอสูงสุดปัจจุบัน</span>
-              <span class="val" id="modalCurrentBid">฿0</span>
-            </div>
-            <div class="bid-status-col highlight">
-              <span class="label">ราคาเสนอขั้นต่ำถัดไป</span>
-              <span class="val" id="modalMinNextBid">฿0</span>
-            </div>
-          </div>
-
-          <div class="form-group" style="margin-top: 16px;">
-            <label for="customBidInput">จำนวนเงินที่คุณต้องการเสนอ (บาท)</label>
-            <div class="input-currency-wrapper">
-              <span class="currency-symbol">฿</span>
-              <input type="number" id="customBidInput" class="form-control with-prefix" placeholder="0" min="1" step="1000">
-            </div>
-          </div>
-
-          <div class="quick-bid-buttons">
-            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(50000)">+ ฿50,000</button>
-            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(100000)">+ ฿100,000</button>
-            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(500000)">+ ฿500,000</button>
-            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(1000000)">+ ฿1,000,000</button>
-          </div>
-
-          <div class="bid-history-preview">
-            <h5 class="history-title"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการเสนอราคาสดล่าสุด</h5>
-            <ul class="bid-history-list" id="modalBidHistory"></ul>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-view" onclick="closeBidModal()">ยกเลิก</button>
-        <button type="button" class="btn btn-bid" id="btnSubmitBid" onclick="submitBid()"><i class="fa-solid fa-gavel"></i> ยืนยันการเสนอราคา</button>
-      </div>
-    </div>
-  </div>
+  <!-- COMPONENT: Auction Bid Modal (เสนอราคาประมูลสินค้า) -->
+  <div id="auctionBidModalContainer"></div>
 
   <!-- COMPONENT: Auction Item Detail Modal (รายละเอียดรายการประมูล) -->
   <div id="auctionDetailModalContainer"></div>
@@ -568,6 +511,7 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Modal Components -->
+  <script src="../components/modals/AuctionBidModal.js"></script>
   <script src="../components/modals/AuctionDetailModal.js"></script>
 
   <!-- Main JavaScript Engine -->

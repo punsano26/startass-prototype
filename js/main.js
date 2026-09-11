@@ -4170,9 +4170,9 @@ function renderOrderDetail(orderId) {
         </a>
         ${isWon ? `
           ${!isPaid ? `
-            <a href="Payment.html?orderId=${encodeURIComponent(order.orderId)}" class="btn btn-order-pay-now" title="ดำเนินการชำระเงินเข้าสู่ Escrow Vault">
-              <i class="fa-solid fa-credit-card"></i> <span>ชำระเงินเข้า Escrow (Pay Now)</span>
-            </a>
+            <span class="order-escrow-paid-badge" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24;" title="รอชำระเงินเข้าสู่ระบบ Escrow Vault">
+              <i class="fa-solid fa-clock"></i> <span>รอชำระเงิน Escrow</span>
+            </span>
           ` : `
             <span class="order-escrow-paid-badge" title="ชำระเงินเข้าสู่ระบบ Escrow สำเร็จแล้ว">
               <i class="fa-solid fa-circle-check"></i> <span>ชำระเงินเข้า Escrow แล้ว</span>
@@ -4364,11 +4364,6 @@ function renderOrderDetail(orderId) {
                     <span class="won-pending-pill"><i class="fa-solid fa-clock"></i> รอชำระเงิน</span>
                   </div>
                   <span>คุณชนะการประมูลรายการนี้ในราคา <strong>${formatCurrency(order.userBid)}</strong> กรุณาดำเนินการโอนเงินเข้าสู่ Escrow เพื่อให้ผู้ขายเตรียมแพ็คและจัดส่งสินค้า โดยยอดเงินของคุณจะถูกคุ้มครองปลอดภัย 100% จนกว่าจะได้รับสินค้าและตรวจรับตรงปกภายใน 10 วัน</span>
-                  <div class="won-banner-action-row">
-                    <a href="Payment.html?orderId=${encodeURIComponent(order.orderId)}" class="btn-won-pay-link">
-                      <i class="fa-solid fa-arrow-right-to-bracket"></i> ไปยังหน้าชำระเงิน (Proceed to Payment)
-                    </a>
-                  </div>
                 </div>
               </div>
             ` : `

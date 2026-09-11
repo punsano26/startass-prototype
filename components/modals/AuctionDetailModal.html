@@ -1,0 +1,93 @@
+<!-- ==========================================================================
+     COMPONENT: Auction Item Detail Modal (รายละเอียดรายการประมูล)
+     File: components/modals/AuctionDetailModal.html
+     Description: Reusable modal component for displaying auction item specifications,
+                  seller provenance, multi-image gallery, pricing, and bidding transition.
+     ========================================================================== -->
+<div class="modal-backdrop" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+  <div class="modal-container modal-detail-container">
+    <div class="modal-header">
+      <h3 class="modal-title" id="detailHeaderTitle">
+        <i class="fa-solid fa-circle-info"></i> รายละเอียดรายการประมูล
+      </h3>
+      <button type="button" class="modal-close" onclick="closeDetailModal()" aria-label="ปิดหน้าต่าง">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Media Preview & Zoom Display -->
+      <div class="detail-modal-media">
+        <img id="detailImg" src="" alt="Product Full View" class="detail-modal-img">
+      </div>
+
+      <!-- Multi-image Thumbnail Strip (Rendered dynamically if item has multiple images) -->
+      <div class="detail-thumbnails-strip" id="detailThumbnailsStrip" style="display: none;"></div>
+
+      <!-- Header Information: Category Tag, Title & Current Bid -->
+      <div class="detail-header-flex">
+        <div class="detail-title-col">
+          <span id="detailCategory" class="category-tag">หมวดหมู่</span>
+          <h2 id="detailTitle" class="detail-title-text">ชื่อรายการประมูล</h2>
+        </div>
+        <div class="detail-bid-col">
+          <div class="detail-bid-label">ราคาเสนอสูงสุดปัจจุบัน</div>
+          <div id="detailCurrentBid" class="detail-bid-value">฿0</div>
+        </div>
+      </div>
+
+      <!-- Seller Profile & Provenance Verification Box -->
+      <div class="detail-seller-box" id="detailSellerBox">
+        <div class="detail-seller-left">
+          <img id="detailSellerAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" class="detail-seller-avatar" alt="Seller Avatar">
+          <div class="detail-seller-info">
+            <div class="detail-seller-name-row">
+              <span id="detailSellerName" class="detail-seller-name">ผู้ขาย</span>
+              <span class="detail-seller-verified-badge"><i class="fa-solid fa-shield-halved"></i> ยืนยันแล้ว</span>
+            </div>
+            <div class="detail-seller-meta-row">
+              <span id="detailSellerNick" class="detail-seller-nick">@nickname</span>
+              <span class="detail-seller-dot">•</span>
+              <span id="detailSellerRating" class="detail-seller-rating"><i class="fa-solid fa-star"></i> 5.0 ★</span>
+            </div>
+          </div>
+        </div>
+        <a id="detailSellerProfileLink" href="#" class="btn-detail-seller-profile" target="_blank" title="ดูข้อมูลและรายการประมูลของผู้ขาย">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> ดูโปรไฟล์ผู้ขาย
+        </a>
+      </div>
+
+      <!-- Detailed Product Description -->
+      <p id="detailDesc" class="detail-description">
+        คำอธิบายสินค้า
+      </p>
+
+      <!-- Specifications & Authenticated Provenance Checklist -->
+      <h4 class="detail-specs-heading">
+        <i class="fa-solid fa-list-check" style="color: var(--accent-gold);"></i> ข้อมูลจำเพาะและการรับประกันสินค้า
+      </h4>
+      <ul id="detailSpecs" class="detail-specs-list">
+        <!-- Populated dynamically via JS -->
+      </ul>
+
+      <!-- Timeline & Pricing Summary Box -->
+      <div class="auction-dates detail-dates-box">
+        <div class="date-row">
+          <span class="label"><i class="fa-regular fa-calendar-check"></i> เริ่มเปิดการประมูล</span>
+          <span class="value" id="detailStartDate">-</span>
+        </div>
+        <div class="date-row">
+          <span class="label"><i class="fa-solid fa-flag"></i> ราคาเริ่มต้นขั้นต่ำ</span>
+          <span class="value" id="detailStartPrice" style="color: var(--accent-gold);">-</span>
+        </div>
+        <div class="date-row" style="grid-column: 1 / -1; margin-top: 6px;">
+          <span class="label"><i class="fa-regular fa-calendar-xmark"></i> สิ้นสุดการประมูลวันที่</span>
+          <span class="value" id="detailEndDate">-</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-view" onclick="closeDetailModal()">ปิดหน้าต่าง</button>
+      <button type="button" class="btn btn-bid" id="detailModalBidBtn" onclick="switchFromDetailToBid()">
+        <i class="fa-solid fa-gavel"></i> เข้าร่วมเสนอราคาประมูล
+      </button>
+    </div>
+  </div>
+</div>

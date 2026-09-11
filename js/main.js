@@ -3,8 +3,8 @@
  * Handles Top 10 Bids display, category filtering, live countdowns, and bidding modals.
  */
 
-// Cache Invalidation for Version 2 (Thai Localization & THB Currency)
-const APP_VERSION = 'startass_v2_th';
+// Cache Invalidation for Version 3 (Top 10 High-Value Default & Seller Provenance in Detail Modal)
+const APP_VERSION = 'startass_v3_top10';
 if (localStorage.getItem('startass_version') !== APP_VERSION) {
   localStorage.removeItem('startass_auctions');
   localStorage.removeItem('startass_orders');
@@ -335,8 +335,138 @@ const DEFAULT_AUCTION_ITEMS = [
       { user: 'DetroitIron', amount: 3000000, time: '3 ชั่วโมงที่แล้ว' },
       { user: 'HighwayLegend', amount: 2700000, time: '7 ชั่วโมงที่แล้ว' }
     ]
+  },
+  {
+    id: 'auc-11',
+    rank: 11,
+    title: '1969 Ford Mustang Boss 429 Fastback (Raven Black)',
+    category: 'cars',
+    categoryLabel: 'โมเดลรถยนต์ & ซูเปอร์คาร์',
+    image: 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80'
+    ],
+    description: 'เครื่องยนต์ Boss 429 V8 ขุมพลัง 375 แรงม้า เกียร์ธรรมดา 4 สปีด ตัวถังสีดำ Raven Black ผลิตจำนวนจำกัด สภาพอนุรักษ์สมบูรณ์ระดับประกวดงาน Concours d\'Elegance',
+    startPrice: 1200000,
+    currentBid: 2900000,
+    startDate: '26 ส.ค. 2026, 11:00',
+    endDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000 + 3 * 3600 * 1000).toISOString(),
+    bidsCount: 22,
+    specs: ['เครื่องยนต์ Boss 429ci NASCAR V8 ดั้งเดิม', 'ฝาสูบอะลูมิเนียม Semi-Hemi พิเศษ', 'ตัวถังประกอบมือโดย Kar Kraft (KK #1842)', 'สมุดประวัติและเอกสาร Marti Report ตัวจริง'],
+    seller: {
+      nickname: 'ApexMotors_NY',
+      name: 'Apex Classic Motoring LLC',
+      rating: '4.9 ★',
+      reviewsCount: 128,
+      verified: true,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
+    },
+    bidHistory: [
+      { user: 'MustangClub_USA', amount: 2900000, time: '40 นาทีที่แล้ว' },
+      { user: 'ClassicSpeedShop', amount: 2700000, time: '2 ชั่วโมงที่แล้ว' }
+    ]
+  },
+  {
+    id: 'auc-12',
+    rank: 12,
+    title: '1986 Fleer Michael Jordan #57 Rookie Card (PSA 9 Mint)',
+    category: 'cards',
+    categoryLabel: 'การ์ดสะสมหายาก',
+    image: 'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?auto=format&fit=crop&w=1200&q=80'
+    ],
+    description: 'การ์ดรุกกี้ตัวจริงของตำนานบาสเกตบอล Michael Jordan ชุด Fleer ปี 1986 ได้รับการจัดเกรดระดับ PSA 9 Mint ศูนย์กลางภาพสมดุล สีสันสดใส ขอบคมชัด ไร้รอยยับหรือริ้วรอย',
+    startPrice: 1100000,
+    currentBid: 2600000,
+    startDate: '30 ส.ค. 2026, 12:00',
+    endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 1 * 3600 * 1000).toISOString(),
+    bidsCount: 19,
+    specs: ['การจัดเกรด: PSA 9 Mint', 'การ์ดรุกกี้ปี 1986 Fleer หมายเลข #57', 'เคสผนึกสุญญากาศกันรังสี UV พร้อมชิป NFC ตรวจสอบความแท้', 'ใบรับรองความแท้จากสถาบัน PSA'],
+    seller: {
+      nickname: 'KyotoVault_Cards',
+      name: 'Kyoto Rare Collectibles Japan',
+      rating: '5.0 ★',
+      reviewsCount: 94,
+      verified: true,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80'
+    },
+    bidHistory: [
+      { user: 'BullsDynasty_Collector', amount: 2600000, time: '1 ชั่วโมงที่แล้ว' },
+      { user: 'AirJordanVault', amount: 2400000, time: '4 ชั่วโมงที่แล้ว' }
+    ]
+  },
+  {
+    id: 'auc-13',
+    rank: 13,
+    title: 'โมดูลหน่วยความจำและวงจรลอจิก Cray-1 Supercomputer (1975)',
+    category: 'tech',
+    categoryLabel: 'เทคโนโลยี & ซูเปอร์คอมพิวเตอร์',
+    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80'
+    ],
+    description: 'แผงวงจรต้นฉบับของซูเปอร์คอมพิวเตอร์ Cray-1 ออกแบบโดย Seymour Cray เดินสายไวร์แรปด้วยมือ มีลายเซ็นวิศวกรต้นสังกัด พร้อมกล่องกระจกตั้งแสดงพิพิธภัณฑ์ระดับพรีเมียม',
+    startPrice: 900000,
+    currentBid: 2200000,
+    startDate: '28 ส.ค. 2026, 17:00',
+    endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 9 * 3600 * 1000).toISOString(),
+    bidsCount: 16,
+    specs: ['แผงโมดูลลอจิก Cray Research หมายเลขซีเรียล SN-04', 'การเดินสายถักทองแดงความเร็วสูงระดับประวัติศาสตร์คอมพิวเตอร์', 'ตู้จัดแสดงอะคริลิกเกรดอนุรักษ์ พร้อมฐานไม้วอลนัตแท้', 'เอกสารรับรองจากพิพิธภัณฑ์ประวัติศาสตร์คอมพิวเตอร์'],
+    seller: {
+      nickname: 'RetroFoundry_Sys',
+      name: 'Retro Supercomputing Heritage',
+      rating: '4.7 ★',
+      reviewsCount: 39,
+      verified: true,
+      avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=120&q=80'
+    },
+    bidHistory: [
+      { user: 'TechCurator_MIT', amount: 2200000, time: '2 ชั่วโมงที่แล้ว' },
+      { user: 'SiliconMuseum_SF', amount: 2000000, time: '6 ชั่วโมงที่แล้ว' }
+    ]
+  },
+  {
+    id: 'auc-14',
+    rank: 14,
+    title: 'บอนไซต้นสนดำญี่ปุ่น คุโรมัตสึ อายุ 120 ปี (Kuromatsu Black Pine)',
+    category: 'trees',
+    categoryLabel: 'บอนไซ & ไม้ด่างหายาก',
+    image: 'https://images.unsplash.com/photo-1512428813834-c702c7702b78?auto=format&fit=crop&w=1200&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1512428813834-c702c7702b78?auto=format&fit=crop&w=1200&q=80'
+    ],
+    description: 'ต้นสนดำญี่ปุ่นเปลือกแตกลายเกล็ดเต่าธรรมชาติอันทรงเกียรติ พุ่มใบเข็มสั้นเขียวเข้มสง่างาม ผ่านการดัดทรง Moyogi (ทรงเอี้ยวสละสลวย) โดยช่างบอนไซรุ่นที่สามแห่งชิบะ',
+    startPrice: 800000,
+    currentBid: 1800000,
+    startDate: '27 ส.ค. 2026, 14:00',
+    endDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000 + 11 * 3600 * 1000).toISOString(),
+    bidsCount: 14,
+    specs: ['อายุประมาณ 120 ปี (Pinus thunbergii)', 'เปลือกไม้เกล็ดเต่าทรงพลัง (Kame-kō)', 'กระถางดินเผาอิบารากิโบราณแบบดั้งเดิม', 'เอกสารรับรองสุขอนามัยพืชสากล'],
+    seller: {
+      nickname: 'ZenMasterBotanics',
+      name: 'Omiya Master Bonsai Collection',
+      rating: '4.9 ★',
+      reviewsCount: 42,
+      verified: true,
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80'
+    },
+    bidHistory: [
+      { user: 'KyotoArboretum', amount: 1800000, time: '3 ชั่วโมงที่แล้ว' },
+      { user: 'ZenBotanics_Tokyo', amount: 1600000, time: '7 ชั่วโมงที่แล้ว' }
+    ]
   }
 ];
+
+// Helper to dynamically sort and calculate ranks across all items
+function sortAndRankAuctions() {
+  if (!Array.isArray(AUCTION_ITEMS)) return;
+  AUCTION_ITEMS.sort((a, b) => b.currentBid - a.currentBid);
+  AUCTION_ITEMS.forEach((item, index) => {
+    item.rank = index + 1;
+  });
+}
 
 // LocalStorage Persistence Helpers
 function loadAuctions() {
@@ -362,13 +492,22 @@ function loadAuctions() {
             item.images = [item.image];
           }
         });
+        parsed.sort((a, b) => b.currentBid - a.currentBid);
+        parsed.forEach((item, index) => {
+          item.rank = index + 1;
+        });
         return parsed;
       }
     } catch (e) {
       console.error('Failed to parse saved auctions:', e);
     }
   }
-  return JSON.parse(JSON.stringify(DEFAULT_AUCTION_ITEMS));
+  const defaultItems = JSON.parse(JSON.stringify(DEFAULT_AUCTION_ITEMS));
+  defaultItems.sort((a, b) => b.currentBid - a.currentBid);
+  defaultItems.forEach((item, index) => {
+    item.rank = index + 1;
+  });
+  return defaultItems;
 }
 
 function saveAuctions() {
@@ -891,7 +1030,7 @@ function getCategoryLabel(category) {
 
 // State
 let AUCTION_ITEMS = loadAuctions();
-let currentCategory = 'all';
+let currentCategory = 'top10';
 let searchQuery = '';
 let selectedItemForBid = null;
 let selectedItemForDetail = null;
@@ -917,7 +1056,7 @@ function getTimeRemaining(endDateStr) {
   return { total, days, hours, minutes, seconds, expired: false };
 }
 
-// Render Top 10 Cards
+// Render Cards (Default Top 10 vs All Categories & Filtered Views)
 function renderCards() {
   const grid = document.getElementById('auctionGrid');
   const emptyState = document.getElementById('emptyState');
@@ -925,17 +1064,41 @@ function renderCards() {
   
   if (!grid) return;
 
-  // Filter items
-  const filtered = AUCTION_ITEMS.filter(item => {
-    const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.categoryLabel.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Always keep items sorted by highest current bid and rank updated
+  sortAndRankAuctions();
+
+  // Filter items based on current category
+  let filtered = [];
+  if (currentCategory === 'top10') {
+    // Default mode: ONLY Top 10 highest-value auctions
+    filtered = AUCTION_ITEMS.slice(0, 10);
+  } else if (currentCategory === 'all') {
+    // All categories: all items
+    filtered = [...AUCTION_ITEMS];
+  } else {
+    // Specific category
+    filtered = AUCTION_ITEMS.filter(item => item.category === currentCategory);
+  }
+
+  // Apply search query filter if user typed in search input
+  if (searchQuery.trim() !== '') {
+    const q = searchQuery.toLowerCase().trim();
+    filtered = filtered.filter(item =>
+      item.title.toLowerCase().includes(q) ||
+      item.description.toLowerCase().includes(q) ||
+      (item.categoryLabel && item.categoryLabel.toLowerCase().includes(q))
+    );
+  }
 
   if (itemsCountEl) {
-    itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${AUCTION_ITEMS.length} รายการยอดนิยม`;
+    if (currentCategory === 'top10') {
+      itemsCountEl.textContent = `แสดง ${filtered.length} จาก 10 อันดับการประมูลราคาสูงสุด`;
+    } else if (currentCategory === 'all') {
+      itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${AUCTION_ITEMS.length} รายการทั้งหมด`;
+    } else {
+      const catCount = AUCTION_ITEMS.filter(item => item.category === currentCategory).length;
+      itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${catCount} รายการในหมวดหมู่นี้`;
+    }
   }
 
   if (filtered.length === 0) {
@@ -956,7 +1119,15 @@ function renderCards() {
         ? 'สิ้นสุดการประมูลแล้ว' 
         : `${time.days} วัน ${time.hours} ชม. ${time.minutes} นาที ${time.seconds} วิ`);
 
+    // Rank Badge logic: Only show badge for Top 10 items (item.rank <= 10)
+    const showRankBadge = item.rank <= 10;
     const rankClass = item.rank === 1 ? 'top-1' : item.rank === 2 ? 'top-2' : item.rank === 3 ? 'top-3' : '';
+    const rankBadgeHtml = showRankBadge
+      ? `<span class="rank-badge ${rankClass}">
+          <i class="fa-solid fa-trophy"></i> #${item.rank} ข้อเสนอสูงสุด
+        </span>`
+      : '';
+
     const draftTag = isInactive
       ? `<span class="category-tag" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4);"><i class="fa-solid fa-pause"></i> แบบร่าง</span>`
       : '';
@@ -1015,9 +1186,7 @@ function renderCards() {
           <img src="${item.image}" alt="${item.title}" class="card-img" loading="lazy" />
           
           <div class="card-overlay-top">
-            <span class="rank-badge ${rankClass}">
-              <i class="fa-solid fa-trophy"></i> #${item.rank} ข้อเสนอสูงสุด
-            </span>
+            ${rankBadgeHtml}
             <div style="display:flex; gap:6px; align-items:center;">
               ${draftTag}
               <span class="category-tag">${item.categoryLabel}</span>
@@ -1030,7 +1199,7 @@ function renderCards() {
           </div>
         </div>
 
-        <!-- Card Body Content -->
+        <!-- Card Body Content (Seller bar moved to Detail Modal) -->
         <div class="card-content">
           <h2 class="card-title" title="${item.title}">${item.title}</h2>
           <p class="card-description">${item.description}</p>
@@ -1125,8 +1294,14 @@ function setupCategoryFilters() {
       currentCategory = btn.getAttribute('data-category');
       
       if (activeHint) {
-        const labelText = btn.textContent.trim().replace(/[0-9]+$/, '').trim();
-        activeHint.textContent = currentCategory === 'all' ? 'การประมูลทั้งหมด' : labelText;
+        if (currentCategory === 'top10') {
+          activeHint.textContent = '10 อันดับการประมูลราคาสูงสุด';
+        } else if (currentCategory === 'all') {
+          activeHint.textContent = 'ทุกหมวดหมู่ (รายการประมูลทั้งหมด)';
+        } else {
+          const labelText = btn.textContent.trim().replace(/[0-9]+$/, '').trim();
+          activeHint.textContent = labelText;
+        }
       }
 
       renderCards();
@@ -1159,18 +1334,21 @@ function setupCategoryFilters() {
 }
 
 function updateCategoryCounts() {
+  const countTop10 = Math.min(10, AUCTION_ITEMS.length);
   const countAll = AUCTION_ITEMS.length;
   const countCars = AUCTION_ITEMS.filter(i => i.category === 'cars').length;
   const countCards = AUCTION_ITEMS.filter(i => i.category === 'cards').length;
   const countTech = AUCTION_ITEMS.filter(i => i.category === 'tech').length;
   const countTrees = AUCTION_ITEMS.filter(i => i.category === 'trees').length;
 
+  const badgeTop10 = document.getElementById('count-top10');
   const badgeAll = document.getElementById('count-all');
   const badgeCars = document.getElementById('count-cars');
   const badgeCards = document.getElementById('count-cards');
   const badgeTech = document.getElementById('count-tech');
   const badgeTrees = document.getElementById('count-trees');
 
+  if (badgeTop10) badgeTop10.textContent = countTop10;
   if (badgeAll) badgeAll.textContent = countAll;
   if (badgeCars) badgeCars.textContent = countCars;
   if (badgeCards) badgeCards.textContent = countCards;
@@ -1354,7 +1532,10 @@ function openDetailModal(itemId) {
   if (!item) return;
 
   selectedItemForDetail = item;
-  const modal = document.getElementById('detailModal');
+  let modal = document.getElementById('detailModal');
+  if (!modal && typeof AuctionDetailModal !== 'undefined') {
+    modal = AuctionDetailModal.mount();
+  }
   const img = document.getElementById('detailImg');
   const title = document.getElementById('detailTitle');
   const category = document.getElementById('detailCategory');
@@ -1364,6 +1545,24 @@ function openDetailModal(itemId) {
   const startDate = document.getElementById('detailStartDate');
   const endDate = document.getElementById('detailEndDate');
   const specsList = document.getElementById('detailSpecs');
+
+  // Populate seller provenance in Detail Modal
+  const sellerAvatar = document.getElementById('detailSellerAvatar');
+  const sellerName = document.getElementById('detailSellerName');
+  const sellerNick = document.getElementById('detailSellerNick');
+  const sellerRating = document.getElementById('detailSellerRating');
+  const sellerProfileLink = document.getElementById('detailSellerProfileLink');
+
+  if (item.seller) {
+    if (sellerAvatar) sellerAvatar.src = item.seller.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80';
+    if (sellerName) sellerName.textContent = item.seller.name || 'ผู้ขาย';
+    if (sellerNick) sellerNick.textContent = `@${item.seller.nickname || 'VerifiedSeller'}`;
+    if (sellerRating) sellerRating.innerHTML = `<i class="fa-solid fa-star" style="color: #fbbf24;"></i> ${item.seller.rating || '5.0 ★'} (${item.seller.reviewsCount || 50} รีวิว)`;
+    if (sellerProfileLink) {
+      sellerProfileLink.href = `OtherProfileDetail.html?user=${encodeURIComponent(item.seller.nickname || 'ApexMotors_NY')}`;
+      sellerProfileLink.title = `ดูโปรไฟล์ผู้ขาย [ @${item.seller.nickname} ]`;
+    }
+  }
 
   if (img) img.src = item.image;
   if (title) title.textContent = item.title;
@@ -1727,7 +1926,7 @@ function handleCreateAuction(event) {
     specs: specs,
     seller: {
       nickname: (currentUser && currentUser.isLoggedIn) ? 'Alexander_Sterling' : 'Collector_Seller',
-      name: (currentUser && currentUser.isLoggedIn) ? currentUser.fullName : 'ผู้สะสมยืนยันตัวตนแล้ว',
+      name: (currentUser && currentUser.isLoggedIn) ? currentUser.fullName : 'ผู้สะสม STARTASS',
       rating: '5.0 ★',
       reviewsCount: 1,
       verified: true,
@@ -1802,20 +2001,185 @@ function showToast(message) {
 }
 
 // ==========================================================================
-// USER PROFILE & DROPDOWN ENGINE
 // ==========================================================================
-let currentUser = {
+// USER PROFILE & REPUTATION ENGINE (MyProfileDetails & OtherProfileDetail)
+// ==========================================================================
+const DEFAULT_MY_PROFILE = {
+  id: 'user-my-01',
+  nickname: 'Alexander_Sterling',
   fullName: 'Alexander Sterling',
-  role: 'ผู้สะสมระดับพรีเมียม (ยืนยันตัวตนแล้ว)',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
+  winRate: 78.4,
+  winRateRatio: 'ชนะ 38 จาก 48 รายการ',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+  bio: 'นักสะสมรถยนต์คลาสสิก อุปกรณ์เทคโนโลยียุคบุกเบิก และการ์ดระดับสะสม เข้าร่วมประมูลจริงในระบบ STARTASS Escrow มีประวัติชำระเงินตรงเวลาสม่ำเสมอ',
   isLoggedIn: true
 };
+
+function loadMyProfile() {
+  const saved = localStorage.getItem('startass_my_profile');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      return { ...DEFAULT_MY_PROFILE, ...parsed };
+    } catch (e) {
+      console.error('Failed to parse saved profile:', e);
+    }
+  }
+  return { ...DEFAULT_MY_PROFILE };
+}
+
+function saveMyProfile(profileData) {
+  try {
+    currentUser = { ...currentUser, ...profileData };
+    localStorage.setItem('startass_my_profile', JSON.stringify(currentUser));
+    updateProfileUI();
+  } catch (e) {
+    console.error('Failed to save profile:', e);
+  }
+}
+
+let currentUser = loadMyProfile();
+
+// Other Profiles Directory (Sellers & Collectors)
+const OTHER_USER_PROFILES = {
+  'ApexMotors_NY': {
+    id: 'user-seller-01',
+    nickname: 'ApexMotors_NY',
+    fullName: 'Apex Classic Motoring LLC',
+    winRate: 84.5,
+    winRateRatio: 'ชนะ 42 จาก 50 การประมูล',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+    bio: 'ผู้เชี่ยวชาญด้านการจัดหาและบูรณะรถยนต์คลาสสิกระดับโลก รถทุกคันผ่านการตรวจสอบประวัติพร้อมเอกสารรับรองความแท้',
+    itemsCount: 6
+  },
+  'KyotoVault_Cards': {
+    id: 'user-seller-02',
+    nickname: 'KyotoVault_Cards',
+    fullName: 'Kyoto Rare Collectibles Japan',
+    winRate: 91.2,
+    winRateRatio: 'ชนะ 68 จาก 74 การประมูล',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
+    bio: 'ศูนย์รวมการ์ดสะสมเกรด PSA 10 และ Beckett BGS 9.5+ จัดเก็บในห้องควบคุมอุณหภูมิและความชื้นมาตรฐานระดับสากล ณ นครเกียวโต',
+    itemsCount: 9
+  },
+  'GenevaVault_CH': {
+    id: 'user-seller-03',
+    nickname: 'GenevaVault_CH',
+    fullName: 'Geneva Horology Antiquities SA',
+    winRate: 92.8,
+    winRateRatio: 'ชนะ 55 จาก 59 การประมูล',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
+    bio: 'เชี่ยวชาญการประมูลนาฬิกาข้อมือและนาฬิกาพกสวิสชั้นสูง Patek Philippe, Audemars Piguet และ Rolex วินเทจ พร้อมบริการขนส่ง Brinks Global',
+    itemsCount: 4
+  },
+  'StuttgartExclusive': {
+    id: 'user-seller-04',
+    nickname: 'StuttgartExclusive',
+    fullName: 'Stuttgart Heritage Auto Haus',
+    winRate: 86.0,
+    winRateRatio: 'ชนะ 37 จาก 43 การประมูล',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
+    bio: 'ผู้นำเข้ารถแข่งและปอร์เช่ GT3 RS ไมล์แท้ พร้อมใบเซอร์ติฟิเคตตรวจสภาพจากเยอรมนี',
+    itemsCount: 5
+  },
+  'ZenMasterBotanics': {
+    id: 'user-seller-05',
+    nickname: 'ZenMasterBotanics',
+    fullName: 'Omiya Master Bonsai Collection',
+    winRate: 94.0,
+    winRateRatio: 'ชนะ 47 จาก 50 การประมูล',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80',
+    bio: 'สะสมและฟูมฟักบอนไซสนชิมปากุและไม้ด่างโบราณอายุกว่า 100-200 ปี ปลูกในกระถางโทโคนาเมะยุคเอโดะ',
+    itemsCount: 7
+  },
+  'SiliconHeritage_CA': {
+    id: 'user-seller-06',
+    nickname: 'SiliconHeritage_CA',
+    fullName: 'Silicon Valley Artifacts Society',
+    winRate: 89.5,
+    winRateRatio: 'ชนะ 34 จาก 38 การประมูล',
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80',
+    bio: 'รวบรวมคอมพิวเตอร์โบราณและอุปกรณ์ประวัติศาสตร์เทคโนโลยี Apple-1, Silicon Graphics และคอมไพเลอร์ยุคแรกเริ่ม',
+    itemsCount: 4
+  },
+  'PlaneswalkerGuild': {
+    id: 'user-seller-07',
+    nickname: 'PlaneswalkerGuild',
+    fullName: 'Planeswalker High-End Vault',
+    winRate: 88.0,
+    winRateRatio: 'ชนะ 51 จาก 58 การประมูล',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+    bio: 'ผู้เชี่ยวชาญการ์ดชุด Black Lotus, Power Nine และการ์ดหายากยุค 90s พร้อมผลเกรดระดับพิพิธภัณฑ์',
+    itemsCount: 8
+  },
+  'RetroFoundry_Sys': {
+    id: 'user-seller-08',
+    nickname: 'RetroFoundry_Sys',
+    fullName: 'Retro Supercomputing Heritage',
+    winRate: 85.0,
+    winRateRatio: 'ชนะ 28 จาก 33 การประมูล',
+    avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=300&q=80',
+    bio: 'บูรณะ SGI Onyx2, Cray และเวิร์กสเตชันกราฟิกฮอลลีวูด สภาพใช้งานได้สมบูรณ์',
+    itemsCount: 3
+  }
+};
+
+function getUserProfile(nicknameOrId) {
+  if (!nicknameOrId) return OTHER_USER_PROFILES['ApexMotors_NY'];
+  const cleaned = nicknameOrId.replace(/^@/, '').replace(/^\[\s*@?/, '').replace(/\s*\]$/, '').trim();
+  if (cleaned.toLowerCase() === 'alexander_sterling' || cleaned.toLowerCase() === 'alexander sterling') {
+    return currentUser;
+  }
+  if (OTHER_USER_PROFILES[cleaned]) {
+    return OTHER_USER_PROFILES[cleaned];
+  }
+  const foundKey = Object.keys(OTHER_USER_PROFILES).find(k => k.toLowerCase() === cleaned.toLowerCase());
+  if (foundKey) {
+    return OTHER_USER_PROFILES[foundKey];
+  }
+  // Search in AUCTION_ITEMS
+  const matchedItem = AUCTION_ITEMS.find(i => i.seller && (i.seller.nickname === cleaned || i.seller.name === cleaned));
+  if (matchedItem && matchedItem.seller) {
+    return {
+      id: 'user-' + cleaned,
+      nickname: matchedItem.seller.nickname || cleaned,
+      fullName: matchedItem.seller.name || cleaned,
+      winRate: 85.0,
+      winRateRatio: 'ชนะ 30 จาก 35 การประมูล',
+      avatar: matchedItem.seller.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+      bio: 'ผู้ขายและนักสะสมของหายากในระบบ STARTASS Escrow พร้อมรับประกันคุณภาพสินค้า',
+      itemsCount: 3
+    };
+  }
+  return OTHER_USER_PROFILES['ApexMotors_NY'];
+}
+
+// User Reports Storage
+function loadUserReports() {
+  const saved = localStorage.getItem('startass_user_reports');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (e) {
+      console.error('Failed to parse reports:', e);
+    }
+  }
+  return [];
+}
+
+function saveUserReports(reports) {
+  try {
+    localStorage.setItem('startass_user_reports', JSON.stringify(reports));
+  } catch (e) {
+    console.error('Failed to save reports:', e);
+  }
+}
 
 function toggleProfileDropdown(event) {
   if (event) event.stopPropagation();
 
   if (!currentUser.isLoggedIn) {
-    // Log back in
     currentUser.isLoggedIn = true;
     updateProfileUI();
     showToast('เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับกลับมา ' + currentUser.fullName);
@@ -1864,6 +2228,579 @@ function updateProfileUI() {
     if (navAvatar) navAvatar.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80';
     if (menuAvatar) menuAvatar.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80';
     if (profileBtn) profileBtn.title = 'คลิกเพื่อเข้าสู่ระบบ (Sign In)';
+  }
+}
+
+// ==========================================================================
+// MY PROFILE DETAILS PAGE (pages/MyProfileDetails.html)
+// ==========================================================================
+let myProfileActiveTab = 'all';
+let myProfileSearchQuery = '';
+
+function initMyProfilePage() {
+  const container = document.getElementById('myProfileContainer');
+  if (!container) return;
+
+  currentUser = loadMyProfile();
+
+  // Populate Identity Elements
+  const avatarImg = document.getElementById('myProfileAvatarImg');
+  const fullNameEl = document.getElementById('myProfileFullName');
+  const nicknameEl = document.getElementById('myProfileNickname');
+  const bioEl = document.getElementById('myProfileBio');
+
+  if (avatarImg) avatarImg.src = currentUser.avatar;
+  if (fullNameEl) fullNameEl.textContent = currentUser.fullName;
+  if (nicknameEl) nicknameEl.textContent = `@${currentUser.nickname}`;
+  if (bioEl) bioEl.textContent = currentUser.bio;
+
+  // Calculate & Populate Stat Cards (Win Rate & Posted Auctions)
+  const statWinRate = document.getElementById('statMyWinRate');
+  const statWinRateMeta = document.getElementById('statMyWinRateMeta');
+  const statWinRateFill = document.getElementById('statMyWinRateProgress');
+  if (statWinRate) statWinRate.textContent = `${currentUser.winRate}%`;
+  if (statWinRateMeta) statWinRateMeta.textContent = currentUser.winRateRatio;
+  if (statWinRateFill) statWinRateFill.style.width = `${currentUser.winRate}%`;
+
+  // Seed user posted items if not present
+  ensureUserPostedAuctionsSeeded();
+
+  // Render user auctions
+  renderMyProfileAuctions();
+}
+
+function ensureUserPostedAuctionsSeeded() {
+  const myAuctions = AUCTION_ITEMS.filter(i => isItemOwnedByCurrentUser(i));
+  if (myAuctions.length === 0) {
+    const seed1 = {
+      id: 'auc-my-01',
+      rank: 11,
+      title: 'Ferrari 250 GTO 1962 โมเดลจำลองลิขสิทธิ์แท้ 1:18 งานหล่อเรซินพิเศษ',
+      category: 'cars',
+      categoryLabel: 'โมเดลรถยนต์ & ซูเปอร์คาร์',
+      image: 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?auto=format&fit=crop&w=1200&q=80',
+      images: [
+        'https://images.unsplash.com/photo-1592198084033-aade902d1aae?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80'
+      ],
+      description: 'โมเดลประกอบมือจำลอง Ferrari 250 GTO หมายเลขแชสซี 3705GT รายละเอียดห้องโดยสารและเครื่องยนต์ V12 ครบถ้วน พร้อมตู้กระจกกันฝุ่นฐานไม้แท้',
+      startPrice: 280000,
+      currentBid: 650000,
+      startDate: '1 ก.ย. 2026, 12:00',
+      endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 6 * 3600 * 1000).toISOString(),
+      bidsCount: 18,
+      specs: ['ขนาดสเกล 1:18 ความแม่นยำสูง', 'งานหล่อเรซินและชิ้นส่วนโฟโตเอตช์โลหะ', 'กล่องหนังแท้พร้อมใบรับรอง Limited Edition #48/100', 'ไม่เคยแกะจัดแสดง สภาพไร้ตำหนิ'],
+      seller: {
+        nickname: currentUser.nickname,
+        name: currentUser.fullName,
+        rating: '5.0 ★',
+        reviewsCount: 15,
+        verified: true,
+        avatar: currentUser.avatar
+      },
+      bidHistory: [
+        { user: 'Collector_Viper', amount: 650000, time: '20 นาทีที่แล้ว' },
+        { user: 'VintageVault', amount: 580000, time: '3 ชั่วโมงที่แล้ว' }
+      ]
+    };
+
+    const seed2 = {
+      id: 'auc-my-02',
+      rank: 12,
+      title: 'Rolex Cosmograph Daytona Ref. 6239 "Paul Newman" สภาพสะสม',
+      category: 'tech',
+      categoryLabel: 'นาฬิกาหรูระดับมาสเตอร์พีซ',
+      image: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=80',
+      images: [
+        'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=80'
+      ],
+      description: 'หน้าปัด Exotic Dial ดั้งเดิม ลวดลาย Art Deco อันเลื่องชื่อ กลไกไขลาน Valjoux 722 สภาพตัวเรือนและเข็มเดิม ไม่เคยผ่านการขัดแต่งหนัก พร้อมใบตรวจสอบจากผู้เชี่ยวชาญ',
+      startPrice: 8500000,
+      currentBid: 14200000,
+      startDate: '3 ก.ย. 2026, 09:30',
+      endDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000 + 14 * 3600 * 1000).toISOString(),
+      bidsCount: 34,
+      specs: ['รหัสอ้างอิง: Ref. 6239 ปี 1968', 'หน้าปัด Exotic "Paul Newman" แท้ 100%', 'กลไกไขลาน Calibre 722 ผ่านการล้างเครื่องโดยช่างนาฬิกาสวิส', 'พร้อมกล่องและเอกสารตรวจสอบความแท้'],
+      seller: {
+        nickname: currentUser.nickname,
+        name: currentUser.fullName,
+        rating: '5.0 ★',
+        reviewsCount: 15,
+        verified: true,
+        avatar: currentUser.avatar
+      },
+      bidHistory: [
+        { user: 'GenevaHorology', amount: 14200000, time: '1 ชั่วโมงที่แล้ว' },
+        { user: 'StuttgartExclusive', amount: 13500000, time: '5 ชั่วโมงที่แล้ว' }
+      ]
+    };
+
+    AUCTION_ITEMS.push(seed1, seed2);
+    saveAuctions();
+  }
+}
+
+function isItemOwnedByCurrentUser(item) {
+  if (!item || !item.seller) return false;
+  const sNick = (item.seller.nickname || '').toLowerCase();
+  const sName = (item.seller.name || '').toLowerCase();
+  const myNick = (currentUser.nickname || '').toLowerCase();
+  const myName = (currentUser.fullName || '').toLowerCase();
+  return sNick === myNick || sNick === 'alexander_sterling' || sName === myName || sName.includes('alexander');
+}
+
+function renderMyProfileAuctions() {
+  const grid = document.getElementById('myAuctionsGrid');
+  const emptyEl = document.getElementById('myAuctionsEmpty');
+  const counterEl = document.getElementById('myAuctionsCounter');
+  const statPosts = document.getElementById('statMyPosts');
+  const statPostsMeta = document.getElementById('statMyPostsMeta');
+
+  if (!grid) return;
+
+  const myItems = AUCTION_ITEMS.filter(item => isItemOwnedByCurrentUser(item));
+
+  if (statPosts) statPosts.textContent = `${myItems.length} รายการ`;
+  if (statPostsMeta) {
+    const activeCount = myItems.filter(i => {
+      const t = getTimeRemaining(i.endDate);
+      return !t.expired && i.isActive !== false;
+    }).length;
+    statPostsMeta.textContent = `เปิดประมูลสด ${activeCount} รายการ`;
+  }
+
+  // Filter according to Tab
+  let filtered = myItems.filter(item => {
+    const time = getTimeRemaining(item.endDate);
+    if (myProfileActiveTab === 'active') {
+      return !time.expired && item.isActive !== false;
+    }
+    if (myProfileActiveTab === 'ended') {
+      return time.expired;
+    }
+    if (myProfileActiveTab === 'draft') {
+      return item.isActive === false;
+    }
+    return true;
+  });
+
+  // Filter according to search query
+  if (myProfileSearchQuery.trim() !== '') {
+    const q = myProfileSearchQuery.toLowerCase().trim();
+    filtered = filtered.filter(item =>
+      item.title.toLowerCase().includes(q) ||
+      (item.categoryLabel && item.categoryLabel.toLowerCase().includes(q)) ||
+      (item.description && item.description.toLowerCase().includes(q))
+    );
+  }
+
+  if (counterEl) counterEl.textContent = `${filtered.length} รายการ`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  grid.innerHTML = filtered.map(item => {
+    const time = getTimeRemaining(item.endDate);
+    const isInactive = item.isActive === false;
+    const timeDisplay = isInactive
+      ? 'แบบร่าง (Draft)'
+      : (time.expired ? 'สิ้นสุดการประมูลแล้ว' : `${time.days} วัน ${time.hours} ชม. ${time.minutes} นาที`);
+
+    return `
+      <article class="auction-card" id="my-card-${item.id}">
+        <div class="card-media">
+          <img src="${item.image}" alt="${item.title}" class="card-img" loading="lazy" />
+          <div class="card-overlay-top">
+            <span class="rank-badge ${item.rank <= 3 ? 'top-' + item.rank : ''}">
+              <i class="fa-solid fa-box-archive"></i> โพสต์ของคุณ
+            </span>
+            <span class="category-tag">${item.categoryLabel || 'ของสะสม'}</span>
+          </div>
+          <div class="countdown-badge" data-end="${item.endDate}">
+            <i class="fa-regular fa-clock"></i>
+            <span class="timer-text">${timeDisplay}</span>
+          </div>
+        </div>
+
+        <div class="card-content">
+          <h2 class="card-title" title="${item.title}">${item.title}</h2>
+          <p class="card-description">${item.description}</p>
+
+          <div class="price-container">
+            <div class="price-col price-col-start">
+              <span class="price-label"><i class="fa-solid fa-flag"></i> ราคาตั้งต้น</span>
+              <span class="start-price">${formatCurrency(item.startPrice)}</span>
+            </div>
+            <div class="price-col price-col-current">
+              <span class="price-label"><i class="fa-solid fa-gavel"></i> ราคาสูงสุด (${item.bidsCount} เสนอ)</span>
+              <span class="current-bid">${formatCurrency(item.currentBid)}</span>
+            </div>
+          </div>
+
+          <div class="auction-dates">
+            <div class="date-row date-row-start">
+              <span class="label"><i class="fa-regular fa-calendar-check"></i> เริ่มเมื่อ</span>
+              <span class="value">${item.startDate}</span>
+            </div>
+            <div class="date-row date-row-end">
+              <span class="label"><i class="fa-regular fa-calendar-xmark"></i> สิ้นสุด</span>
+              <span class="value">${new Date(item.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn btn-view" onclick="openDetailModal('${item.id}')" style="flex:1;">
+              <i class="fa-regular fa-eye"></i> ดูรายละเอียด
+            </button>
+            <button class="btn btn-bid" onclick="showToast('โพสต์ #${item.id} กำลังทำงานในระบบประมูลสด')" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #34d399;">
+              <i class="fa-solid fa-sliders"></i> จัดการโพสต์
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function setMyProfileTab(tab) {
+  myProfileActiveTab = tab;
+  document.querySelectorAll('#myProfileFilterTabs .profile-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
+  });
+  renderMyProfileAuctions();
+}
+
+function filterMyProfileAuctions(keyword) {
+  myProfileSearchQuery = keyword || '';
+  renderMyProfileAuctions();
+}
+
+// Edit Profile Modal Handling
+function openEditProfileModal() {
+  const modal = document.getElementById('editProfileModal');
+  if (!modal) return;
+
+  currentUser = loadMyProfile();
+
+  const fn = document.getElementById('editFullName');
+  const nn = document.getElementById('editNickname');
+  const av = document.getElementById('editAvatarUrl');
+  const bio = document.getElementById('editBio');
+  const previewImg = document.getElementById('editAvatarPreview');
+
+  if (fn) fn.value = currentUser.fullName;
+  if (nn) nn.value = currentUser.nickname;
+  if (av) av.value = currentUser.avatar;
+  if (bio) bio.value = currentUser.bio;
+  if (previewImg) previewImg.src = currentUser.avatar;
+
+  modal.classList.add('open');
+}
+
+function closeEditProfileModal() {
+  const modal = document.getElementById('editProfileModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function handleSaveProfileForm(event) {
+  if (event) event.preventDefault();
+
+  const fn = document.getElementById('editFullName');
+  const nn = document.getElementById('editNickname');
+  const av = document.getElementById('editAvatarUrl');
+  const bio = document.getElementById('editBio');
+
+  const updated = {
+    fullName: fn ? fn.value.trim() : currentUser.fullName,
+    nickname: nn ? nn.value.trim().replace(/^@/, '') : currentUser.nickname,
+    avatar: av ? av.value.trim() : currentUser.avatar,
+    bio: bio ? bio.value.trim() : currentUser.bio
+  };
+
+  saveMyProfile(updated);
+  initMyProfilePage();
+  closeEditProfileModal();
+  showToast('บันทึกข้อมูลโปรไฟล์ของคุณเรียบร้อยแล้ว!');
+}
+
+function previewAvatarFromInput(input) {
+  const url = input.value.trim();
+  const previewImg = document.getElementById('editAvatarPreview');
+  if (previewImg && url) {
+    previewImg.src = url;
+  }
+}
+
+// ==========================================================================
+// OTHER USER PROFILE PAGE (pages/OtherProfileDetail.html)
+// ==========================================================================
+let otherProfileActiveTab = 'all';
+let otherProfileSearchQuery = '';
+let currentTargetProfile = null;
+
+function initOtherProfilePage() {
+  const container = document.getElementById('otherProfileContainer');
+  if (!container) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const userParam = urlParams.get('user') || urlParams.get('id') || 'ApexMotors_NY';
+
+  currentTargetProfile = getUserProfile(userParam);
+
+  // Render Seller Switcher Chips so user can test multiple profiles
+  renderSellerSwitcherChips(currentTargetProfile.nickname);
+
+  // Bind Header Identity
+  const avatarImg = document.getElementById('otherProfileAvatarImg');
+  const fullNameEl = document.getElementById('otherProfileFullName');
+  const nicknameEl = document.getElementById('otherProfileNickname');
+  const bioEl = document.getElementById('otherProfileBio');
+
+  if (avatarImg) avatarImg.src = currentTargetProfile.avatar;
+  if (fullNameEl) fullNameEl.textContent = currentTargetProfile.fullName;
+  if (nicknameEl) nicknameEl.textContent = `[ @${currentTargetProfile.nickname} ]`;
+  if (bioEl) bioEl.textContent = currentTargetProfile.bio;
+
+  const breadcrumbEl = document.getElementById('breadcrumbProfileName');
+  if (breadcrumbEl) breadcrumbEl.textContent = currentTargetProfile.fullName;
+
+  // Bind Stat Cards (Win Rate & Posted Auctions)
+  const statWinRate = document.getElementById('statOtherWinRate');
+  const statWinRateMeta = document.getElementById('statOtherWinRateMeta');
+  const statWinRateFill = document.getElementById('statOtherWinRateProgress');
+  if (statWinRate) statWinRate.textContent = `${currentTargetProfile.winRate}%`;
+  if (statWinRateMeta) statWinRateMeta.textContent = currentTargetProfile.winRateRatio;
+  if (statWinRateFill) statWinRateFill.style.width = `${currentTargetProfile.winRate}%`;
+
+  // Render Auctions Posted by this user
+  renderOtherProfileAuctions();
+}
+
+function renderSellerSwitcherChips(activeNickname) {
+  const container = document.getElementById('sellerSwitchChips');
+  if (!container) return;
+
+  const sellers = Object.values(OTHER_USER_PROFILES);
+  container.innerHTML = sellers.map(s => `
+    <a href="OtherProfileDetail.html?user=${encodeURIComponent(s.nickname)}" class="seller-chip-btn ${s.nickname === activeNickname ? 'active' : ''}">
+      <img src="${s.avatar}" alt="${s.nickname}">
+      <span>@${s.nickname}</span>
+    </a>
+  `).join('');
+}
+
+function renderOtherProfileAuctions() {
+  const grid = document.getElementById('otherAuctionsGrid');
+  const emptyEl = document.getElementById('otherAuctionsEmpty');
+  const counterEl = document.getElementById('otherAuctionsCounter');
+  const statPosts = document.getElementById('statOtherPosts');
+  const statPostsMeta = document.getElementById('statOtherPostsMeta');
+
+  if (!grid || !currentTargetProfile) return;
+
+  // Match items belonging to this seller
+  let sellerItems = AUCTION_ITEMS.filter(item => {
+    if (!item.seller) return false;
+    const nick = (item.seller.nickname || '').toLowerCase();
+    const name = (item.seller.name || '').toLowerCase();
+    const targetNick = currentTargetProfile.nickname.toLowerCase();
+    const targetName = currentTargetProfile.fullName.toLowerCase();
+    return nick === targetNick || name === targetName || nick.includes(targetNick) || targetNick.includes(nick);
+  });
+
+  // If no items directly match, show related items from AUCTION_ITEMS
+  if (sellerItems.length === 0) {
+    sellerItems = AUCTION_ITEMS.slice(0, 3);
+  }
+
+  if (statPosts) statPosts.textContent = `${sellerItems.length} รายการ`;
+  if (statPostsMeta) {
+    statPostsMeta.textContent = `สินค้าประมูลพร้อมเสนอราคา`;
+  }
+
+  // Filter according to Tab
+  let filtered = sellerItems.filter(item => {
+    const time = getTimeRemaining(item.endDate);
+    if (otherProfileActiveTab === 'active') {
+      return !time.expired;
+    }
+    if (otherProfileActiveTab === 'ended') {
+      return time.expired;
+    }
+    return true;
+  });
+
+  // Filter according to search
+  if (otherProfileSearchQuery.trim() !== '') {
+    const q = otherProfileSearchQuery.toLowerCase().trim();
+    filtered = filtered.filter(item =>
+      item.title.toLowerCase().includes(q) ||
+      (item.categoryLabel && item.categoryLabel.toLowerCase().includes(q)) ||
+      (item.description && item.description.toLowerCase().includes(q))
+    );
+  }
+
+  if (counterEl) counterEl.textContent = `${filtered.length} รายการ`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  grid.innerHTML = filtered.map(item => {
+    const time = getTimeRemaining(item.endDate);
+    const timeDisplay = time.expired
+      ? 'สิ้นสุดการประมูลแล้ว'
+      : `${time.days} วัน ${time.hours} ชม. ${time.minutes} นาที`;
+
+    return `
+      <article class="auction-card" id="other-card-${item.id}">
+        <div class="card-media">
+          <img src="${item.image}" alt="${item.title}" class="card-img" loading="lazy" />
+          <div class="card-overlay-top">
+            <span class="rank-badge ${item.rank <= 3 ? 'top-' + item.rank : ''}">
+              <i class="fa-solid fa-trophy"></i> #${item.rank || 1}
+            </span>
+            <span class="category-tag">${item.categoryLabel || 'ของสะสม'}</span>
+          </div>
+          <div class="countdown-badge" data-end="${item.endDate}">
+            <i class="fa-regular fa-clock"></i>
+            <span class="timer-text">${timeDisplay}</span>
+          </div>
+        </div>
+
+        <div class="card-content">
+          <h2 class="card-title" title="${item.title}">${item.title}</h2>
+          <p class="card-description">${item.description}</p>
+
+          <div class="price-container">
+            <div class="price-col price-col-start">
+              <span class="price-label"><i class="fa-solid fa-flag"></i> ราคาตั้งต้น</span>
+              <span class="start-price">${formatCurrency(item.startPrice)}</span>
+            </div>
+            <div class="price-col price-col-current">
+              <span class="price-label"><i class="fa-solid fa-gavel"></i> ราคาสูงสุด (${item.bidsCount} เสนอ)</span>
+              <span class="current-bid">${formatCurrency(item.currentBid)}</span>
+            </div>
+          </div>
+
+          <div class="auction-dates">
+            <div class="date-row date-row-start">
+              <span class="label"><i class="fa-regular fa-calendar-check"></i> เริ่มต้น</span>
+              <span class="value">${item.startDate}</span>
+            </div>
+            <div class="date-row date-row-end">
+              <span class="label"><i class="fa-regular fa-calendar-xmark"></i> สิ้นสุด</span>
+              <span class="value">${new Date(item.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn btn-bid" onclick="openBidModal('${item.id}')">
+              <i class="fa-solid fa-gavel"></i> เสนอราคาประมูล
+            </button>
+            <button class="btn btn-view" onclick="openDetailModal('${item.id}')" title="ดูรายละเอียด">
+              <i class="fa-regular fa-eye"></i> ดูรายละเอียด
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function setOtherProfileTab(tab) {
+  otherProfileActiveTab = tab;
+  document.querySelectorAll('#otherProfileFilterTabs .profile-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
+  });
+  renderOtherProfileAuctions();
+}
+
+function filterOtherProfileAuctions(keyword) {
+  otherProfileSearchQuery = keyword || '';
+  renderOtherProfileAuctions();
+}
+
+// Report User Modal Handling
+function openReportUserModal() {
+  if (!currentTargetProfile) return;
+
+  const modal = document.getElementById('reportUserModal');
+  if (!modal) return;
+
+  const avatar = document.getElementById('reportTargetAvatar');
+  const name = document.getElementById('reportTargetName');
+  const nick = document.getElementById('reportTargetNick');
+
+  if (avatar) avatar.src = currentTargetProfile.avatar;
+  if (name) name.textContent = currentTargetProfile.fullName;
+  if (nick) nick.textContent = `@${currentTargetProfile.nickname}`;
+
+  modal.classList.add('open');
+}
+
+function closeReportUserModal() {
+  const modal = document.getElementById('reportUserModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function handleSubmitReportUser(event) {
+  if (event) event.preventDefault();
+
+  if (!currentTargetProfile) return;
+
+  const selectedReason = document.querySelector('input[name="reportReason"]:checked');
+  const detailsEl = document.getElementById('reportDetails');
+
+  const reason = selectedReason ? selectedReason.value : 'พฤติกรรมไม่เหมาะสมทั่วไป';
+  const details = detailsEl ? detailsEl.value.trim() : '';
+
+  const newReport = {
+    id: 'rep-' + Date.now(),
+    targetUserId: currentTargetProfile.id,
+    targetNickname: currentTargetProfile.nickname,
+    targetFullName: currentTargetProfile.fullName,
+    reportedBy: currentUser.nickname,
+    reason: reason,
+    details: details,
+    createdAt: new Date().toISOString(),
+    status: 'PENDING_REVIEW'
+  };
+
+  const reports = loadUserReports();
+  reports.unshift(newReport);
+  saveUserReports(reports);
+
+  closeReportUserModal();
+  if (detailsEl) detailsEl.value = '';
+
+  showToast(`ส่งรายงานผู้ใช้ [ @${currentTargetProfile.nickname} ] สำเร็จเรียบร้อย! ทีมงานความปลอดภัยจะดำเนินการตรวจสอบภายใน 24 ชม.`);
+}
+
+function handleOtherProfileChat() {
+  if (!currentTargetProfile) return;
+
+  // Check if current user has a WON order with this seller
+  const orders = loadOrders();
+  const wonOrder = orders.find(o => {
+    if (o.status !== 'WON') return false;
+    const sNick = o.seller ? (o.seller.nickname || '').toLowerCase() : '';
+    return sNick === currentTargetProfile.nickname.toLowerCase();
+  });
+
+  if (wonOrder) {
+    window.location.href = `chat.html?orderId=${encodeURIComponent(wonOrder.orderId)}`;
+  } else {
+    showToast(`สิทธิ์ห้องแชต P2P สงวนไว้เฉพาะผู้ชนะการประมูลของ [@${currentTargetProfile.nickname}] เท่านั้น สามารถกด "จำลองการชนะประมูล" ในแถบกระดิ่งเพื่อทดสอบได้ครับ`);
   }
 }
 
@@ -2963,16 +3900,18 @@ function renderOrderDetail(orderId) {
               <i class="fa-solid fa-store"></i> ข้อมูลผู้ขาย
             </span>
             <span class="seller-verified-pill">
-              <i class="fa-solid fa-shield-halved"></i> ผู้ขายยืนยันตัวตนแล้ว
+              <i class="fa-solid fa-box-archive"></i> ผู้ขายในระบบ STARTASS
             </span>
           </div>
 
           <div class="seller-profile-row">
-            <img src="${seller.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}" alt="${seller.nickname}" class="seller-avatar-img">
+            <a href="OtherProfileDetail.html?user=${encodeURIComponent(seller.nickname || 'ApexMotors_NY')}" title="คลิกเพื่อดูโปรไฟล์ผู้ขาย" style="text-decoration: none;">
+              <img src="${seller.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}" alt="${seller.nickname}" class="seller-avatar-img">
+            </a>
             <div class="seller-details">
               <div class="seller-nickname">
                 <span class="bracket">[</span>
-                <span style="color: #f59e0b;">@${seller.nickname || 'ApexMotors_NY'}</span>
+                <a href="OtherProfileDetail.html?user=${encodeURIComponent(seller.nickname || 'ApexMotors_NY')}" style="color: #f59e0b; text-decoration: none;" title="คลิกเพื่อดูโปรไฟล์ผู้ขาย">@${seller.nickname || 'ApexMotors_NY'}</a>
                 <span class="bracket">]</span>
               </div>
               <div class="seller-company-name">${seller.name || 'Apex Classic Motoring LLC'}</div>
@@ -3152,7 +4091,7 @@ function renderOrderDetail(orderId) {
                 <div class="escrow-icon"><i class="fa-solid fa-handshake"></i></div>
                 <div class="escrow-text">
                   <strong>การันตีของแท้ 100% โดยผู้ขาย</strong>
-                  <span>ผู้ขาย [@${seller.nickname || 'ApexMotors_NY'}] ผ่านการยืนยันตัวตนและการันตีของแท้ 100%</span>
+                  <span>ผู้ขาย [@${seller.nickname || 'ApexMotors_NY'}] การันตีของสะสมแท้ 100%</span>
                 </div>
               </div>
 
@@ -3407,15 +4346,17 @@ function renderStandaloneCurrentChat(orderId) {
         <i class="fa-solid fa-arrow-left"></i>
       </button>
 
-      <div class="chat-header-avatar-wrap">
+      <a href="OtherProfileDetail.html?user=${encodeURIComponent(seller.nickname)}" class="chat-header-avatar-wrap" title="ดูโปรไฟล์ผู้ขาย" style="text-decoration:none;">
         <img src="${seller.avatar}" alt="${seller.nickname}" class="chat-header-avatar">
         <span class="chat-header-online-dot"></span>
-      </div>
+      </a>
 
       <div class="chat-header-user-meta">
         <div class="chat-header-name-row">
-          <h3 class="chat-header-fullname">${seller.name}</h3>
-          <span class="chat-header-username-small">@${seller.nickname}</span>
+          <a href="OtherProfileDetail.html?user=${encodeURIComponent(seller.nickname)}" style="text-decoration:none; color:inherit;" title="ดูโปรไฟล์ผู้ขาย">
+            <h3 class="chat-header-fullname">${seller.name}</h3>
+          </a>
+          <a href="OtherProfileDetail.html?user=${encodeURIComponent(seller.nickname)}" class="chat-header-username-small" style="text-decoration:none;" title="ดูโปรไฟล์ผู้ขาย">@${seller.nickname}</a>
         </div>
         <div class="chat-header-subinfo">
           <span class="chat-online-status-pill"><i class="fa-solid fa-circle"></i> ${seller.onlineStatus || 'ใช้งานอยู่'}</span>
@@ -3877,6 +4818,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (document.getElementById('standaloneChatContainer')) {
     initChatPage();
+  }
+
+  if (document.getElementById('myProfileContainer')) {
+    initMyProfilePage();
+  }
+
+  if (document.getElementById('otherProfileContainer')) {
+    initOtherProfilePage();
   }
 
   updateNavOrdersCount();

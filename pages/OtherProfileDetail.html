@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>STARTASS - โปรไฟล์ผู้สะสมและผู้ขาย (User Profile & Auctions)</title>
+  
+  <!-- Browser Tab Icon (Favicon) -->
+  <link rel="icon" type="image/png" href="../images/logo.png">
+  <link rel="shortcut icon" type="image/png" href="../images/logo.png">
+  <link rel="apple-touch-icon" href="../images/logo.png">
+  
+  <!-- Google Fonts: Prompt & Kanit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Platform Stylesheet -->
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <!-- Top Platform Navbar -->
+  <nav class="site-navbar">
+    <div class="navbar-container">
+      <a href="HomePage.html" class="navbar-brand">
+        <img src="../images/logo.png" alt="STARTASS Logo" class="navbar-logo-img">
+        <span class="navbar-brand-name">STAR <span>TASS!</span></span>
+      </a>
+
+      <div class="navbar-actions">
+        <!-- My Orders Navigation Button -->
+        <a href="ordersdetail.html" class="btn-orders-nav" id="navOrdersBtn" title="ดูรายการคำสั่งซื้อ / การประมูลของฉัน">
+          <i class="fa-solid fa-receipt"></i>
+          <span>คำสั่งซื้อของฉัน</span>
+          <span class="orders-nav-badge" id="navOrdersBadge" style="display: none;">0</span>
+        </a>
+
+        <!-- Messages Navigation Button -->
+        <a href="chat.html" class="btn-chat-nav" id="navChatBtn" title="ข้อความและการสนทนา P2P (Messages & P2P Chat)">
+          <i class="fa-solid fa-comments"></i>
+          <span>ข้อความ</span>
+          <span class="chat-nav-badge" id="navChatBadge" style="display: none;">0</span>
+        </a>
+
+        <!-- Create Auction Button -->
+        <button type="button" class="btn btn-create-auction" onclick="openCreateModal()">
+          <i class="fa-solid fa-plus"></i>
+          <span>สร้างโพสต์ประมูล</span>
+        </button>
+
+        <!-- Notification Bell Dropdown -->
+        <div class="notification-dropdown-wrapper" id="notificationDropdownWrapper">
+          <button type="button" class="notification-btn" id="notificationBtn" onclick="toggleNotificationDropdown(event)" aria-expanded="false" aria-haspopup="true" title="การแจ้งเตือน (Notifications & Outbid Alerts)">
+            <i class="fa-regular fa-bell"></i>
+            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+          </button>
+
+          <!-- Notification Dropdown Menu -->
+          <div class="notification-dropdown-menu" id="notificationDropdownMenu">
+            <div class="notification-dropdown-header">
+              <div class="notification-header-title">
+                <i class="fa-solid fa-bell" style="color: var(--accent-gold);"></i>
+                <span>การแจ้งเตือน</span>
+                <span class="notification-count-tag" id="notificationCountTag">0 รายการใหม่</span>
+              </div>
+              <button type="button" class="btn-clear-notifications" onclick="markAllNotificationsRead(event)" title="ทำเครื่องหมายว่าอ่านแล้วทั้งหมด">
+                <i class="fa-solid fa-check-double"></i> อ่านทั้งหมด
+              </button>
+            </div>
+
+            <div class="notification-list" id="notificationList">
+              <!-- Populated dynamically via JS -->
+            </div>
+
+            <div class="notification-dropdown-footer">
+              <button type="button" class="btn-simulate-outbid" onclick="simulateOutbid(event)" title="จำลองสถานการณ์เมื่อมีคนอื่นมาบิดแซงเรา">
+                <i class="fa-solid fa-bolt"></i>
+                <span>⚡ จำลองการโดนเสนอราคาแซง (Simulate Outbid)</span>
+              </button>
+              <button type="button" class="btn-simulate-outbid" onclick="simulateAuctionWon(null, event)" title="จำลองสถานการณ์ชนะการประมูลเพื่อปลดล็อกสิทธิ์ P2P Chat กับผู้ขาย" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #34d399; margin-top: 6px;">
+                <i class="fa-solid fa-trophy"></i>
+                <span>⚡ จำลองการชนะประมูล & ปลดล็อกสิทธิ์แชต P2P</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Profile Dropdown -->
+        <div class="profile-dropdown-wrapper" id="profileDropdownWrapper">
+          <button type="button" class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown(event)" aria-expanded="false" aria-haspopup="true" title="ดูโปรไฟล์ Alexander Sterling">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Profile" class="profile-avatar" id="navProfileAvatar">
+          </button>
+
+          <!-- Dropdown Menu Content -->
+          <div class="profile-dropdown-menu" id="profileDropdownMenu">
+            <div class="profile-dropdown-header">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Avatar" class="dropdown-avatar-lg" id="menuProfileAvatar">
+              <div class="profile-dropdown-user-info">
+                <span class="profile-full-name-label">ชื่อผู้ใช้งาน</span>
+                <span class="profile-full-name" id="userFullName">Alexander Sterling</span>
+              </div>
+            </div>
+
+            <div class="profile-dropdown-divider"></div>
+
+            <ul class="profile-menu-list">
+              <li>
+                <a href="MyProfileDetails.html" class="profile-menu-item" style="text-decoration: none;">
+                  <i class="fa-solid fa-user"></i>
+                  <span>โปรไฟล์ของฉัน (My Profile)</span>
+                </a>
+              </li>
+              <li>
+                <a href="ordersdetail.html" class="profile-menu-item" style="text-decoration: none;">
+                  <i class="fa-solid fa-file-invoice-dollar"></i>
+                  <span>คำสั่งซื้อ & รายการประมูลของฉัน (My Orders)</span>
+                </a>
+              </li>
+              <li>
+                <a href="chat.html" class="profile-menu-item" style="text-decoration: none;">
+                  <i class="fa-solid fa-comments"></i>
+                  <span>กล่องข้อความ & แชต P2P กับผู้ขาย (Messages)</span>
+                </a>
+              </li>
+              <li>
+                <button type="button" class="profile-menu-item text-danger" onclick="handleLogout()">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                  <span>ออกจากระบบ (Logout)</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Profile Page Container -->
+  <div class="container profile-page-wrapper" id="otherProfileContainer">
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="order-breadcrumbs" aria-label="Breadcrumb" style="margin-bottom: 16px;">
+      <a href="HomePage.html"><i class="fa-solid fa-house"></i> หน้าแรก</a>
+      <span class="crumb-sep">/</span>
+      <a href="HomePage.html">ผู้ขายและผู้สะสม</a>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-active" id="breadcrumbProfileName">โปรไฟล์ผู้ขาย</span>
+    </nav>
+
+    <!-- Quick Switcher Bar: Test Multiple Sellers in 1 Click -->
+    <section class="seller-switcher-card">
+      <div class="seller-switcher-title">
+        <i class="fa-solid fa-users"></i>
+        <span>เลือกดูโปรไฟล์ผู้สะสมรายอื่น:</span>
+      </div>
+      <div class="seller-switch-chips" id="sellerSwitchChips">
+        <!-- Rendered dynamically via renderSellerSwitcherChips() -->
+      </div>
+    </section>
+
+    <!-- Profile Header Card (Clean layout with Avatar and Details) -->
+    <section class="profile-header-card">
+      <div class="profile-header-main">
+        <!-- Identity Group: Avatar + Details -->
+        <div class="profile-identity-group">
+          <div class="profile-avatar-container">
+            <img id="otherProfileAvatarImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Avatar" class="profile-avatar-xl">
+            <span class="profile-online-badge" title="ออนไลน์ขณะนี้"></span>
+          </div>
+
+          <div class="profile-identity-details">
+            <div class="profile-title-row">
+              <h1 class="profile-display-fullname" id="otherProfileFullName">Apex Classic Motoring LLC</h1>
+            </div>
+
+            <div class="profile-meta-pills">
+              <span class="profile-nickname-pill" id="otherProfileNickname">[ @ApexMotors_NY ]</span>
+            </div>
+
+            <p class="profile-bio-text" id="otherProfileBio">
+              ผู้เชี่ยวชาญด้านการจัดหาและบูรณะรถยนต์คลาสสิกระดับโลก รถทุกคันผ่านการตรวจสอบประวัติพร้อมเอกสาร Shelby Registry และใบรับรอง Authenticity
+            </p>
+          </div>
+        </div>
+
+        <!-- Header Actions: Report User & P2P Chat -->
+        <div class="profile-header-actions">
+          <button type="button" class="btn-profile-primary btn-profile-report" onclick="openReportUserModal()" title="ส่งเรื่องรายงานพฤติกรรมผู้ใช้งานนี้">
+            <i class="fa-solid fa-flag"></i> รายงานผู้ใช้ (Report User)
+          </button>
+          <button type="button" class="btn-profile-primary btn-profile-chat" onclick="handleOtherProfileChat()" title="ติดต่อผู้ขายผ่านห้องสนทนา P2P">
+            <i class="fa-solid fa-comments"></i> แชต P2P กับผู้ขาย
+          </button>
+          <a href="HomePage.html" class="btn-profile-primary btn-view" style="background:var(--bg-card-inner); border:1px solid var(--border-subtle); color:var(--text-secondary);" title="กลับสู่ตลาดประมูล">
+            <i class="fa-solid fa-arrow-left"></i> กลับตลาดประมูล
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2-Card Key Performance Indicators (KPIs) Grid: Win Rate & Posted Auctions -->
+    <section class="profile-stats-grid profile-stats-grid-2col">
+      <!-- Card 1: Win Rate (อัตราการชนะ) -->
+      <div class="profile-stat-card">
+        <div class="profile-stat-icon-box stat-icon-winrate">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <div class="profile-stat-content">
+          <span class="profile-stat-label">อัตราการชนะ (Win Rate)</span>
+          <div class="profile-stat-val-row">
+            <span class="profile-stat-number" id="statOtherWinRate">84.5%</span>
+          </div>
+          <span class="profile-stat-meta" id="statOtherWinRateMeta">ชนะ 42 จาก 50 การประมูล</span>
+          <div class="profile-mini-progress">
+            <div class="profile-mini-progress-fill" id="statOtherWinRateProgress" style="width: 84.5%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Posted Auctions Count (สินค้าที่ลงประมูล) -->
+      <div class="profile-stat-card">
+        <div class="profile-stat-icon-box stat-icon-posts">
+          <i class="fa-solid fa-tags"></i>
+        </div>
+        <div class="profile-stat-content">
+          <span class="profile-stat-label">สินค้าที่ลงประมูล (Auctions Posted)</span>
+          <div class="profile-stat-val-row">
+            <span class="profile-stat-number" id="statOtherPosts">6 รายการ</span>
+          </div>
+          <span class="profile-stat-meta" id="statOtherPostsMeta">สินค้าพร้อมเสนอราคา</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Post Auctions Section (รายการโพสต์ประมูลของผู้ใช้นี้) -->
+    <section class="profile-auctions-section">
+      <div class="profile-section-header">
+        <div class="profile-section-title-wrap">
+          <h2 class="profile-section-title">
+            <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i>
+            <span>รายการสินค้าที่เปิดประมูลโดยผู้ใช้นี้ (Posted Auctions)</span>
+          </h2>
+          <span class="profile-items-counter-badge" id="otherAuctionsCounter">0 รายการ</span>
+        </div>
+
+        <div class="profile-section-controls">
+          <!-- Filter Tabs -->
+          <div class="profile-filter-tabs" id="otherProfileFilterTabs">
+            <button type="button" class="profile-tab-btn active" data-tab="all" onclick="setOtherProfileTab('all')">
+              ทั้งหมด (All)
+            </button>
+            <button type="button" class="profile-tab-btn" data-tab="active" onclick="setOtherProfileTab('active')">
+              กำลังเปิดประมูล (Active)
+            </button>
+            <button type="button" class="profile-tab-btn" data-tab="ended" onclick="setOtherProfileTab('ended')">
+              จบการประมูลแล้ว (Ended)
+            </button>
+          </div>
+
+          <!-- Search Input -->
+          <div class="profile-search-input-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="otherProfileSearchInput" class="profile-search-input" placeholder="ค้นหาสินค้าของผู้ใช้นี้..." oninput="filterOtherProfileAuctions(this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Auctions Grid (Rendered via JS) -->
+      <div class="auction-grid" id="otherAuctionsGrid">
+        <!-- Rendered dynamically via renderOtherProfileAuctions() -->
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="otherAuctionsEmpty" style="display: none; padding: 60px 20px; text-align: center;">
+        <i class="fa-solid fa-box-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 16px;"></i>
+        <h3 style="font-size: 1.2rem; margin-bottom: 8px;">ไม่พบรายการสินค้าที่เปิดประมูลในสถานะนี้</h3>
+        <p style="color: var(--text-secondary);">โปรดเลือกแท็บสถานะอื่นเพื่อตรวจสอบรายการสินค้า</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- MODAL: Report User Modal -->
+  <div class="modal-backdrop" id="reportUserModal" role="dialog" aria-modal="true" aria-labelledby="reportUserTitle">
+    <div class="modal-container modal-report-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="reportUserTitle" style="color: #ef4444;">
+          <i class="fa-solid fa-triangle-exclamation"></i> รายงานผู้ใช้งาน (Report User)
+        </h3>
+        <button class="modal-close" onclick="closeReportUserModal()" aria-label="ปิดหน้าต่าง">&times;</button>
+      </div>
+
+      <form id="reportUserForm" onsubmit="handleSubmitReportUser(event)">
+        <div class="modal-body">
+          <!-- Target User Summary Box -->
+          <div class="report-target-summary">
+            <img id="reportTargetAvatar" src="" alt="Target User" class="report-target-avatar">
+            <div>
+              <div style="font-size: 0.8rem; color: #fca5a5; font-weight: 600;">กำลังรายงานผู้ใช้งาน:</div>
+              <strong id="reportTargetName" style="font-size: 1.05rem; color: #fff; display: block;">Apex Classic Motoring LLC</strong>
+              <span id="reportTargetNick" style="font-size: 0.85rem; color: var(--accent-gold);">@ApexMotors_NY</span>
+            </div>
+          </div>
+
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+            กรุณาเลือกสาเหตุที่คุณต้องการรายงาน เพื่อให้ทีมงานความปลอดภัยและตรวจสอบ Escrow ดำเนินการตรวจสอบ:
+          </p>
+
+          <!-- Report Reasons Radio Options -->
+          <div class="report-reasons-list">
+            <div class="report-reason-card">
+              <input type="radio" id="reason1" name="reportReason" value="สินค้าไม่ตรงตามสเปก / ต้องสงสัยเป็นของปลอม" checked>
+              <label for="reason1">
+                <strong>สินค้าไม่ตรงตามสเปก / ต้องสงสัยเป็นของปลอม</strong>
+                <span style="display:block; font-size:0.78rem; color:var(--text-muted);">ข้อมูลสินค้า รูปภาพ หรือเอกสารรับรองมีความคลาดเคลื่อนหรือน่าสงสัย</span>
+              </label>
+            </div>
+
+            <div class="report-reason-card">
+              <input type="radio" id="reason2" name="reportReason" value="พฤติกรรมปั่นราคาประมูล (Shill Bidding)">
+              <label for="reason2">
+                <strong>พฤติกรรมปั่นราคาประมูล (Shill Bidding)</strong>
+                <span style="display:block; font-size:0.78rem; color:var(--text-muted);">มีบัญชีน่าสงสัยเคาะเสนอราคาเพื่อดันราคาสินค้าขึ้นอย่างผิดธรรมชาติ</span>
+              </label>
+            </div>
+
+            <div class="report-reason-card">
+              <input type="radio" id="reason3" name="reportReason" value="ข้อมูลโปรไฟล์หรือตัวตนเป็นเท็จ (Fake Profile)">
+              <label for="reason3">
+                <strong>ข้อมูลโปรไฟล์หรือตัวตนเป็นเท็จ (Impersonation)</strong>
+                <span style="display:block; font-size:0.78rem; color:var(--text-muted);">แอบอ้างเป็นบุคคลหรือบริษัทอื่น หรือแสดงใบอนุญาตที่ไม่ถูกต้อง</span>
+              </label>
+            </div>
+
+            <div class="report-reason-card">
+              <input type="radio" id="reason4" name="reportReason" value="ละเมิดข้อตกลง Escrow หรือปฏิเสธการส่งมอบ">
+              <label for="reason4">
+                <strong>ละเมิดข้อตกลง Escrow หรือปฏิเสธการส่งมอบ</strong>
+                <span style="display:block; font-size:0.78rem; color:var(--text-muted);">ผู้ขายไม่ยอมปฏิบัติตามขั้นตอนส่งมอบสินค้าหลังจากชนะการประมูล</span>
+              </label>
+            </div>
+
+            <div class="report-reason-card">
+              <input type="radio" id="reason5" name="reportReason" value="การใช้ถ้อยคำไม่สุภาพ / คุกคาม (Harassment)">
+              <label for="reason5">
+                <strong>การใช้ถ้อยคำไม่สุภาพ / คุกคาม (Harassment)</strong>
+                <span style="display:block; font-size:0.78rem; color:var(--text-muted);">การสื่อสารในช่องทางสนทนาเข้าข่ายคุกคาม ข่มขู่ หรือหลอกลวง</span>
+              </label>
+            </div>
+
+            <div class="report-reason-card">
+              <input type="radio" id="reason6" name="reportReason" value="สาเหตุอื่นๆ">
+              <label for="reason6">
+                <strong>สาเหตุอื่นๆ (Other Reason)</strong>
+                <span style="display:block; font-size:0.78rem; color:var(--text-muted);">ระบุรายละเอียดเพิ่มเติมด้านล่าง</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Additional Details Textarea -->
+          <div class="form-group">
+            <label for="reportDetails" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
+              รายละเอียดเพิ่มเติมหรือข้อมูลหลักฐานประกอบ (ถ้ามี):
+            </label>
+            <textarea id="reportDetails" class="report-textarea" rows="3" placeholder="ระบุเลขที่คำสั่งซื้อ เวลาที่เกิดเหตุการณ์ หรือหลักฐานข้อความ..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--border-subtle); display:flex; justify-content:flex-end; gap:12px;">
+          <button type="button" class="btn btn-view" onclick="closeReportUserModal()">ยกเลิก</button>
+          <button type="submit" class="btn btn-report-submit">
+            <i class="fa-solid fa-paper-plane"></i> ส่งรายงานผู้ใช้งาน
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Place Bid Modal -->
+  <div class="modal-backdrop" id="bidModal" role="dialog" aria-modal="true" aria-labelledby="bidModalTitle">
+    <div class="modal-container modal-bid-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="bidModalTitle">
+          <i class="fa-solid fa-gavel" style="color: var(--accent-gold);"></i> เสนอราคาประมูล (Place Your Bid)
+        </h3>
+        <button class="modal-close" onclick="closeBidModal()" aria-label="ปิดหน้าต่าง">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-item-preview">
+          <img id="modalPreviewImg" src="" alt="Auction Item" class="preview-thumb">
+          <div class="preview-info">
+            <span class="preview-badge" id="modalPreviewCategory">หมวดหมู่</span>
+            <h4 id="modalPreviewTitle">ชื่อรายการประมูล</h4>
+          </div>
+        </div>
+
+        <div class="bidding-box">
+          <div id="modalBidLockNotice" class="modal-bid-lock-notice" style="display: none;"></div>
+
+          <div class="bid-status-row">
+            <div class="bid-status-col">
+              <span class="label">ราคาเสนอสูงสุดปัจจุบัน</span>
+              <span class="val" id="modalCurrentBid">฿0</span>
+            </div>
+            <div class="bid-status-col highlight">
+              <span class="label">ราคาเสนอขั้นต่ำถัดไป</span>
+              <span class="val" id="modalMinNextBid">฿0</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 16px;">
+            <label for="customBidInput">จำนวนเงินที่คุณต้องการเสนอ (บาท)</label>
+            <div class="input-currency-wrapper">
+              <span class="currency-symbol">฿</span>
+              <input type="number" id="customBidInput" class="form-control with-prefix" placeholder="0" min="1" step="1000">
+            </div>
+          </div>
+
+          <div class="quick-bid-buttons">
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(50000)">+ ฿50,000</button>
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(100000)">+ ฿100,000</button>
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(500000)">+ ฿500,000</button>
+            <button type="button" class="btn-quick-bid" onclick="setQuickIncrement(1000000)">+ ฿1,000,000</button>
+          </div>
+
+          <div class="bid-history-preview">
+            <h5 class="history-title"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการเสนอราคาสดล่าสุด</h5>
+            <ul class="bid-history-list" id="modalBidHistory"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-view" onclick="closeBidModal()">ยกเลิก</button>
+        <button type="button" class="btn btn-bid" id="btnSubmitBid" onclick="submitBid()"><i class="fa-solid fa-gavel"></i> ยืนยันการเสนอราคา</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPONENT: Auction Item Detail Modal (รายละเอียดรายการประมูล) -->
+  <div id="auctionDetailModalContainer"></div>
+
+  <!-- MODAL: Create New Auction Post (With Multi-Image DropZone) -->
+  <div class="modal-backdrop" id="createModal" role="dialog" aria-modal="true" aria-labelledby="createModalTitle">
+    <div class="modal-container modal-create-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="createModalTitle">
+          <i class="fa-solid fa-plus-circle" style="color: var(--accent-gold);"></i> สร้างโพสต์ประมูลสินค้าใหม่
+        </h3>
+        <button class="modal-close" onclick="closeCreateModal()" aria-label="ปิดหน้าต่าง">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="createAuctionForm" onsubmit="handleCreateAuction(event)">
+          <div class="create-modal-layout">
+            <div class="create-modal-left">
+              <div class="form-group">
+                <label for="createTitle">ชื่อสินค้า / รุ่น / แบรนด์ <span class="required">*</span></label>
+                <input type="text" id="createTitle" class="form-control" placeholder="เช่น 1967 Shelby GT500 Fastback" required>
+              </div>
+
+              <div class="form-row-2col">
+                <div class="form-group">
+                  <label for="createCategory">หมวดหมู่สินค้า <span class="required">*</span></label>
+                  <select id="createCategory" class="form-control" required>
+                    <option value="">-- เลือกหมวดหมู่ --</option>
+                    <option value="cars">โมเดลรถยนต์ & ซูเปอร์คาร์</option>
+                    <option value="cards">การ์ดสะสมหายาก</option>
+                    <option value="tech">เทคโนโลยี & ซูเปอร์คอมพิวเตอร์</option>
+                    <option value="trees">บอนไซ & ไม้ด่างหายาก</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="createStatus">สถานะการโพสต์ <span class="required">*</span></label>
+                  <select id="createStatus" class="form-control" required>
+                    <option value="active">เปิดประมูลทันที (Active)</option>
+                    <option value="draft">บันทึกเป็นแบบร่าง (Draft)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row-2col">
+                <div class="form-group">
+                  <label for="createStartPrice">ราคาเริ่มต้น (บาท) <span class="required">*</span></label>
+                  <div class="input-currency-wrapper">
+                    <span class="currency-symbol">฿</span>
+                    <input type="number" id="createStartPrice" class="form-control with-prefix" placeholder="500000" min="1" step="1" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="createBidIncrement">การเคาะเสนอราคาขั้นต่ำ (บาท) <span class="required">*</span></label>
+                  <select id="createBidIncrement" class="form-control" required>
+                    <option value="10000">+ ฿10,000 ต่อครั้ง</option>
+                    <option value="50000" selected>+ ฿50,000 ต่อครั้ง</option>
+                    <option value="100000">+ ฿100,000 ต่อครั้ง</option>
+                    <option value="500000">+ ฿500,000 ต่อครั้ง</option>
+                    <option value="1000000">+ ฿1,000,000 ต่อครั้ง</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row-2col">
+                <div class="form-group">
+                  <label for="createStartDate">วันเวลาเริ่มต้นการประมูล <span class="required">*</span></label>
+                  <input type="datetime-local" id="createStartDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label for="createEndDate">วันเวลาสิ้นสุดการประมูล <span class="required">*</span></label>
+                  <input type="datetime-local" id="createEndDate" class="form-control" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="createSpecs">คุณสมบัติเฉพาะ (คั่นแต่ละข้อด้วยเครื่องหมายจุลภาค , )</label>
+                <input type="text" id="createSpecs" class="form-control" placeholder="เช่น เครื่องยนต์ 428ci, เอกสารแท้, สีพิเศษ">
+              </div>
+
+              <div class="form-group">
+                <label for="createDescription">คำอธิบายรายละเอียดสินค้าอย่างครบถ้วน <span class="required">*</span></label>
+                <textarea id="createDescription" class="form-control" rows="3" placeholder="ระบุประวัติ รายละเอียด สภาพสินค้า ความแท้ และการรับประกัน..." required></textarea>
+              </div>
+            </div>
+
+            <div class="create-modal-right">
+              <label class="media-upload-label">
+                <i class="fa-solid fa-images"></i> รูปภาพสินค้า (รองรับอัปโหลดหลายรูป)
+              </label>
+              <div class="image-upload-zone" id="imageDropZone" onclick="document.getElementById('createImageFile').click()">
+                <input type="file" id="createImageFile" accept="image/*" multiple style="display: none;" onchange="handleImageFileSelect(event)">
+                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                <div class="upload-title">ลากไฟล์รูปภาพมาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</div>
+                <div class="upload-hint">รองรับไฟล์ JPG, PNG, WEBP (เลือกได้พร้อมกันหลายรูป)</div>
+              </div>
+
+              <div class="create-image-preview" id="createImagePreview">
+                <div class="empty-preview" id="emptyPreviewNotice">
+                  <i class="fa-regular fa-image"></i>
+                  <span>ยังไม่มีรูปภาพตัวอย่างที่เลือก</span>
+                </div>
+                <img id="previewImg" src="" alt="ภาพตัวอย่าง" style="display: none;">
+                <span class="image-preview-badge" id="previewBadge" style="display: none;">รูปที่ 1 จาก 1 รูป</span>
+                <button type="button" class="btn-remove-preview" id="btnRemovePreview" onclick="removeActivePreviewImage(event)" style="display: none;" title="ลบรูปภาพนี้">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+
+              <div class="create-thumbnails-strip" id="createThumbnailsStrip" style="display: none;"></div>
+
+              <div class="form-group" style="margin-top: 14px;">
+                <label for="createImageUrl" style="font-size: 0.85rem; color: var(--text-secondary);">หรือกรอกลิงก์รูปภาพโดยตรง (Image URL)</label>
+                <input type="url" id="createImageUrl" class="form-control" placeholder="https://images.unsplash.com/..." oninput="handleImageUrlInput(this.value)">
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="padding-top: 18px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 12px;">
+            <button type="button" class="btn btn-view" onclick="closeCreateModal()">ยกเลิก</button>
+            <button type="submit" class="btn btn-bid"><i class="fa-solid fa-check"></i> เผยแพร่โพสต์การประมูล</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Modal Components -->
+  <script src="../components/modals/AuctionDetailModal.js"></script>
+
+  <!-- Main JavaScript Engine -->
+  <script src="../js/main.js"></script>
+</body>
+</html>

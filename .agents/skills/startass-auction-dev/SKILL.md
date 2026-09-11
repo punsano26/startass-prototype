@@ -14,6 +14,7 @@ This skill provides guidelines and patterns for building and maintaining the Sta
 ## 1. Project Structure & Asset Conventions
 
 - **Pages**: Store standalone HTML views inside `pages/` (e.g., `pages/HomePage.html`).
+- **Components**: Reusable modular HTML/JS components inside `components/` (e.g., `components/modals/AuctionDetailModal.html` and `components/modals/AuctionDetailModal.js`).
 - **Styles**: Centralized luxury dark-theme CSS in `css/style.css`.
 - **Scripts**: Interactive auction logic, countdown timers, and modal handling in `js/main.js`.
 - **Images**: High-resolution free Unsplash URLs or local assets in `images/`.
@@ -45,11 +46,12 @@ This skill provides guidelines and patterns for building and maintaining the Sta
 Every auction item card must incorporate:
 1. **Media Container**:
    - High-res image with zoom transition.
-   - Top overlay: `.rank-badge` (`#1 Highest Bid`, etc.) and `.category-tag`.
+   - Top overlay: `.rank-badge` (`#1 ข้อเสนอสูงสุด`, `#2...`, only displayed for Top 10 ranked items; items > 10 do not show a rank badge) and `.category-tag`.
    - Bottom overlay: `.countdown-badge` displaying real-time remaining time (`02d 14h 22m 10s left`).
 2. **Body Content**:
    - Title: 2-line clamp with hover highlight.
    - Description: 2-to-3-line clamp with muted secondary color.
+   - *(Note: Seller profile info is omitted from the card face to prevent clutter and is cleanly hosted in the Detail Modal)*.
 3. **Price Container**:
    - Left: Start Price (reserve).
    - Right: Current Bid (emerald green, highlighted with total bids count).
@@ -64,12 +66,13 @@ Every auction item card must incorporate:
 ## 4. Modal Standards
 
 1. **Bidding Modal**:
-   - Current highest bid vs minimum next bid (+ $1,000 or custom step).
+   - Current highest bid vs minimum next bid (+ ฿50,000 or custom step).
    - 2x2 quick increment buttons for fast mobile tapping.
    - Verified bidder activity log (recent bids timeline).
    - Instant validation and real-time leaderboard re-sort on successful submission.
 2. **Detail Modal**:
-   - Full product media preview.
+   - Full product media preview with multi-image thumbnail strip.
+   - Seller provenance box (`.detail-seller-box`) showing seller avatar, name, `@nickname`, verified shield badge, rating, and link to seller profile (`OtherProfileDetail.html`).
    - Specification bullet points with gold checkmarks (`.detail-spec-item`).
    - Direct CTA transition to "Place Bid Now".
 
@@ -262,6 +265,38 @@ Every auction item card must incorporate:
   - Automatically switches between conversation list and active chat view using `.mobile-chat-active` state.
   - Back button (`.btn-chat-mobile-back`) appears in chat header to return to conversation list.
   - Composer input wrapper scales smoothly; mini simulation button collapses to icon on compact phones (< 480px) and buttons maintain touch targets >= 40px. Safe area insets supported.
+
+---
+
+## 11. User Profile & Reputation Architecture (`pages/MyProfileDetails.html` & `pages/OtherProfileDetail.html`)
+
+### A. My Profile Standards (`pages/MyProfileDetails.html`)
+- **Profile Header**: Clean Avatar-only header (`.profile-avatar-xl` with online presence indicator dot and 1-click change avatar trigger). No cover banner hero, and no verification badges (unverified/no KYC badges in Startass project scope).
+- **Identity Details**: FullName (`Alexander Sterling`), Nickname pill (`@Alexander_Sterling`), and personal bio.
+- **Action Buttons**:
+  - `แก้ไขข้อมูลโปรไฟล์ (Edit Profile)`: Opens interactive modal allowing real-time edits to name, nickname, avatar URL, and bio with persistence in `localStorage` (`startass_my_profile`).
+  - `สร้างโพสต์ประมูลใหม่ (Create Post)`: Opens standard 2-column multi-image auction creation modal.
+- **2-Card Key Performance Indicators (KPIs) Grid**:
+  - **Win Rate Card**: Win percentage + ratio (e.g. `78.4%` / `ชนะ 38 จาก 48 รายการ`) with visual progress bar.
+  - **Auctions Posted Card**: Dynamic count of user's created auctions and live active auctions.
+  - *(Note: Age card and Auction % card are omitted per user specifications)*.
+- **My Posted Auctions Section**:
+  - Filter tabs: `ทั้งหมด (All)`, `กำลังเปิดประมูล (Active)`, `จบการประมูลแล้ว (Ended)`, `แบบร่าง (Draft)`.
+  - Search input with real-time filtering across titles and categories.
+  - Standard auction cards with "ดูรายละเอียด (View Details)" and "จัดการโพสต์ (Manage)".
+
+### B. Other User / Seller Profile Standards (`pages/OtherProfileDetail.html`)
+- **Dynamic Routing**: Driven by URL query parameter `?user=<nickname>` or `?id=<userId>` (e.g., `?user=ApexMotors_NY`, `?user=KyotoVault_Cards`, `?user=GenevaVault_CH`), defaulting to `ApexMotors_NY`.
+- **Clean Avatar-Only Header**: Avatar with online status, FullName, and `@nickname` pill without banner or verification badges.
+- **Quick Switcher Strip (`.seller-switcher-card`)**: Allows 1-click preview switching between different registered sellers.
+- **Profile Actions**:
+  - `รายงานผู้ใช้ (Report User)`: Opens report modal with 6 categorical violation options (counterfeit/misleading specs, shill bidding, fake profile, escrow violations, harassment, and other) + details textarea, saving reports to `localStorage` (`startass_user_reports`).
+  - `แชต P2P กับผู้ขาย`: Checks won auction rights; routes to `chat.html?orderId=...` if won, or triggers informative notice if auction is ongoing.
+  - `กลับสู่ตลาดประมูล`: Direct route back to `HomePage.html`.
+- **2-Card KPIs Grid**: Win Rate and Posted Auctions count matching the clean 2-column layout.
+- **Seller Posted Auctions Section**:
+  - Filter tabs: `ทั้งหมด (All)`, `กำลังเปิดประมูลสด (Active Live)`, `ปิดการประมูลแล้ว (Ended / Sold)`.
+  - Each item card allows instant bidding (`openBidModal`) or detail inspection (`openDetailModal`).
 
 
 

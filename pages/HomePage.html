@@ -102,13 +102,18 @@
               <div class="profile-dropdown-user-info">
                 <span class="profile-full-name-label">ชื่อผู้ใช้งาน</span>
                 <span class="profile-full-name" id="userFullName">Alexander Sterling</span>
-                <span class="profile-badge"><i class="fa-solid fa-certificate"></i> ผู้สะสมระดับยืนยันตัวตน</span>
               </div>
             </div>
 
             <div class="profile-dropdown-divider"></div>
 
             <ul class="profile-menu-list">
+              <li>
+                <a href="MyProfileDetails.html" class="profile-menu-item" style="text-decoration: none;">
+                  <i class="fa-solid fa-user"></i>
+                  <span>โปรไฟล์ของฉัน (My Profile)</span>
+                </a>
+              </li>
               <li>
                 <a href="ordersdetail.html" class="profile-menu-item" style="text-decoration: none;">
                   <i class="fa-solid fa-file-invoice-dollar"></i>
@@ -198,28 +203,32 @@
       <div class="category-filters-container">
         <div class="category-filters-header">
           <span class="category-filters-title"><i class="fa-solid fa-sliders"></i> หมวดหมู่สินค้า:</span>
-          <span class="category-filters-active-hint" id="activeCategoryHint">ทุกรายการประมูล</span>
+          <span class="category-filters-active-hint" id="activeCategoryHint">10 อันดับการประมูลราคาสูงสุด</span>
         </div>
         <div class="category-filters" role="tablist">
-          <button class="category-btn active" data-category="all" role="tab" aria-selected="true">
+          <button class="category-btn active" data-category="top10" role="tab" aria-selected="true">
+            <i class="fa-solid fa-trophy"></i> 10 อันดับสูงสุด
+            <span class="category-count" id="count-top10">10</span>
+          </button>
+          <button class="category-btn" data-category="all" role="tab" aria-selected="false">
             <i class="fa-solid fa-border-all"></i> ทุกหมวดหมู่
-            <span class="category-count" id="count-all">10</span>
+            <span class="category-count" id="count-all">14</span>
           </button>
           <button class="category-btn" data-category="cars" role="tab" aria-selected="false">
             <i class="fa-solid fa-car-side"></i> โมเดลรถยนต์ & ซูเปอร์คาร์
-            <span class="category-count" id="count-cars">3</span>
+            <span class="category-count" id="count-cars">4</span>
           </button>
           <button class="category-btn" data-category="cards" role="tab" aria-selected="false">
             <i class="fa-solid fa-ticket"></i> การ์ดสะสมหายาก
-            <span class="category-count" id="count-cards">2</span>
+            <span class="category-count" id="count-cards">3</span>
           </button>
           <button class="category-btn" data-category="tech" role="tab" aria-selected="false">
             <i class="fa-solid fa-microchip"></i> เทคโนโลยี & ซูเปอร์คอมพิวเตอร์
-            <span class="category-count" id="count-tech">3</span>
+            <span class="category-count" id="count-tech">4</span>
           </button>
           <button class="category-btn" data-category="trees" role="tab" aria-selected="false">
             <i class="fa-solid fa-tree"></i> บอนไซ & ไม้ด่างหายาก
-            <span class="category-count" id="count-trees">2</span>
+            <span class="category-count" id="count-trees">3</span>
           </button>
         </div>
       </div>
@@ -306,7 +315,7 @@
           <!-- Recent Bids History -->
           <div class="bid-history-title">
             <span><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการเสนอราคาสดล่าสุด</span>
-            <span style="font-size: 0.78rem; color: var(--text-muted);">ผู้ประมูลยืนยันตัวตนแล้ว</span>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">อัปเดตแบบเรียลไทม์</span>
           </div>
           <ul class="bid-history-list" id="modalBidHistory">
             <!-- Populated via JS -->
@@ -322,68 +331,8 @@
     </div>
   </div>
 
-  <!-- MODAL: View Product Details -->
-  <div class="modal-backdrop" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
-    <div class="modal-container modal-detail-container">
-      <div class="modal-header">
-        <h3 class="modal-title">
-          <i class="fa-solid fa-circle-info"></i> รายละเอียดรายการประมูล
-        </h3>
-        <button class="modal-close" onclick="closeDetailModal()" aria-label="ปิดหน้าต่าง">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="detail-modal-media">
-          <img id="detailImg" src="" alt="Product Full View" class="detail-modal-img">
-        </div>
-        <div class="detail-thumbnails-strip" id="detailThumbnailsStrip" style="display: none;"></div>
-
-        <div class="detail-header-flex">
-          <div class="detail-title-col">
-            <span id="detailCategory" class="category-tag">หมวดหมู่</span>
-            <h2 id="detailTitle" class="detail-title-text">ชื่อรายการประมูล</h2>
-          </div>
-          <div class="detail-bid-col">
-            <div class="detail-bid-label">ราคาเสนอสูงสุดปัจจุบัน</div>
-            <div id="detailCurrentBid" class="detail-bid-value">฿0</div>
-          </div>
-        </div>
-
-        <p id="detailDesc" class="detail-description">
-          คำอธิบายสินค้า
-        </p>
-
-        <!-- Specifications & Provenance -->
-        <h4 class="detail-specs-heading">
-          <i class="fa-solid fa-list-check" style="color: var(--accent-gold);"></i> ข้อมูลจำเพาะและการรับประกันสินค้า
-        </h4>
-        <ul id="detailSpecs" class="detail-specs-list">
-          <!-- Populated via JS -->
-        </ul>
-
-        <!-- Timeline & Pricing Details -->
-        <div class="auction-dates detail-dates-box">
-          <div class="date-row">
-            <span class="label"><i class="fa-regular fa-calendar-check"></i> เริ่มเปิดการประมูล</span>
-            <span class="value" id="detailStartDate">-</span>
-          </div>
-          <div class="date-row">
-            <span class="label"><i class="fa-solid fa-flag"></i> ราคาเริ่มต้นขั้นต่ำ</span>
-            <span class="value" id="detailStartPrice" style="color: var(--accent-gold);">-</span>
-          </div>
-          <div class="date-row" style="grid-column: 1 / -1; margin-top: 6px;">
-            <span class="label"><i class="fa-regular fa-calendar-xmark"></i> สิ้นสุดการประมูลวันที่</span>
-            <span class="value" id="detailEndDate">-</span>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-view" onclick="closeDetailModal()">ปิดหน้าต่าง</button>
-        <button class="btn btn-bid" id="detailModalBidBtn" onclick="switchFromDetailToBid()">
-          <i class="fa-solid fa-gavel"></i> เข้าร่วมเสนอราคาประมูล
-        </button>
-      </div>
-    </div>
-  </div>
+  <!-- COMPONENT: Auction Item Detail Modal (รายละเอียดรายการประมูล) -->
+  <div id="auctionDetailModalContainer"></div>
 
   <!-- MODAL: Create Auction Listing -->
   <div class="modal-backdrop" id="createModal" role="dialog" aria-modal="true" aria-labelledby="createModalTitle">
@@ -545,6 +494,9 @@
       </form>
     </div>
   </div>
+
+  <!-- Modal Components -->
+  <script src="../components/modals/AuctionDetailModal.js"></script>
 
   <!-- Platform JavaScript -->
   <script src="../js/main.js"></script>

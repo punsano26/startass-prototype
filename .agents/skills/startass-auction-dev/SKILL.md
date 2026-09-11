@@ -14,7 +14,7 @@ This skill provides guidelines and patterns for building and maintaining the Sta
 ## 1. Project Structure & Asset Conventions
 
 - **Pages**: Store standalone HTML views inside `pages/` (e.g., `pages/HomePage.html`).
-- **Components**: Reusable modular HTML/JS components inside `components/` (e.g., `components/modals/AuctionDetailModal.html` and `components/modals/AuctionDetailModal.js`).
+- **Components**: Reusable modular HTML/JS components inside `components/` (e.g., `components/modals/AuctionDetailModal.*`, `components/modals/AuctionBidModal.*`). **Universal Rule**: Every modal across the platform must be decoupled into its own dedicated component inside `components/modals/` rather than duplicated inline in page HTML.
 - **Styles**: Centralized luxury dark-theme CSS in `css/style.css`.
 - **Scripts**: Interactive auction logic, countdown timers, and modal handling in `js/main.js`.
 - **Images**: High-resolution free Unsplash URLs or local assets in `images/`.
@@ -63,18 +63,35 @@ Every auction item card must incorporate:
 
 ---
 
-## 4. Modal Standards
+## 4. Modal Standards & Universal Component Architecture
 
-1. **Bidding Modal**:
-   - Current highest bid vs minimum next bid (+ ฿50,000 or custom step).
-   - 2x2 quick increment buttons for fast mobile tapping.
-   - Verified bidder activity log (recent bids timeline).
-   - Instant validation and real-time leaderboard re-sort on successful submission.
-2. **Detail Modal**:
-   - Full product media preview with multi-image thumbnail strip.
-   - Seller provenance box (`.detail-seller-box`) showing seller avatar, name, `@nickname`, verified shield badge, rating, and link to seller profile (`OtherProfileDetail.html`).
-   - Specification bullet points with gold checkmarks (`.detail-spec-item`).
-   - Direct CTA transition to "Place Bid Now".
+### A. Universal Rule: Decoupled Modal Components
+- **Every modal must be built as a separate component** inside `components/modals/` rather than hardcoded inline across `pages/*.html`.
+- Each component provides:
+  1. `<ModalName>.html`: Standalone semantic HTML markup.
+  2. `<ModalName>.js`: Modular controller defining template, `mount(target)`, Web Component `<auction-<name>-modal>`, keyboard Escape/backdrop click dismiss, and helper API.
+  3. Page Integration: Place `<div id="auction<Name>Container"></div>` and load `<script src="../components/modals/<ModalName>.js"></script>`.
+
+### B. Core Platform Modals
+1. **Bidding Modal (`AuctionBidModal`)**:
+   - Stored in `components/modals/AuctionBidModal.html` & `AuctionBidModal.js`.
+   - Current highest bid vs minimum next bid (+ ฿5,000, ฿10,000, ฿50,000, ฿100,000 or custom step).
+   - 2x2 quick increment buttons for fast mobile and desktop tapping.
+   - Real-time bid activity audit log timeline (`#modalBidHistory`).
+   - Self-bidding lock guards rejecting duplicate bids if user already holds highest bid.
+
+2. **Detail Modal (`AuctionDetailModal`)**:
+   - Stored in `components/modals/AuctionDetailModal.html` & `AuctionDetailModal.js`.
+   - Full product media preview with multi-image thumbnail strip (`#detailThumbnailsStrip`).
+   - Seller provenance box (`.detail-seller-box`) showing seller avatar, FullName, `@nickname`, rating, and profile link (`OtherProfileDetail.html`). **Strict Invariant: No "ยืนยันแล้ว" or verification badges.**
+   - Product description clamp (`#detailDesc`).
+   - *(Note: Detailed specifications checklist `.detail-spec-item` has been intentionally removed per user design)*.
+   - Horizontal 3-Column Timeline Ribbon (`.detail-dates-box`):
+     - Column 1: Start Date (`#detailStartDate`, sky blue icon `#38bdf8`).
+     - Column 2: Reserve Starting Price (`#detailStartPrice`, highlighted hero gold `.date-row-highlight`).
+     - Column 3: End Date (`#detailEndDate`, rose/coral icon `#f43f5e`).
+     - Stacks to 1 column on mobile (`<= 640px`).
+   - Dynamic Bidding CTA Button (`#detailModalBidBtn`) with won/draft/highest-bidder lock guards.
 
 ---
 

@@ -2857,6 +2857,10 @@ const DEFAULT_P2P_CHATS = {
     winningBid: 12500000,
     latestBid: 12500000,
     status: 'WON',
+    paymentStatus: 'UNPAID',
+    shippingStatus: 'AWAITING_PAYMENT',
+    trackingNumber: '',
+    carrier: '',
     seller: {
       nickname: 'KyotoVault_Cards',
       name: 'Kyoto Rare Collectibles Japan',
@@ -2928,6 +2932,13 @@ const DEFAULT_P2P_CHATS = {
     winningBid: 145000000,
     latestBid: 145000000,
     status: 'WON',
+    paymentStatus: 'PAID',
+    paidAmount: 145000000,
+    paidAt: '8 ก.ย. 2026, 11:30',
+    shippingStatus: 'SHIPPED',
+    trackingNumber: 'BRINKS-GL-99201',
+    carrier: 'Brinks Global Armored Logistics',
+    shippedAt: '8 ก.ย. 2026, 11:45',
     seller: {
       nickname: 'GenevaVault_CH',
       name: 'Geneva Horology Antiquities SA',
@@ -2999,6 +3010,10 @@ const DEFAULT_P2P_CHATS = {
     winningBid: 16800000,
     latestBid: 16800000,
     status: 'WINNING',
+    paymentStatus: 'UNPAID',
+    shippingStatus: 'AWAITING_PAYMENT',
+    trackingNumber: '',
+    carrier: '',
     seller: {
       nickname: 'ApexMotors_NY',
       name: 'Apex Classic Motoring LLC',
@@ -3051,6 +3066,12 @@ function loadP2PChats() {
           if (!parsed[k] || !parsed[k].messages || parsed[k].messages.length === 0) {
             parsed[k] = JSON.parse(JSON.stringify(DEFAULT_P2P_CHATS[k]));
             needsSave = true;
+          } else if (parsed[k].paymentStatus === undefined) {
+            parsed[k].paymentStatus = DEFAULT_P2P_CHATS[k].paymentStatus || 'UNPAID';
+            parsed[k].shippingStatus = DEFAULT_P2P_CHATS[k].shippingStatus || 'AWAITING_PAYMENT';
+            parsed[k].trackingNumber = DEFAULT_P2P_CHATS[k].trackingNumber || '';
+            parsed[k].carrier = DEFAULT_P2P_CHATS[k].carrier || '';
+            needsSave = true;
           }
         }
         if (needsSave) {
@@ -3099,6 +3120,10 @@ function initP2PChatForOrder(order) {
       winningBid: order.userBid,
       latestBid: order.currentBid || order.userBid,
       status: order.status || 'WON',
+      paymentStatus: 'UNPAID',
+      shippingStatus: 'AWAITING_PAYMENT',
+      trackingNumber: '',
+      carrier: '',
       seller: seller,
       unreadCount: 1,
       lastMessageSnippet: `สวัสดีครับคุณ Alexander! ขอแสดงความยินดีที่คุณชนะการประมูล "${order.title}"`,
@@ -4379,7 +4404,7 @@ function renderStandaloneCurrentChat(orderId) {
     </div>
   `;
 
-  // 2. Render Live Deal Strip
+  // 2. Render Live Deal Strip (Clean & Compact)
   dealStripEl.innerHTML = `
     <div class="deal-strip-product-info">
       <img src="${chat.image}" alt="${chat.title}" class="deal-strip-img">
@@ -4387,21 +4412,23 @@ function renderStandaloneCurrentChat(orderId) {
         <div class="deal-strip-badge-row">
           <span class="deal-status-pill ${chat.status === 'WON' ? 'won' : 'active'}">
             <i class="${chat.status === 'WON' ? 'fa-solid fa-trophy' : 'fa-solid fa-gavel'}"></i>
-            ${chat.status === 'WON' ? 'ชนะการประมูล' : 'กำลังนำการประมูล'}
+            ${chat.status === 'WON' ? 'ชนะประมูล' : 'กำลังนำประมูล'}
           </span>
-          <span class="deal-category-pill">${chat.categoryLabel || 'ของสะสมระดับพรีเมียม'}</span>
+          <span class="deal-category-pill">${chat.categoryLabel || 'ของสะสมหายาก'}</span>
           <span class="deal-order-tag">คำสั่งซื้อ #${chat.orderId}</span>
         </div>
-        <h4 class="deal-strip-product-title">${chat.title}</h4>
+        <h4 class="deal-strip-product-title" title="${chat.title}">${chat.title}</h4>
       </div>
     </div>
 
     <div class="deal-strip-price-matrix">
-      <span class="deal-price-label"><i class="fa-solid fa-trophy"></i> ราคาเสนอประมูลล่าสุด:</span>
+      <span class="deal-price-label"><i class="fa-solid fa-trophy"></i> ราคาเคาะชนะ:</span>
       <span class="deal-price-amount">${formatCurrency(chat.latestBid || chat.winningBid)}</span>
-      <span class="deal-price-subtitle">${chat.status === 'WON' ? 'ราคาเคาะชนะประมูลสุทธิ' : 'ราคาเสนอสูงสุดขณะนี้'}</span>
     </div>
   `;
+
+  // Render Escrow Action Bar (Button for payment [ dealer ] & input tracking number [ seller ])
+  renderChatEscrowActionBar(orderId);
 
   // 3. Render Messages Timeline
   let sellerProductCardShown = false;
@@ -4804,6 +4831,745 @@ function handleSendStandaloneChatMessage(event) {
 
 function handleStandaloneQuickPrompt(text) {
   simulateTypingPrompt(text, true);
+}
+
+// ==========================================================================
+// P2P ESCROW LIFECYCLE & TRACKING NUMBER ENGINE
+// Flowchart: ชนะประมูล -> โอนเงินเข้า Escrow [Dealer] -> กรอกเลขพัสดุ [Seller] -> ตรวจรับ 10 วัน
+// ==========================================================================
+let activeChatViewRole = 'dealer'; // 'dealer' | 'seller'
+
+function toggleChatViewRole() {
+  setChatViewRole(activeChatViewRole === 'dealer' ? 'seller' : 'dealer');
+}
+
+function setChatViewRole(role) {
+  activeChatViewRole = role;
+  renderChatEscrowActionBar(activeStandaloneChatOrderId);
+  const roleLabel = role === 'dealer' ? '👤 Dealer (ผู้ชนะการประมูล)' : '🏪 Seller (ผู้ขาย)';
+  if (typeof showToast === 'function') {
+    showToast(`สลับมุมมองเป็น [ ${roleLabel} ] เรียบร้อย`);
+  }
+}
+
+function focusSellerTrackingInput() {
+  const chats = loadP2PChats();
+  const chat = chats[activeStandaloneChatOrderId];
+  if (!chat) return;
+
+  if (chat.paymentStatus !== 'PAID') {
+    if (typeof showToast === 'function') {
+      showToast('⚠️ รอลูกค้า (Dealer) ชำระเงินเข้า Escrow ก่อน จึงจะสามารถกรอกหมายเลขพัสดุได้');
+    }
+    setChatViewRole('dealer');
+    openEscrowPaymentModal(activeStandaloneChatOrderId);
+    return;
+  }
+
+  setChatViewRole('seller');
+  setTimeout(() => {
+    const input = document.getElementById('sellerTrackingInput');
+    if (input) {
+      input.focus();
+      input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, 100);
+}
+
+function fillSampleTrackingNumber() {
+  const samples = [
+    'WG-98402194-TH',
+    'KRY-TH-82019482',
+    'FLASH-EX-7391024',
+    'EMS-TH-482019482',
+    'DHL-EXP-91823019'
+  ];
+  const chosen = samples[Math.floor(Math.random() * samples.length)];
+  const input = document.getElementById('sellerTrackingInput');
+  if (input) {
+    input.value = chosen;
+    input.focus();
+    if (typeof showToast === 'function') {
+      showToast(`⚡ กรอกหมายเลขพัสดุตัวอย่าง [ ${chosen} ] เรียบร้อย`);
+    }
+  }
+}
+
+function renderChatEscrowActionBar(orderId) {
+  const barEl = document.getElementById('chatEscrowActionBar');
+  if (!barEl) return;
+
+  const chats = loadP2PChats();
+  const chat = chats[orderId || activeStandaloneChatOrderId];
+  if (!chat || chat.status !== 'WON') {
+    barEl.innerHTML = '';
+    barEl.style.display = 'none';
+    return;
+  }
+  barEl.style.display = 'block';
+
+  const isPaid = chat.paymentStatus === 'PAID';
+  const hasTracking = !!chat.trackingNumber;
+  const isCompleted = chat.shippingStatus === 'COMPLETED';
+  const isReturnReq = chat.shippingStatus === 'RETURN_REQUESTED';
+  const winningBidFormatted = formatCurrency(chat.winningBid || chat.latestBid || 12500000);
+  const seller = chat.seller || { name: 'ผู้ขาย', nickname: 'seller' };
+
+  // Step Indicators:
+  const step2Class = isPaid ? 'step-done' : 'step-active';
+  const step3Class = hasTracking ? 'step-done' : (isPaid ? 'step-active' : 'step-waiting');
+  const step4Class = isCompleted ? 'step-done' : (hasTracking ? 'step-active' : 'step-waiting');
+
+  let innerActionHtml = '';
+
+  // STATE A: Unpaid (รอชำระเงิน)
+  if (!isPaid) {
+    if (activeChatViewRole === 'dealer') {
+      innerActionHtml = `
+        <div class="escrow-role-card dealer-pending-card">
+          <div class="escrow-card-left">
+            <div class="escrow-role-tag dealer-tag">
+              <i class="fa-solid fa-crown"></i> สิทธิ์ผู้ชนะการประมูล [ Dealer ]
+            </div>
+            <h4 class="escrow-headline">
+              <i class="fa-solid fa-shield-halved" style="color: #f59e0b;"></i> รอชำระเงินเข้าสู่ระบบ Escrow Vault
+            </h4>
+            <p class="escrow-subtext">
+              กรุณาโอนเงินเข้าสู่ระบบ Escrow เพื่อให้ผู้ขาย <strong>[@${seller.nickname}]</strong> เตรียมบรรจุภัณฑ์และจัดส่งสินค้า ยอดเงินของคุณจะถูกล็อคคุ้มครอง 100%
+            </p>
+          </div>
+          <div class="escrow-card-right">
+            <button type="button" class="btn-dealer-pay-glow" onclick="openEscrowPaymentModal('${chat.orderId}')" title="กดเพื่อชำระเงินเข้า Escrow">
+              <div class="btn-glow-effect"></div>
+              <div class="btn-pay-left-cluster">
+                <div class="btn-pay-icon-box">
+                  <i class="fa-solid fa-credit-card"></i>
+                </div>
+                <div class="btn-pay-label-box">
+                  <span class="pay-sub-label">ปุ่มชำระเงินผู้ชนะประมูล</span>
+                  <strong class="pay-main-label">ชำระเงินเข้า Escrow [ Dealer ]</strong>
+                </div>
+              </div>
+              <div class="btn-pay-amount-pill">
+                ${winningBidFormatted}
+              </div>
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      // Seller view when unpaid: input tracking number is disabled/locked
+      innerActionHtml = `
+        <div class="escrow-role-card seller-locked-card">
+          <div class="escrow-card-left">
+            <div class="escrow-role-tag seller-tag">
+              <i class="fa-solid fa-store"></i> หน้าที่ผู้ขาย [ Seller ]
+            </div>
+            <h4 class="escrow-headline">
+              <i class="fa-solid fa-lock" style="color: #94a3b8;"></i> รอลูกค้า (Dealer) โอนเงินเข้าสู่ระบบ Escrow
+            </h4>
+            <p class="escrow-subtext">
+              ตามขั้นตอนความปลอดภัย ช่องสำหรับกรอกหมายเลขพัสดุ (Tracking Number) จะเปิดให้ใช้งาน <strong>หลังจากที่ลูกค้าโอนเงินแล้ว</strong>
+            </p>
+          </div>
+          <div class="escrow-card-right">
+            <div class="seller-tracking-locked-form">
+              <div class="locked-input-group">
+                <i class="fa-solid fa-lock input-lock-icon"></i>
+                <input type="text" class="input-tracking-disabled" placeholder="กรอกหมายเลขพัสดุ (ล็อกอยู่ — รอผู้ซื้อโอนเงินเข้า Escrow)..." disabled>
+                <button type="button" class="btn-submit-disabled" disabled>
+                  <i class="fa-solid fa-truck-fast"></i> บันทึกพัสดุ
+                </button>
+              </div>
+              <button type="button" class="btn-quick-switch-hint" onclick="setChatViewRole('dealer'); openEscrowPaymentModal('${chat.orderId}')">
+                <i class="fa-solid fa-bolt"></i> ⚡ สลับเป็น Dealer เพื่อกดชำระเงินทดสอบ
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  } 
+  // STATE B: Paid, awaiting Seller to ship & input tracking number
+  else if (isPaid && !hasTracking) {
+    if (activeChatViewRole === 'seller') {
+      innerActionHtml = `
+        <div class="escrow-role-card seller-active-card">
+          <div class="escrow-card-left">
+            <div class="escrow-role-tag seller-tag-ready">
+              <i class="fa-solid fa-bell fa-bounce"></i> แจ้งเตือนผู้ขาย [ Seller ]: ลูกค้าโอนเงินเข้า Escrow แล้ว!
+            </div>
+            <h4 class="escrow-headline">
+              <i class="fa-solid fa-truck-fast" style="color: #10b981;"></i> กรอกหมายเลขพัสดุ (Tracking Number) หลังลูกค้าโอนเงิน
+            </h4>
+            <p class="escrow-subtext">
+              ระบบ Escrow ได้รับยอดเงิน <strong>${winningBidFormatted}</strong> เรียบร้อยแล้ว กรุณาจัดส่งสินค้าและกรอกหมายเลขพัสดุด้านล่าง:
+            </p>
+          </div>
+          <div class="escrow-card-right">
+            <form class="seller-tracking-active-form" onsubmit="handleSellerSubmitTracking(event, '${chat.orderId}')">
+              <div class="tracking-inputs-flex">
+                <div class="carrier-dropdown-box">
+                  <i class="fa-solid fa-dolly"></i>
+                  <select id="sellerCarrierSelect" class="carrier-select-control">
+                    <option value="Kerry Express">Kerry Express</option>
+                    <option value="White-Glove VIP Delivery">White-Glove VIP Delivery</option>
+                    <option value="Flash Express">Flash Express</option>
+                    <option value="EMS ไปรษณีย์ไทย">EMS ไปรษณีย์ไทย</option>
+                    <option value="DHL Express">DHL Express</option>
+                  </select>
+                </div>
+                <div class="tracking-text-box">
+                  <i class="fa-solid fa-barcode"></i>
+                  <input type="text" id="sellerTrackingInput" class="tracking-input-control" placeholder="กรอกหมายเลขพัสดุ (Tracking Number)..." required autocomplete="off">
+                  <button type="button" class="btn-sample-fill-quick" onclick="fillSampleTrackingNumber()" title="สุ่มเลขพัสดุด่วน">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> สุ่มเลข
+                  </button>
+                </div>
+                <button type="submit" class="btn-submit-tracking-active" id="btnSubmitSellerTracking">
+                  <i class="fa-solid fa-paper-plane"></i> <span>บันทึกหมายเลขพัสดุ [ Seller ]</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+    } else {
+      // Dealer view when paid, waiting for seller to enter tracking
+      innerActionHtml = `
+        <div class="escrow-role-card dealer-paid-card">
+          <div class="escrow-card-left">
+            <div class="escrow-role-tag dealer-tag-paid">
+              <i class="fa-solid fa-shield-check"></i> โอนเงินสำเร็จแล้ว [ Dealer ]
+            </div>
+            <h4 class="escrow-headline">
+              <i class="fa-solid fa-vault" style="color: #34d399;"></i> เงินจำนวน ${winningBidFormatted} ถูกเก็บใน Escrow เรียบร้อยแล้ว
+            </h4>
+            <p class="escrow-subtext">
+              ระบบกำลังแจ้งเตือนผู้ขาย <strong>[@${seller.nickname}]</strong> เพื่อจัดส่งสินค้าและกรอกหมายเลขพัสดุ (Tracking Number)
+            </p>
+          </div>
+          <div class="escrow-card-right">
+            <div class="paid-action-cluster">
+              <span class="escrow-held-badge">
+                <i class="fa-solid fa-lock"></i> Escrow Vault Locked
+              </span>
+              <button type="button" class="btn-quick-switch-hint" onclick="setChatViewRole('seller'); focusSellerTrackingInput()">
+                <i class="fa-solid fa-truck-fast"></i> ⚡ สลับเป็น Seller เพื่อกรอกหมายเลขพัสดุ
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+  // STATE C: Shipped with Tracking Number (10 Days Inspection Stage)
+  else if (hasTracking && !isCompleted && !isReturnReq) {
+    innerActionHtml = `
+      <div class="escrow-role-card shipped-inspection-card">
+        <div class="escrow-card-left">
+          <div class="escrow-role-tag shipping-tag-active">
+            <i class="fa-solid fa-truck"></i> สินค้าอยู่ระหว่างการจัดส่ง (Shipped)
+          </div>
+          <div class="tracking-display-strip">
+            <span class="carrier-pill"><i class="fa-solid fa-truck-ramp-box"></i> ${chat.carrier || 'Kerry Express'}</span>
+            <span class="tracking-number-code" id="chatActiveTrackingNumber">${chat.trackingNumber}</span>
+            <button type="button" class="btn-copy-tracking" onclick="copyChatTrackingNumber('${chat.trackingNumber}', event)" title="คัดลอกหมายเลขพัสดุ">
+              <i class="fa-regular fa-copy"></i> คัดลอก
+            </button>
+          </div>
+          <div class="inspection-timer-row">
+            <span class="timer-countdown-badge">
+              <i class="fa-solid fa-clock-rotate-left fa-spin" style="--fa-animation-duration: 6s; color: #fbbf24;"></i>
+              ระยะเวลาตรวจรับสินค้า: <strong>9 วัน 23 ชม. 58 นาที</strong> (เริ่มนับ 10 วันตาม Flowchart)
+            </span>
+          </div>
+        </div>
+        <div class="escrow-card-right">
+          <div class="inspection-decision-group">
+            <button type="button" class="btn-confirm-item-ok" onclick="confirmItemReceipt('${chat.orderId}')" title="ตรงปก — ปล่อยเงิน Escrow ให้ผู้ขาย">
+              <i class="fa-solid fa-circle-check"></i> <span>สินค้าตรงปก (โอนเงินให้ Seller)</span>
+            </button>
+            <button type="button" class="btn-request-item-return" onclick="requestItemReturn('${chat.orderId}')" title="ไม่ตรงปก — แจ้งขอคืนสินค้า">
+              <i class="fa-solid fa-rotate-left"></i> <span>ไม่ตรงปก / ขอคืนสินค้า</span>
+            </button>
+            <button type="button" class="btn-reset-demo" onclick="resetChatEscrowDemo('${chat.orderId}')" title="รีเซ็ตเพื่อทดสอบใหม่">
+              <i class="fa-solid fa-arrow-rotate-right"></i> รีเซ็ต
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  // STATE D: Completed (Order Closed, money paid to seller)
+  else if (isCompleted) {
+    innerActionHtml = `
+      <div class="escrow-role-card order-completed-card">
+        <div class="escrow-card-left">
+          <div class="escrow-role-tag completed-tag">
+            <i class="fa-solid fa-circle-check"></i> คำสั่งซื้อเสร็จสมบูรณ์ (ปิดคำสั่งซื้อ)
+          </div>
+          <h4 class="escrow-headline" style="color: #34d399;">
+            <i class="fa-solid fa-handshake"></i> ปล่อยเงิน Escrow ให้ผู้ขาย [@${seller.nickname}] เรียบร้อยแล้ว
+          </h4>
+          <p class="escrow-subtext">
+            การซื้อขายและการส่งมอบตามระบบ STARTASS Escrow ปลอดภัย 100% สิ้นสุดอย่างสมบูรณ์
+          </p>
+        </div>
+        <div class="escrow-card-right">
+          <button type="button" class="btn-reset-demo" onclick="resetChatEscrowDemo('${chat.orderId}')">
+            <i class="fa-solid fa-arrow-rotate-right"></i> ⚡ รีเซ็ตเพื่อเริ่มทดสอบ Flow ใหม่
+          </button>
+        </div>
+      </div>
+    `;
+  }
+  // STATE E: Return Requested
+  else if (isReturnReq) {
+    innerActionHtml = `
+      <div class="escrow-role-card order-return-card">
+        <div class="escrow-card-left">
+          <div class="escrow-role-tag return-tag">
+            <i class="fa-solid fa-triangle-exclamation"></i> อยู่ระหว่างกระบวนการขอคืนสินค้า
+          </div>
+          <h4 class="escrow-headline" style="color: #f87171;">
+            <i class="fa-solid fa-box-open"></i> ยอดเงินใน Escrow ถูกระงับชั่วคราวเพื่อความปลอดภัย
+          </h4>
+          <p class="escrow-subtext">
+            ลูกค้าแจ้งความประสงค์ขอคืนสินค้า โปรดประสานงานการส่งพัสดุกลับในช่องแชต P2P นี้
+          </p>
+        </div>
+        <div class="escrow-card-right">
+          <button type="button" class="btn-reset-demo" onclick="resetChatEscrowDemo('${chat.orderId}')">
+            <i class="fa-solid fa-arrow-rotate-right"></i> ⚡ รีเซ็ตเพื่อเริ่มทดสอบ Flow ใหม่
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  barEl.innerHTML = `
+    <div class="chat-payment-circle-launcher-wrap" id="chatPaymentLauncherWrap">
+      <!-- Circular Trigger on Top-Left of Chat Messages Window (ซ่อนไว้ในกลมๆบนซ้าย) -->
+      <button type="button" 
+              class="btn-payment-circle-launcher ${isPaid ? 'is-paid' : 'is-pending'} ${isChatPaymentDrawerOpen ? 'is-expanded' : ''}" 
+              id="btnPaymentCircleLauncher" 
+              onclick="toggleChatPaymentDrawer()" 
+              title="${isPaid ? '🛡️ เงินอยู่ใน Escrow แล้ว (คลิกเพื่อดูสถานะ)' : '💳 เมนูชำระเงิน Escrow ฿' + winningBidFormatted + ' (คลิกเพื่อเปิด/ปิด)'}">
+        <div class="payment-circle-round">
+          <i class="${isPaid ? (hasTracking ? 'fa-solid fa-truck-fast' : 'fa-solid fa-shield-check') : 'fa-solid fa-credit-card'}"></i>
+          ${!isPaid ? '<span class="circle-pulse-beacon"></span>' : ''}
+        </div>
+        <div class="payment-circle-pill-tag">
+          <span class="pill-dot"></span>
+          <span class="pill-label">${isPaid ? (hasTracking ? 'จัดส่งแล้ว' : 'ชำระแล้ว') : 'ชำระ Escrow'}</span>
+          <span class="pill-price">${winningBidFormatted}</span>
+          <i class="fa-solid ${isChatPaymentDrawerOpen ? 'fa-chevron-up' : 'fa-chevron-down'} pill-arrow"></i>
+        </div>
+      </button>
+
+      <!-- Expandable Floating Payment Popover Card (ซ่อนไว้ในกลมๆบนซ้าย เมื่อคลิกจะคลี่ออกมา) -->
+      <div class="chat-payment-floating-card ${isChatPaymentDrawerOpen ? 'is-open' : ''}" id="chatPaymentFloatingCard">
+        <div class="floating-card-header">
+          <div class="floating-card-title">
+            <i class="fa-solid fa-shield-halved" style="color: #fbbf24;"></i>
+            <span>ระบบคุ้มครองการชำระเงิน Escrow Vault</span>
+          </div>
+          <button type="button" class="btn-close-floating-card" onclick="toggleChatPaymentDrawer(false)" title="พับเก็บซ่อนไว้ในกลมๆ">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Role Switcher & Flow Pipeline Bar -->
+        <div class="floating-card-pipeline-row">
+          <div class="role-switcher-tabs mini">
+            <span class="role-switcher-label">มุมมอง:</span>
+            <button type="button" class="btn-role-tab ${activeChatViewRole === 'dealer' ? 'active' : ''}" onclick="setChatViewRole('dealer')" title="ดูในมุมมองผู้ชนะประมูล">
+              <i class="fa-solid fa-crown"></i> Dealer
+            </button>
+            <button type="button" class="btn-role-tab ${activeChatViewRole === 'seller' ? 'active' : ''}" onclick="setChatViewRole('seller')" title="ดูในมุมมองผู้ขาย">
+              <i class="fa-solid fa-store"></i> Seller
+            </button>
+          </div>
+
+          <div class="flow-pipeline-stepper mini">
+            <span class="flow-step step-done"><i class="fa-solid fa-check"></i> 1. ชนะ</span>
+            <i class="fa-solid fa-chevron-right step-arrow"></i>
+            <span class="flow-step ${step2Class}"><i class="${isPaid ? 'fa-solid fa-check' : 'fa-solid fa-credit-card'}"></i> 2. โอน Escrow</span>
+            <i class="fa-solid fa-chevron-right step-arrow"></i>
+            <span class="flow-step ${step3Class}"><i class="${hasTracking ? 'fa-solid fa-check' : 'fa-solid fa-truck-fast'}"></i> 3. ส่ง</span>
+            <i class="fa-solid fa-chevron-right step-arrow"></i>
+            <span class="flow-step ${step4Class}"><i class="${isCompleted ? 'fa-solid fa-check' : 'fa-solid fa-clock-rotate-left'}"></i> 4. ตรวจ</span>
+          </div>
+        </div>
+
+        <!-- Action Content Area -->
+        <div class="floating-card-content">
+          ${innerActionHtml}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+let isChatPaymentDrawerOpen = false;
+
+function toggleChatPaymentDrawer(forceState) {
+  if (typeof forceState === 'boolean') {
+    isChatPaymentDrawerOpen = forceState;
+  } else {
+    isChatPaymentDrawerOpen = !isChatPaymentDrawerOpen;
+  }
+  const card = document.getElementById('chatPaymentFloatingCard');
+  const btn = document.getElementById('btnPaymentCircleLauncher');
+  if (card) {
+    card.classList.toggle('is-open', isChatPaymentDrawerOpen);
+  }
+  if (btn) {
+    btn.classList.toggle('is-expanded', isChatPaymentDrawerOpen);
+    const arrow = btn.querySelector('.pill-arrow');
+    if (arrow) {
+      arrow.className = `fa-solid ${isChatPaymentDrawerOpen ? 'fa-chevron-up' : 'fa-chevron-down'} pill-arrow`;
+    }
+  }
+}
+
+if (!window.__chatPaymentListenersAttached) {
+  window.__chatPaymentListenersAttached = true;
+  document.addEventListener('click', function(e) {
+    const wrap = document.getElementById('chatPaymentLauncherWrap');
+    if (isChatPaymentDrawerOpen && wrap && !wrap.contains(e.target)) {
+      if (!e.target.closest('.modal-backdrop') && !e.target.closest('#escrowPaymentModalContainer')) {
+        toggleChatPaymentDrawer(false);
+      }
+    }
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && isChatPaymentDrawerOpen) {
+      toggleChatPaymentDrawer(false);
+    }
+  });
+}
+
+function confirmEscrowPayment(orderId, paymentMethod = 'PromptPay QR') {
+  const chats = loadP2PChats();
+  const chat = chats[orderId || activeStandaloneChatOrderId];
+  if (!chat) return;
+
+  const todayDate = new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' });
+  const nowTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  const fullTs = `${todayDate}, ${nowTime}`;
+  const winBidVal = chat.winningBid || chat.latestBid || 12500000;
+  const winBidFormatted = formatCurrency(winBidVal);
+  const seller = chat.seller || { name: 'ผู้ขาย', nickname: 'seller', avatar: '' };
+
+  // Update chat state
+  chat.paymentStatus = 'PAID';
+  chat.paidAmount = winBidVal;
+  chat.paidAt = fullTs;
+  chat.shippingStatus = 'AWAITING_SHIPMENT';
+
+  // System notification message
+  const sysMsg = {
+    id: 'msg-sys-pay-' + Date.now(),
+    sender: 'system',
+    isOwner: false,
+    text: `🛡️ [ระบบ Escrow] การชำระเงินสำเร็จ! ลูกค้า (Dealer: Alexander Sterling) ได้โอนเงินจำนวน ${winBidFormatted} เข้าสู่ระบบคุ้มครอง STARTASS Escrow เรียบร้อยแล้ว (ผ่าน ${paymentMethod}) เงินถูกล็อคคุ้มครอง 100% — ระบบได้แจ้งเตือนผู้ขาย [@${seller.nickname}] ให้จัดส่งสินค้าและกรอกหมายเลขพัสดุ (Tracking Number)`,
+    date: todayDate,
+    time: nowTime,
+    fullTimestamp: fullTs,
+    isRead: true
+  };
+  chat.messages.push(sysMsg);
+
+  // Automated Seller acknowledgement reply
+  const sellerMsg = {
+    id: 'msg-s-pay-' + (Date.now() + 1),
+    sender: 'seller',
+    isOwner: true,
+    senderName: `[ @${seller.nickname} ]`,
+    senderAvatar: seller.avatar,
+    text: `ได้รับแจ้งยอดโอนเงินเข้า Escrow จำนวน ${winBidFormatted} เรียบร้อยแล้วครับคุณ Alexander! ทางเรากำลังทำการแพ็คสินค้า "${chat.title}" อย่างแน่นหนาตามมาตรฐานความปลอดภัยสูง และเตรียมนำส่งมอบให้บริษัทขนส่ง จะนำหมายเลขพัสดุ (Tracking Number) มากดบันทึกให้ทราบในระบบทันทีครับ`,
+    date: todayDate,
+    time: nowTime,
+    fullTimestamp: fullTs,
+    isRead: true
+  };
+  chat.messages.push(sellerMsg);
+
+  chat.lastMessageSnippet = `ได้รับแจ้งยอดโอนเงินเข้า Escrow จำนวน ${winBidFormatted} เรียบร้อยแล้วครับ...`;
+  chat.lastMessageDate = todayDate;
+  chat.lastMessageTime = nowTime;
+  chat.lastMessageFull = `${todayDate} • ${nowTime}`;
+  chat.lastMessageIsRead = true;
+  saveP2PChats(chats);
+
+  // Synchronize orders in localStorage
+  const orders = loadOrders();
+  const order = orders.find(o => o.orderId === chat.orderId || o.itemId === chat.itemId);
+  if (order) {
+    order.paymentStatus = 'PAID';
+    order.paidAmount = winBidVal;
+    order.paidAt = fullTs;
+    order.shippingStatus = 'AWAITING_SHIPMENT';
+    order.statusLabel = 'ชำระเงินเข้า Escrow แล้ว (รอผู้ขายจัดส่ง)';
+    saveOrders(orders);
+  }
+
+  // Switch role to seller so user immediately sees the input tracking number unlocked!
+  activeChatViewRole = 'seller';
+
+  renderStandaloneCurrentChat(chat.orderId);
+  renderStandaloneChatConversations(activeStandaloneChatFilter);
+  scrollStandaloneChatToBottom();
+
+  if (typeof showToast === 'function') {
+    showToast(`✅ ชำระเงินเข้า Escrow สำเร็จ! สลับเป็นมุมมอง Seller พร้อมกรอกหมายเลขพัสดุได้ทันที`);
+  }
+}
+
+function handleSellerSubmitTracking(event, orderId) {
+  if (event) event.preventDefault();
+
+  const targetOrderId = orderId || activeStandaloneChatOrderId;
+  const chats = loadP2PChats();
+  const chat = chats[targetOrderId];
+  if (!chat) return;
+
+  const trackingInput = document.getElementById('sellerTrackingInput');
+  const carrierSelect = document.getElementById('sellerCarrierSelect');
+
+  const trackingNumber = trackingInput ? trackingInput.value.trim() : 'WG-98402194-TH';
+  const carrier = carrierSelect ? carrierSelect.value : 'White-Glove VIP Delivery';
+
+  if (!trackingNumber) {
+    if (typeof showToast === 'function') {
+      showToast('⚠️ กรุณาระบุหมายเลขพัสดุ');
+    }
+    return;
+  }
+
+  const todayDate = new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' });
+  const nowTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  const fullTs = `${todayDate}, ${nowTime}`;
+  const seller = chat.seller || { name: 'ผู้ขาย', nickname: 'seller', avatar: '' };
+
+  // Update chat state
+  chat.trackingNumber = trackingNumber;
+  chat.carrier = carrier;
+  chat.shippedAt = fullTs;
+  chat.shippingStatus = 'SHIPPED';
+  chat.inspectionDeadline = Date.now() + 10 * 24 * 60 * 60 * 1000; // 10 days
+
+  // System notification message
+  const sysMsg = {
+    id: 'msg-sys-track-' + Date.now(),
+    sender: 'system',
+    isOwner: false,
+    text: `🚚 [ระบบบันทึกหมายเลขพัสดุ] ผู้ขาย [@${seller.nickname}] ได้จัดส่งสินค้าและบันทึกหมายเลขพัสดุเรียบร้อยแล้ว: [${trackingNumber}] ขนส่งโดย ${carrier} — ระบบเริ่มนับระยะเวลาตรวจสอบสินค้า 10 วันตามขั้นตอนคุ้มครอง Escrow`,
+    date: todayDate,
+    time: nowTime,
+    fullTimestamp: fullTs,
+    isRead: true
+  };
+  chat.messages.push(sysMsg);
+
+  // Seller notification message
+  const sellerMsg = {
+    id: 'msg-s-track-' + (Date.now() + 1),
+    sender: 'seller',
+    isOwner: true,
+    senderName: `[ @${seller.nickname} ]`,
+    senderAvatar: seller.avatar,
+    text: `พัสดุของคุณได้รับการจัดส่งเรียบร้อยแล้วครับ! หมายเลขติดตามพัสดุ: [${trackingNumber}] ขนส่งโดย ${carrier} สามารถนำรหัสนี้ไปตรวจสอบสถานะได้ตลอดเวลา เมื่อได้รับสินค้าแล้วรบกวนตรวจสอบและกดยืนยันรับสินค้าตรงปกในระบบด้วยนะครับ ขอบคุณมากครับ!`,
+    date: todayDate,
+    time: nowTime,
+    fullTimestamp: fullTs,
+    isRead: true
+  };
+  chat.messages.push(sellerMsg);
+
+  chat.lastMessageSnippet = `พัสดุได้รับการจัดส่งเรียบร้อยแล้ว หมายเลข [${trackingNumber}]...`;
+  chat.lastMessageDate = todayDate;
+  chat.lastMessageTime = nowTime;
+  chat.lastMessageFull = `${todayDate} • ${nowTime}`;
+  chat.lastMessageIsRead = true;
+  saveP2PChats(chats);
+
+  // Synchronize orders in localStorage
+  const orders = loadOrders();
+  const order = orders.find(o => o.orderId === chat.orderId || o.itemId === chat.itemId);
+  if (order) {
+    order.trackingNumber = trackingNumber;
+    order.carrier = carrier;
+    order.shippingStatus = 'SHIPPED';
+    order.statusLabel = `จัดส่งสินค้าแล้ว (${carrier}: ${trackingNumber})`;
+    saveOrders(orders);
+  }
+
+  // Switch to dealer view to observe the tracking badge & 10 days timer
+  activeChatViewRole = 'dealer';
+
+  renderStandaloneCurrentChat(chat.orderId);
+  renderStandaloneChatConversations(activeStandaloneChatFilter);
+  scrollStandaloneChatToBottom();
+
+  if (typeof showToast === 'function') {
+    showToast(`📦 บันทึกหมายเลขพัสดุ [ ${trackingNumber} ] สำเร็จ! เริ่มนับระยะเวลาตรวจสอบ 10 วัน`);
+  }
+}
+
+function copyChatTrackingNumber(trackingNum, event) {
+  if (event) event.preventDefault();
+  navigator.clipboard.writeText(trackingNum).then(() => {
+    if (typeof showToast === 'function') {
+      showToast(`📋 คัดลอกหมายเลขพัสดุ [ ${trackingNum} ] แล้ว`);
+    }
+  }).catch(() => {
+    if (typeof showToast === 'function') {
+      showToast(`หมายเลขพัสดุ: ${trackingNum}`);
+    }
+  });
+}
+
+function confirmItemReceipt(orderId) {
+  const targetOrderId = orderId || activeStandaloneChatOrderId;
+  const chats = loadP2PChats();
+  const chat = chats[targetOrderId];
+  if (!chat) return;
+
+  const todayDate = new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' });
+  const nowTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  const fullTs = `${todayDate}, ${nowTime}`;
+  const winBidFormatted = formatCurrency(chat.paidAmount || chat.winningBid || 12500000);
+  const seller = chat.seller || { name: 'ผู้ขาย', nickname: 'seller' };
+
+  chat.shippingStatus = 'COMPLETED';
+
+  const sysMsg = {
+    id: 'msg-sys-ok-' + Date.now(),
+    sender: 'system',
+    isOwner: false,
+    text: `🎉 [ระบบ Escrow — สิ้นสุดคำสั่งซื้อ] ผู้ซื้อกดยืนยันได้รับสินค้าถูกต้องตรงปกแล้ว! ระบบได้ดำเนินการโอนเงินจำนวน ${winBidFormatted} จาก Escrow Vault เข้าสู่บัญชีผู้ขาย [@${seller.nickname}] เรียบร้อยแล้ว ปิดคำสั่งซื้อ #${chat.orderId} อย่างสมบูรณ์แบบ`,
+    date: todayDate,
+    time: nowTime,
+    fullTimestamp: fullTs,
+    isRead: true
+  };
+  chat.messages.push(sysMsg);
+  chat.lastMessageSnippet = `🎉 ผู้ซื้อกดยืนยันได้รับสินค้าถูกต้องตรงปก โอนเงินให้ผู้ขายเรียบร้อย`;
+  chat.lastMessageDate = todayDate;
+  chat.lastMessageTime = nowTime;
+  chat.lastMessageFull = `${todayDate} • ${nowTime}`;
+  chat.lastMessageIsRead = true;
+  saveP2PChats(chats);
+
+  const orders = loadOrders();
+  const order = orders.find(o => o.orderId === chat.orderId || o.itemId === chat.itemId);
+  if (order) {
+    order.shippingStatus = 'COMPLETED';
+    order.statusLabel = 'ได้รับสินค้าตรงปกแล้ว (ปิดคำสั่งซื้อ)';
+    saveOrders(orders);
+  }
+
+  renderStandaloneCurrentChat(chat.orderId);
+  renderStandaloneChatConversations(activeStandaloneChatFilter);
+  scrollStandaloneChatToBottom();
+
+  if (typeof showToast === 'function') {
+    showToast(`🎉 ยืนยันสินค้าตรงปกสำเร็จ! ระบบโอนเงินให้ผู้ขายและปิดคำสั่งซื้อแล้ว`);
+  }
+}
+
+function requestItemReturn(orderId) {
+  const targetOrderId = orderId || activeStandaloneChatOrderId;
+  const chats = loadP2PChats();
+  const chat = chats[targetOrderId];
+  if (!chat) return;
+
+  const todayDate = new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' });
+  const nowTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  const fullTs = `${todayDate}, ${nowTime}`;
+  const seller = chat.seller || { name: 'ผู้ขาย', nickname: 'seller' };
+
+  chat.shippingStatus = 'RETURN_REQUESTED';
+
+  const sysMsg = {
+    id: 'msg-sys-ret-' + Date.now(),
+    sender: 'system',
+    isOwner: false,
+    text: `⚠️ [แจ้งขอคืนสินค้า / ไม่ตรงปก] ผู้ซื้อได้ส่งคำขอคืนสินค้าเนื่องจากสินค้าไม่เป็นไปตามข้อตกลง ยอดเงินใน Escrow Vault ถูกระงับการโอนเพื่อความปลอดภัย โปรดติดต่อประสานงานส่งสินค้าคืนผู้ขาย [@${seller.nickname}]`,
+    date: todayDate,
+    time: nowTime,
+    fullTimestamp: fullTs,
+    isRead: true
+  };
+  chat.messages.push(sysMsg);
+  chat.lastMessageSnippet = `⚠️ ผู้ซื้อส่งคำขอคืนสินค้า (ไม่ตรงปก) ยอด Escrow ถูกระงับ...`;
+  chat.lastMessageDate = todayDate;
+  chat.lastMessageTime = nowTime;
+  chat.lastMessageFull = `${todayDate} • ${nowTime}`;
+  chat.lastMessageIsRead = true;
+  saveP2PChats(chats);
+
+  const orders = loadOrders();
+  const order = orders.find(o => o.orderId === chat.orderId || o.itemId === chat.itemId);
+  if (order) {
+    order.shippingStatus = 'RETURN_REQUESTED';
+    order.statusLabel = 'ขอคืนสินค้า (ไม่ตรงปก)';
+    saveOrders(orders);
+  }
+
+  renderStandaloneCurrentChat(chat.orderId);
+  renderStandaloneChatConversations(activeStandaloneChatFilter);
+  scrollStandaloneChatToBottom();
+
+  if (typeof showToast === 'function') {
+    showToast(`⚠️ บันทึกคำขอคืนสินค้าเรียบร้อย ยอด Escrow ถูกระงับตามขั้นตอน`);
+  }
+}
+
+function resetChatEscrowDemo(orderId) {
+  const targetOrderId = orderId || activeStandaloneChatOrderId;
+  const chats = loadP2PChats();
+  const chat = chats[targetOrderId];
+  if (!chat) return;
+
+  chat.paymentStatus = 'UNPAID';
+  chat.shippingStatus = 'AWAITING_PAYMENT';
+  chat.trackingNumber = '';
+  chat.carrier = '';
+  delete chat.paidAmount;
+  delete chat.paidAt;
+  delete chat.shippedAt;
+  delete chat.inspectionDeadline;
+
+  // Filter out pay/track system messages
+  chat.messages = (chat.messages || []).filter(m => !m.id || (!m.id.startsWith('msg-sys-pay') && !m.id.startsWith('msg-s-pay') && !m.id.startsWith('msg-sys-track') && !m.id.startsWith('msg-s-track') && !m.id.startsWith('msg-sys-ok') && !m.id.startsWith('msg-sys-ret')));
+
+  chat.lastMessageSnippet = 'เรากำลังจัดเตรียมเคสอะคริลิกกันรังสี UV และเอกสารอนุญาตส่งออก รบกวนคุณ Alexander ยืนยันที่อยู่จัดส่ง...';
+  saveP2PChats(chats);
+
+  const orders = loadOrders();
+  const order = orders.find(o => o.orderId === chat.orderId || o.itemId === chat.itemId);
+  if (order) {
+    order.paymentStatus = 'UNPAID';
+    order.shippingStatus = 'AWAITING_PAYMENT';
+    order.trackingNumber = '';
+    order.carrier = '';
+    order.statusLabel = 'ชนะการประมูลแล้ว (รอประสานงานจัดส่ง)';
+    saveOrders(orders);
+  }
+
+  activeChatViewRole = 'dealer';
+
+  renderStandaloneCurrentChat(chat.orderId);
+  renderStandaloneChatConversations(activeStandaloneChatFilter);
+  scrollStandaloneChatToBottom();
+
+  if (typeof showToast === 'function') {
+    showToast(`🔄 รีเซ็ตสถานะคำสั่งซื้อเป็น [ รอชำระเงิน ] เรียบร้อย พร้อมทดสอบใหม่`);
+  }
 }
 
 // Initialization on DOM Ready

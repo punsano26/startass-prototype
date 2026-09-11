@@ -6477,28 +6477,28 @@ body:has(.chat-page-wrapper) {
   color: #ffffff;
 }
 
-/* Live Deal Strip */
+/* Live Deal Strip (Compact & Sleek) */
 .chat-live-deal-strip {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 10px 20px;
-  background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.8) 100%);
-  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+  gap: 14px;
+  padding: 8px 20px;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
 }
 
 .deal-strip-product-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
 }
 
 .deal-strip-img {
-  width: 52px;
-  height: 52px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-sm);
   object-fit: cover;
   border: 1px solid rgba(245, 158, 11, 0.4);
@@ -6508,7 +6508,7 @@ body:has(.chat-page-wrapper) {
 .deal-strip-titles {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 }
 
@@ -6557,7 +6557,7 @@ body:has(.chat-page-wrapper) {
 
 .deal-strip-product-title {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #ffffff;
   white-space: nowrap;
@@ -6567,9 +6567,8 @@ body:has(.chat-page-wrapper) {
 
 .deal-strip-price-matrix {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  text-align: right;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 
@@ -6582,7 +6581,7 @@ body:has(.chat-page-wrapper) {
 }
 
 .deal-price-amount {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: #10b981;
   line-height: 1.2;
@@ -6594,13 +6593,25 @@ body:has(.chat-page-wrapper) {
   font-weight: 600;
 }
 
+/* Chat Messages Area Wrapper (Contains Floating Circle & Timeline) */
+.chat-messages-area-wrapper {
+  position: relative;
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  z-index: 10;
+}
+
 /* Messages Timeline */
 .chat-messages-timeline {
   flex: 1 1 0%;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 20px 28px;
+  padding: 18px 28px;
+  padding-top: 58px; /* Clean breathing room for top-left circular trigger */
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -8391,6 +8402,1593 @@ body:has(.chat-page-wrapper) {
     font-size: 1.35rem;
   }
 }
+
+/* ==========================================================================
+   P2P ESCROW LIFECYCLE & TRACKING NUMBER STYLES (pages/chat.html)
+   Dealer Payment Button, Seller Tracking Input, Pipeline Stepper & Escrow Modal
+   ========================================================================== */
+
+/* Deal Strip Extra Badges */
+.deal-escrow-paid-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.deal-escrow-unpaid-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.deal-tracking-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: monospace;
+}
+
+/* ==========================================================================
+   P2P ESCROW LIFECYCLE & CIRCULAR TOP-LEFT PAYMENT TRIGGER (pages/chat.html)
+   Part ชำระ แบบซ่อนไว้ในกลมๆบนซ้ายในช่องข้อความแชท
+   ========================================================================== */
+
+/* Escrow Action Bar Container (Pinned at Top-Left of Chat Messages Window) */
+.chat-escrow-action-bar {
+  position: absolute;
+  top: 12px;
+  left: 20px;
+  z-index: 35;
+  pointer-events: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.chat-payment-circle-launcher-wrap {
+  position: relative;
+  pointer-events: auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Circular Launcher Button (บนซ้ายในช่องข้อความแชท) */
+.btn-payment-circle-launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 12px 3px 3px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1.5px solid rgba(245, 158, 11, 0.55);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), 0 0 12px rgba(245, 158, 11, 0.25);
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  outline: none;
+}
+
+.btn-payment-circle-launcher:hover {
+  transform: translateY(-2px) scale(1.02);
+  border-color: var(--accent-gold);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.65), 0 0 20px rgba(245, 158, 11, 0.45);
+}
+
+.btn-payment-circle-launcher.is-expanded {
+  background: rgba(30, 41, 59, 0.98);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+}
+
+.btn-payment-circle-launcher.is-paid {
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-payment-circle-launcher.is-paid:hover {
+  border-color: #34d399;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.65), 0 0 20px rgba(16, 185, 129, 0.45);
+}
+
+/* The round circle icon element */
+.payment-circle-round {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.btn-payment-circle-launcher.is-paid .payment-circle-round {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+/* Pulsing radar halo beacon */
+.circle-pulse-beacon {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: 50%;
+  border: 2px solid #f59e0b;
+  animation: radarHalo 2s infinite ease-out;
+  pointer-events: none;
+}
+
+@keyframes radarHalo {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  60% { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* Mini Tag next to circle */
+.payment-circle-pill-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.payment-circle-pill-tag .pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
+.btn-payment-circle-launcher.is-paid .payment-circle-pill-tag .pill-dot {
+  background: #34d399;
+  box-shadow: 0 0 6px #34d399;
+}
+
+.payment-circle-pill-tag .pill-label {
+  color: #f1f5f9;
+}
+
+.payment-circle-pill-tag .pill-price {
+  color: #fbbf24;
+  font-weight: 800;
+}
+
+.btn-payment-circle-launcher.is-paid .payment-circle-pill-tag .pill-price {
+  color: #34d399;
+}
+
+.payment-circle-pill-tag .pill-arrow {
+  color: #94a3b8;
+  font-size: 0.65rem;
+  transition: transform 0.2s ease;
+}
+
+/* Expandable Floating Payment Card (Popover Drawer) */
+.chat-payment-floating-card {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 480px;
+  max-width: calc(100vw - 40px);
+  background: linear-gradient(165deg, rgba(17, 24, 39, 0.98) 0%, rgba(11, 15, 25, 0.98) 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.45);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(245, 158, 11, 0.2);
+  backdrop-filter: blur(24px);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 60;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.96);
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.chat-payment-floating-card.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Floating Card Header */
+.floating-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.floating-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.btn-close-floating-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.btn-close-floating-card:hover {
+  background: rgba(244, 63, 94, 0.2);
+  border-color: rgba(244, 63, 94, 0.4);
+  color: #f87171;
+}
+
+/* Pipeline Row inside Floating Card */
+.floating-card-pipeline-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.role-switcher-tabs.mini .btn-role-tab {
+  padding: 3px 8px;
+  font-size: 0.7rem;
+}
+
+.flow-pipeline-stepper.mini .flow-step {
+  font-size: 0.66rem;
+  padding: 2px 6px;
+}
+
+.floating-card-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Stacked full-width layout inside floating card to avoid squishing */
+.chat-payment-floating-card .escrow-role-card {
+  display: flex;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  padding: 12px 14px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: var(--radius-md) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.chat-payment-floating-card .escrow-card-left {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.chat-payment-floating-card .escrow-role-tag {
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: fit-content !important;
+}
+
+.chat-payment-floating-card .escrow-headline {
+  margin: 0 !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  line-height: 1.35 !important;
+}
+
+.chat-payment-floating-card .escrow-subtext {
+  margin: 0 !important;
+  font-size: 0.78rem !important;
+  color: #94a3b8 !important;
+  line-height: 1.45 !important;
+  word-break: break-word !important;
+}
+
+.chat-payment-floating-card .escrow-card-right {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+  flex-shrink: 0 !important;
+}
+
+.chat-payment-floating-card .btn-dealer-pay-glow {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 10px 16px !important;
+  box-sizing: border-box !important;
+}
+
+.btn-pay-left-cluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.chat-payment-floating-card .pay-main-label {
+  font-size: 0.88rem !important;
+}
+
+.chat-payment-floating-card .btn-pay-amount-pill {
+  padding: 4px 10px !important;
+  font-size: 0.88rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Seller forms inside floating card */
+.chat-payment-floating-card .seller-tracking-locked-form {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+}
+
+.chat-payment-floating-card .locked-input-group {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-sizing: border-box !important;
+}
+
+.chat-payment-floating-card .input-tracking-disabled {
+  flex: 1 !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+
+.chat-payment-floating-card .seller-tracking-active-form {
+  width: 100% !important;
+}
+
+.chat-payment-floating-card .tracking-inputs-flex {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+}
+
+.chat-payment-floating-card .carrier-dropdown-box {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.chat-payment-floating-card .carrier-select-control {
+  flex: 1 !important;
+  width: 100% !important;
+}
+
+.chat-payment-floating-card .tracking-text-box {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.chat-payment-floating-card .tracking-input-control {
+  flex: 1 !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+
+.chat-payment-floating-card .btn-submit-tracking-active {
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+.chat-payment-floating-card .paid-action-cluster {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.chat-payment-floating-card .inspection-decision-group {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+/* Top Strip: Role Switcher Tabs & Stepper */
+.escrow-action-top-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.role-switcher-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.role-switcher-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.btn-role-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-role-tab:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #ffffff;
+}
+
+.btn-role-tab.active {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.2) 100%);
+  border-color: var(--accent-gold);
+  color: #fbbf24;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+/* Flow Stepper */
+.flow-pipeline-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.flow-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.flow-step.step-done {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.flow-step.step-active {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  font-weight: 700;
+}
+
+.flow-step.step-waiting {
+  color: #64748b;
+  opacity: 0.7;
+}
+
+.step-arrow {
+  font-size: 0.55rem;
+  color: #475569;
+}
+
+/* Main Action Box */
+.escrow-action-main-box {
+  min-width: 0;
+}
+
+.escrow-role-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.escrow-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.escrow-role-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+}
+
+.escrow-role-tag.dealer-tag {
+  color: #fbbf24;
+}
+
+.escrow-role-tag.seller-tag {
+  color: #94a3b8;
+}
+
+.escrow-role-tag.seller-tag-ready {
+  color: #34d399;
+}
+
+.escrow-role-tag.dealer-tag-paid {
+  color: #34d399;
+}
+
+.escrow-role-tag.shipping-tag-active {
+  color: #38bdf8;
+}
+
+.escrow-role-tag.completed-tag {
+  color: #34d399;
+}
+
+.escrow-role-tag.return-tag {
+  color: #f87171;
+}
+
+.escrow-headline {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.escrow-subtext {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.escrow-card-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* BUTTON FOR PAYMENT [ DEALER ] */
+.btn-dealer-pay-glow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+  border: 1px solid rgba(253, 230, 138, 0.4);
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.btn-dealer-pay-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  filter: brightness(1.08);
+}
+
+.btn-dealer-pay-glow:active {
+  transform: translateY(0);
+}
+
+.btn-glow-effect {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  animation: buttonShine 3s infinite ease-in-out;
+}
+
+@keyframes buttonShine {
+  0% { left: -100%; }
+  35% { left: 100%; }
+  100% { left: 100%; }
+}
+
+.btn-pay-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.btn-pay-label-box {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.pay-sub-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+}
+
+.pay-main-label {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.btn-pay-amount-pill {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* SELLER TRACKING LOCKED STATE */
+.seller-tracking-locked-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.locked-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.input-lock-icon {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-left: 4px;
+}
+
+.input-tracking-disabled {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 0.78rem;
+  width: 250px;
+  cursor: not-allowed;
+  outline: none;
+}
+
+.btn-submit-disabled {
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #64748b;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: not-allowed;
+}
+
+.btn-quick-switch-hint {
+  background: transparent;
+  border: none;
+  color: #fbbf24;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+
+.btn-quick-switch-hint:hover {
+  color: #ffffff;
+}
+
+/* INPUT TRACKING NUMBER [ SELLER ] - ACTIVE */
+.seller-tracking-active-form {
+  width: 100%;
+}
+
+.tracking-inputs-flex {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.carrier-dropdown-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.carrier-select-control {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.carrier-select-control option {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.tracking-text-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  padding: 4px 6px 4px 10px;
+  border-radius: var(--radius-sm);
+  color: #34d399;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+}
+
+.tracking-input-control {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-family: monospace;
+  font-weight: 600;
+  width: 200px;
+  outline: none;
+}
+
+.tracking-input-control::placeholder {
+  font-family: var(--font-body);
+  color: #64748b;
+  font-weight: 400;
+  font-size: 0.78rem;
+}
+
+.btn-sample-fill-quick {
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.btn-sample-fill-quick:hover {
+  background: rgba(245, 158, 11, 0.25);
+  color: #ffffff;
+}
+
+.btn-submit-tracking-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: 1px solid rgba(110, 231, 183, 0.4);
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-submit-tracking-active:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+}
+
+/* DEALER PAID STATUS DISPLAY */
+.paid-action-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.escrow-held-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* SHIPPED & 10 DAYS INSPECTION TIMER */
+.tracking-display-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 3px 0;
+  flex-wrap: wrap;
+}
+
+.carrier-pill {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.tracking-number-code {
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.btn-copy-tracking {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-copy-tracking:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.timer-countdown-badge {
+  font-size: 0.74rem;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 3px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inspection-decision-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-confirm-item-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: 1px solid rgba(110, 231, 183, 0.4);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-confirm-item-ok:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-request-item-return {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: #f87171;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-request-item-return:hover {
+  background: rgba(244, 63, 94, 0.25);
+  color: #ffffff;
+}
+
+.btn-reset-demo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-reset-demo:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* QUICK ACTION BAR NEW BUTTON STYLES */
+.btn-chip-dealer-pay {
+  background: rgba(245, 158, 11, 0.18) !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+  color: #fbbf24 !important;
+  font-weight: 700 !important;
+}
+
+.btn-chip-dealer-pay:hover {
+  background: rgba(245, 158, 11, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.btn-chip-seller-track {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  color: #34d399 !important;
+  font-weight: 700 !important;
+}
+
+.btn-chip-seller-track:hover {
+  background: rgba(16, 185, 129, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.btn-chip-role-toggle {
+  background: rgba(56, 189, 248, 0.14) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  color: #38bdf8 !important;
+  font-weight: 600 !important;
+}
+
+/* ESCROW PAYMENT MODAL STYLES */
+.modal-escrow-payment-container {
+  max-width: 620px;
+}
+
+.role-badge-dealer {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.escrow-payment-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.escrow-item-preview {
+  margin-bottom: 0;
+}
+
+.escrow-modal-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.escrow-order-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.escrow-status-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+
+.escrow-product-title {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.escrow-seller-tag {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.escrow-vault-callout {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.06) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.vault-callout-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #34d399;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.vault-callout-content strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #34d399;
+  margin-bottom: 2px;
+}
+
+.vault-callout-content p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.escrow-amount-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+
+.amount-row-sub {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  margin-bottom: 6px;
+}
+
+.amount-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 10px 0;
+}
+
+.amount-row-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-label-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.total-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.total-subhint {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.total-value-col {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.total-amount-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: -0.01em;
+}
+
+.currency-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.escrow-method-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.escrow-section-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.escrow-method-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.btn-method-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-method-tab i {
+  font-size: 1.25rem;
+}
+
+.btn-method-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.btn-method-tab.active {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: var(--accent-gold);
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.method-detail-panel {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.promptpay-box .qr-code-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.qr-mock-frame {
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.qr-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.promptpay-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.15);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  padding: 2px 8px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.qr-scan-guide {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.qr-ref-box {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qr-ref-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  color: #94a3b8;
+}
+
+.qr-ref-item strong {
+  color: #ffffff;
+}
+
+.bank-account-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bank-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bank-logo-badge.kbank-logo {
+  background: #00a950;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.bank-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.bank-type-tag {
+  font-size: 0.68rem;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.bank-acc-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bank-acc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.field-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.copy-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acc-number {
+  font-family: monospace;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  letter-spacing: 0.05em;
+}
+
+.btn-copy-acc {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-copy-acc:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.acc-name {
+  font-size: 0.84rem;
+  color: #ffffff;
+}
+
+.wallet-balance-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wallet-balance-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wallet-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  display: block;
+}
+
+.wallet-val {
+  font-size: 1.3rem;
+  color: var(--accent-gold);
+  font-weight: 800;
+}
+
+.wallet-status-ok {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #34d399;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.escrow-slip-box {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.slip-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.slip-text {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+
+.escrow-terms-agree {
+  padding: 6px 4px;
+}
+
+.terms-agree-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: #94a3b8;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.terms-agree-label strong {
+  color: #e2e8f0;
+}
+
+.btn-confirm-escrow-pay {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4) !important;
+}
+
+/* RESPONSIVE BREAKPOINTS FOR ACTION BAR & MODALS */
+@media (max-width: 900px) {
+  .escrow-role-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .escrow-card-right {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .btn-dealer-pay-glow {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tracking-inputs-flex {
+    width: 100%;
+  }
+
+  .carrier-dropdown-box, .tracking-text-box {
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .btn-submit-tracking-active {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .chat-escrow-action-bar {
+    top: 8px;
+    left: 12px;
+  }
+
+  .chat-payment-floating-card {
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    left: 0;
+  }
+
+  .flow-pipeline-stepper {
+    display: none;
+  }
+
+  .escrow-method-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .promptpay-box .qr-code-wrapper {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .qr-ref-box {
+    text-align: left;
+  }
+}
+
 
 
 

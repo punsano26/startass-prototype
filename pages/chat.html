@@ -218,14 +218,22 @@
           <!-- Populated dynamically via renderStandaloneCurrentChat() -->
         </header>
 
-        <!-- Current Chat Live Deal Strip (Product and Latest Bids Price) -->
+        <!-- Current Chat Live Deal Strip (Product and Latest Bids Price - Compact & Sleek) -->
         <div class="chat-live-deal-strip" id="chatLiveDealStrip">
           <!-- Populated dynamically via renderStandaloneCurrentChat() -->
         </div>
 
-        <!-- Messages All History Timeline -->
-        <div class="chat-messages-timeline" id="chatMessagesTimeline">
-          <!-- Populated dynamically with all messages, date/time, read status, and owner product & price bids -->
+        <!-- Chat Messages Area with Floating Top-Left Payment Circle & Dropdown Drawer -->
+        <div class="chat-messages-area-wrapper" id="chatMessagesAreaWrapper">
+          <!-- P2P Escrow Payment & Action Trigger (Circular button top-left & expandable popover) -->
+          <div class="chat-escrow-action-bar" id="chatEscrowActionBar">
+            <!-- Populated dynamically via renderChatEscrowActionBar() -->
+          </div>
+
+          <!-- Messages All History Timeline -->
+          <div class="chat-messages-timeline" id="chatMessagesTimeline">
+            <!-- Populated dynamically with all messages, date/time, read status, and owner product & price bids -->
+          </div>
         </div>
 
         <!-- Typing Indicator Banner (Seller Typing Simulation) -->
@@ -244,19 +252,22 @@
 
         <!-- Quick Action Prompt Chips Bar with Typing Simulator -->
         <div class="chat-quick-actions-bar" id="chatQuickActionsBar">
-          <span class="quick-label"><i class="fa-solid fa-wand-magic-sparkles"></i> จำลองพิมพ์:</span>
+          <span class="quick-label"><i class="fa-solid fa-wand-magic-sparkles"></i> จัดการธุรกรรม / จำลอง:</span>
           <div class="quick-chips-scroll">
+            <button type="button" class="btn-quick-chip btn-chip-dealer-pay" onclick="openEscrowPaymentModal()" title="💳 ชำระเงินเข้า Escrow [ Dealer ]">
+              <i class="fa-solid fa-credit-card"></i> 💳 ชำระเงิน [ Dealer ]
+            </button>
+            <button type="button" class="btn-quick-chip btn-chip-seller-track" onclick="focusSellerTrackingInput()" title="🚚 กรอกหมายเลขพัสดุ [ Seller ]">
+              <i class="fa-solid fa-truck-fast"></i> 🚚 กรอกเลขพัสดุ [ Seller ]
+            </button>
+            <button type="button" class="btn-quick-chip btn-chip-role-toggle" onclick="toggleChatViewRole()" title="🔄 สลับมุมมอง Dealer / Seller">
+              <i class="fa-solid fa-repeat"></i> สลับมุมมอง Dealer / Seller
+            </button>
             <button type="button" class="btn-quick-chip btn-chip-sim" onclick="simulateTypingPrompt('📍 ยืนยันที่อยู่จัดส่ง: 450 Lexington Ave, New York, NY 10017 พร้อมรับมอบสินค้าครับ')" title="จำลองพิมพ์: ยืนยันที่อยู่">
               <i class="fa-solid fa-keyboard"></i> ยืนยันที่อยู่
             </button>
             <button type="button" class="btn-quick-chip btn-chip-sim" onclick="simulateTypingPrompt('📜 รบกวนส่งเอกสาร Certificate of Authenticity และผลตรวจสอบเบื้องต้นให้ดูทางนี้ด้วยครับ')" title="จำลองพิมพ์: ขอเอกสาร COA">
               <i class="fa-solid fa-keyboard"></i> ขอเอกสาร COA
-            </button>
-            <button type="button" class="btn-quick-chip btn-chip-sim" onclick="simulateTypingPrompt('🛡️ เงินมัดจำ Escrow ได้รับการยืนยันเรียบร้อย พร้อมประสานงานปล่อยยอดเมื่อได้รับสินค้าครับ')" title="จำลองพิมพ์: ยืนยัน Escrow">
-              <i class="fa-solid fa-keyboard"></i> ยืนยัน Escrow
-            </button>
-            <button type="button" class="btn-quick-chip btn-chip-sim" onclick="simulateTypingPrompt('🚚 รบกวนสอบถามตารางเวลาที่รถขนส่ง White-Glove พร้อมเข้ามาส่งมอบสินค้าด้วยครับ')" title="จำลองพิมพ์: นัดหมายจัดส่ง">
-              <i class="fa-solid fa-keyboard"></i> นัดหมายจัดส่ง
             </button>
             <button type="button" class="btn-quick-chip btn-chip-seller-sim" onclick="simulateSellerResponseDirect()" title="⚡ จำลองให้ผู้ขายเริ่มพิมพ์และส่งข้อความตอบกลับ">
               <i class="fa-solid fa-robot"></i> ⚡ จำลองผู้ขายตอบกลับ
@@ -286,6 +297,9 @@
 
     </div>
   </div>
+
+  <!-- COMPONENT: Escrow Payment Modal (ชำระเงินเข้าสู่ระบบ Escrow Vault [ Dealer ]) -->
+  <div id="escrowPaymentModalContainer"></div>
 
   <!-- COMPONENT: Auction Bid Modal (เสนอราคาประมูลสินค้า) -->
   <div id="auctionBidModalContainer"></div>
@@ -435,6 +449,7 @@
   <!-- Modal Components -->
   <script src="../components/modals/AuctionBidModal.js"></script>
   <script src="../components/modals/AuctionDetailModal.js"></script>
+  <script src="../components/modals/EscrowPaymentModal.js"></script>
 
   <!-- Platform Scripts -->
   <script src="../js/main.js"></script>

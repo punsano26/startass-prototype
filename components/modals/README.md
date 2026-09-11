@@ -125,3 +125,41 @@ AuctionBidModal.submit();
 | `#bidAmountInput` | Numeric bid input field |
 | `#modalBidHistory` | Real-time recent bids list |
 | `#modalSubmitBidBtn` | Submit bid button with validation guards |
+
+---
+
+## 3. `EscrowPaymentModal` (ชำระเงินเข้า Escrow Vault [ Dealer ])
+
+Reusable modal component for auction winners (Dealer) to transfer winning funds into the STARTASS Escrow Vault system, with 10-day inspection protection guarantee, PromptPay QR, Bank Transfer, and Wallet options.
+
+### Files
+
+- **`EscrowPaymentModal.html`**: Clean, standalone HTML markup template.
+- **`EscrowPaymentModal.js`**: JavaScript component controller providing automatic mounting, Web Component `<escrow-payment-modal>` support, payment method switching, and payment execution.
+
+### How to Use
+
+```html
+<!-- COMPONENT: Escrow Payment Modal -->
+<div id="escrowPaymentModalContainer"></div>
+
+<!-- Modal Components -->
+<script src="../components/modals/EscrowPaymentModal.js"></script>
+<script src="../js/main.js"></script>
+```
+
+### `EscrowPaymentModal` Elements (`#escrowPaymentModal`)
+
+| Element ID | Description |
+| :--- | :--- |
+| `#escrowPaymentModal` | Modal backdrop container with `.modal-backdrop` |
+| `#escrowModalImg` | Won auction item thumbnail preview |
+| `#escrowModalCategory` | Item category badge |
+| `#escrowModalTitle` | Item title heading |
+| `#escrowModalSellerName` | Seller name |
+| `#escrowModalWinningBid` | Net winning bid amount |
+| `#escrowModalTotalAmount` | Total required payment to Escrow |
+| `#methodPanelPromptPay` | PromptPay QR code display panel |
+| `#methodPanelBank` | Bank transfer details (Kasikornbank Escrow Vault) |
+| `#methodPanelWallet` | STARTASS Escrow Wallet balance panel |
+| `#btnConfirmEscrowPayment` | Confirm payment button with verification simulation |

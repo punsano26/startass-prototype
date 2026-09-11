@@ -2106,8 +2106,7 @@ const DEFAULT_MY_PROFILE = {
   bankCode: 'kbank',
   bankName: 'ธนาคารกสิกรไทย (Kasikornbank)',
   accountNumber: '089-2-94819-0',
-  accountName: 'Alexander Sterling',
-  bankBranch: 'ออมทรัพย์ • สาขาสยามพารากอน'
+  accountName: 'Alexander Sterling'
 };
 
 function loadMyProfile() {
@@ -2121,8 +2120,7 @@ function loadMyProfile() {
         bankCode: parsed.bankCode || DEFAULT_MY_PROFILE.bankCode,
         bankName: parsed.bankName || DEFAULT_MY_PROFILE.bankName,
         accountNumber: parsed.accountNumber || DEFAULT_MY_PROFILE.accountNumber,
-        accountName: parsed.accountName || parsed.fullName || DEFAULT_MY_PROFILE.accountName,
-        bankBranch: (parsed.bankBranch !== undefined) ? parsed.bankBranch : DEFAULT_MY_PROFILE.bankBranch
+        accountName: parsed.accountName || parsed.fullName || DEFAULT_MY_PROFILE.accountName
       };
     } catch (e) {
       console.error('Failed to parse saved profile:', e);
@@ -2587,7 +2585,8 @@ function filterMyProfileAuctions(keyword) {
 }
 
 // Edit Profile Modal Handling
-function openEditProfileModal(focusSection) {
+// Edit Profile Modal Handling (Personal Info Only)
+function openEditProfileModal() {
   const modal = document.getElementById('editProfileModal');
   if (!modal) return;
 
@@ -2598,10 +2597,6 @@ function openEditProfileModal(focusSection) {
   const av = document.getElementById('editAvatarUrl');
   const bio = document.getElementById('editBio');
   const previewImg = document.getElementById('editAvatarPreview');
-  const bankCode = document.getElementById('editBankCode');
-  const accNum = document.getElementById('editBankAccountNumber');
-  const accName = document.getElementById('editBankAccountName');
-  const bankBranch = document.getElementById('editBankBranch');
 
   if (fn) fn.value = currentUser.fullName || '';
   if (nn) nn.value = currentUser.nickname || '';
@@ -2609,21 +2604,7 @@ function openEditProfileModal(focusSection) {
   if (bio) bio.value = currentUser.bio || '';
   if (previewImg) previewImg.src = currentUser.avatar || '';
 
-  if (bankCode) bankCode.value = currentUser.bankCode || 'kbank';
-  if (accNum) accNum.value = currentUser.accountNumber || '';
-  if (accName) accName.value = currentUser.accountName || currentUser.fullName || '';
-  if (bankBranch) bankBranch.value = currentUser.bankBranch || '';
-
-  handleBankSelectChange(bankCode ? bankCode.value : 'kbank');
-
   modal.classList.add('open');
-
-  if (focusSection === 'bank' && bankCode) {
-    setTimeout(() => {
-      bankCode.focus();
-      bankCode.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 200);
-  }
 }
 
 function closeEditProfileModal() {
@@ -2638,29 +2619,18 @@ function handleSaveProfileForm(event) {
   const nn = document.getElementById('editNickname');
   const av = document.getElementById('editAvatarUrl');
   const bio = document.getElementById('editBio');
-  const bankCode = document.getElementById('editBankCode');
-  const accNum = document.getElementById('editBankAccountNumber');
-  const accName = document.getElementById('editBankAccountName');
-  const bankBranch = document.getElementById('editBankBranch');
-
-  const selectedBank = bankCode && THAI_BANKS[bankCode.value] ? THAI_BANKS[bankCode.value] : null;
 
   const updated = {
     fullName: fn ? fn.value.trim() : currentUser.fullName,
     nickname: nn ? nn.value.trim().replace(/^@/, '') : currentUser.nickname,
     avatar: av ? av.value.trim() : currentUser.avatar,
-    bio: bio ? bio.value.trim() : currentUser.bio,
-    bankCode: bankCode && bankCode.value ? bankCode.value : (currentUser.bankCode || 'kbank'),
-    bankName: selectedBank ? selectedBank.name : (currentUser.bankName || 'ธนาคารกสิกรไทย (Kasikornbank)'),
-    accountNumber: accNum ? accNum.value.trim() : (currentUser.accountNumber || ''),
-    accountName: accName ? accName.value.trim() : (currentUser.accountName || currentUser.fullName),
-    bankBranch: bankBranch ? bankBranch.value.trim() : (currentUser.bankBranch || '')
+    bio: bio ? bio.value.trim() : currentUser.bio
   };
 
   saveMyProfile(updated);
   initMyProfilePage();
   closeEditProfileModal();
-  showToast('บันทึกข้อมูลโปรไฟล์และบัญชีธนาคารเรียบร้อยแล้ว!');
+  showToast('บันทึกข้อมูลโปรไฟล์ของคุณเรียบร้อยแล้ว!');
 }
 
 function previewAvatarFromInput(input) {
@@ -2671,46 +2641,59 @@ function previewAvatarFromInput(input) {
   }
 }
 
-// Thai Bank Selection and Account Helpers
-function handleBankSelectChange(bankCodeVal) {
-  const previewBox = document.getElementById('editBankPreviewBox');
-  const previewBadge = document.getElementById('editBankPreviewBadge');
-  const previewName = document.getElementById('editBankPreviewName');
-  const previewAcc = document.getElementById('editBankPreviewAcc');
-  const accNumInput = document.getElementById('editBankAccountNumber');
-  const accNameInput = document.getElementById('editBankAccountName');
+// ==========================================================================
+// DEDICATED MANAGE BANK ACCOUNT MODAL (จัดการบัญชีธนาคาร)
+// Only 3 Fields: ชื่อธนาคาร, เลขบัญชี, ชื่อ - นามสกุล
+// ==========================================================================
+function openManageBankModal() {
+  const modal = document.getElementById('manageBankModal');
+  if (!modal) return;
 
-  if (!previewBox) return;
+  currentUser = loadMyProfile();
 
-  const bank = THAI_BANKS[bankCodeVal];
-  if (bank) {
-    previewBox.style.display = 'flex';
-    if (previewBadge) {
-      previewBadge.textContent = bank.shortName;
-      previewBadge.style.backgroundColor = bank.color;
-      previewBadge.style.color = bank.textColor;
-    }
-    if (previewName) {
-      previewName.textContent = bank.name;
-    }
-    const accNum = accNumInput && accNumInput.value.trim() ? accNumInput.value.trim() : (currentUser.accountNumber || '089-2-94819-0');
-    const accName = accNameInput && accNameInput.value.trim() ? accNameInput.value.trim() : (currentUser.accountName || currentUser.fullName || '');
-    if (previewAcc) {
-      previewAcc.textContent = `${accNum} • ${accName}`;
-    }
-  } else {
-    previewBox.style.display = 'none';
+  const sel = document.getElementById('bankModalSelect');
+  const num = document.getElementById('bankModalAccNumber');
+  const name = document.getElementById('bankModalAccName');
+
+  const currentBankCode = currentUser.bankCode || 'kbank';
+  const currentAccNum = currentUser.accountNumber || '';
+  const currentAccName = currentUser.accountName || currentUser.fullName || '';
+
+  if (sel) sel.value = currentBankCode;
+  if (num) num.value = currentAccNum;
+  if (name) name.value = currentAccName;
+
+  handleBankModalChange(currentBankCode);
+  updateVirtualCardAccNumber(currentAccNum);
+  updateVirtualCardName(currentAccName);
+
+  modal.classList.add('open');
+  if (sel) {
+    setTimeout(() => sel.focus(), 150);
   }
 }
 
-function updateBankModalPreview() {
-  const bankCode = document.getElementById('editBankCode');
-  if (bankCode) {
-    handleBankSelectChange(bankCode.value);
+function closeManageBankModal() {
+  const modal = document.getElementById('manageBankModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function handleBankModalChange(bankCodeVal) {
+  const badge = document.getElementById('vCardBankBadge');
+  const bName = document.getElementById('vCardBankName');
+  const bank = THAI_BANKS[bankCodeVal] || THAI_BANKS['kbank'];
+
+  if (badge && bank) {
+    badge.textContent = bank.shortName;
+    badge.style.backgroundColor = bank.color;
+    badge.style.color = bank.textColor;
+  }
+  if (bName && bank) {
+    bName.textContent = bank.shortName;
   }
 }
 
-function formatBankAccountInput(input) {
+function formatBankModalAccInput(input) {
   if (!input) return;
   let digits = input.value.replace(/\D/g, '');
   if (digits.length > 12) digits = digits.substring(0, 12);
@@ -2728,7 +2711,44 @@ function formatBankAccountInput(input) {
     input.value = `${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6, 10)}-${digits.substring(10)}`;
   }
 
-  updateBankModalPreview();
+  updateVirtualCardAccNumber(input.value);
+}
+
+function updateVirtualCardAccNumber(val) {
+  const vNum = document.getElementById('vCardNumber');
+  if (vNum) {
+    vNum.textContent = (val && val.trim()) ? val.trim() : '•••• •••• ••••';
+  }
+}
+
+function updateVirtualCardName(val) {
+  const vName = document.getElementById('vCardHolderName');
+  if (vName) {
+    vName.textContent = ((val && val.trim()) ? val.trim() : (currentUser.accountName || currentUser.fullName || 'ชื่อเจ้าของบัญชี')).toUpperCase();
+  }
+}
+
+function handleSaveBankForm(event) {
+  if (event) event.preventDefault();
+
+  const sel = document.getElementById('bankModalSelect');
+  const num = document.getElementById('bankModalAccNumber');
+  const name = document.getElementById('bankModalAccName');
+
+  const bankCodeVal = (sel && sel.value) ? sel.value : 'kbank';
+  const bank = THAI_BANKS[bankCodeVal] || THAI_BANKS['kbank'];
+
+  const updated = {
+    bankCode: bankCodeVal,
+    bankName: bank.name,
+    accountNumber: num ? num.value.trim() : (currentUser.accountNumber || ''),
+    accountName: name ? name.value.trim() : (currentUser.accountName || currentUser.fullName || '')
+  };
+
+  saveMyProfile(updated);
+  initMyProfilePage();
+  closeManageBankModal();
+  showToast('บันทึกข้อมูลบัญชีธนาคารเรียบร้อยแล้ว!');
 }
 
 function renderProfileBankAccount() {
@@ -2736,8 +2756,6 @@ function renderProfileBankAccount() {
   const bankDisplayName = document.getElementById('profileBankDisplayName');
   const bankAccNumber = document.getElementById('profileBankAccNumber');
   const bankAccountName = document.getElementById('profileBankAccountName');
-  const bankBranch = document.getElementById('profileBankBranch');
-  const bankBranchWrap = document.getElementById('profileBankBranchWrap');
   const bankPillText = document.getElementById('myProfileBankPillText');
 
   const currentBank = THAI_BANKS[currentUser.bankCode] || THAI_BANKS['kbank'];
@@ -2756,16 +2774,8 @@ function renderProfileBankAccount() {
   if (bankAccountName) {
     bankAccountName.textContent = currentUser.accountName || currentUser.fullName || 'ยังไม่ได้ระบุ';
   }
-  if (bankBranch) {
-    if (currentUser.bankBranch) {
-      bankBranch.textContent = currentUser.bankBranch;
-      if (bankBranchWrap) bankBranchWrap.style.display = 'inline-flex';
-    } else {
-      if (bankBranchWrap) bankBranchWrap.style.display = 'none';
-    }
-  }
   if (bankPillText && currentBank) {
-    bankPillText.textContent = `${currentBank.shortName}: ${currentUser.accountNumber || 'ระบุบัญชีธนาคาร'}`;
+    bankPillText.textContent = `${currentBank.shortName}: ${currentUser.accountNumber || 'ระบุบัญชี'}`;
   }
 }
 

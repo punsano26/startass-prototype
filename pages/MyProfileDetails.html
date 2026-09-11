@@ -169,7 +169,7 @@
 
             <div class="profile-meta-pills">
               <span class="profile-nickname-pill" id="myProfileNickname">@Alexander_Sterling</span>
-              <span class="profile-bank-pill" id="myProfileBankPill" onclick="openEditProfileModal('bank')" title="บัญชีธนาคารสำหรับรับเงินที่ผูกไว้ (คลิกเพื่อแก้ไข)">
+              <span class="profile-bank-pill" id="myProfileBankPill" onclick="openManageBankModal()" title="จัดการบัญชีธนาคาร">
                 <i class="fa-solid fa-building-columns"></i>
                 <span id="myProfileBankPillText">KBANK: 089-2-94819-0</span>
               </span>
@@ -202,9 +202,6 @@
         <div class="profile-bank-info">
           <div class="profile-bank-title-row">
             <span class="profile-bank-name" id="profileBankDisplayName">ธนาคารกสิกรไทย (Kasikornbank)</span>
-            <span class="profile-bank-status-tag" id="profileBankStatusTag">
-              <i class="fa-solid fa-shield-halved"></i> บัญชีรับเงิน Escrow ได้รับการยืนยัน
-            </span>
           </div>
           <div class="profile-bank-details-row">
             <div class="profile-bank-field">
@@ -220,15 +217,11 @@
               <span class="bank-field-label">ชื่อเจ้าของบัญชี:</span>
               <strong class="bank-field-value" id="profileBankAccountName">Alexander Sterling</strong>
             </div>
-            <div class="profile-bank-field" id="profileBankBranchWrap">
-              <span class="bank-field-label">สาขา / ประเภท:</span>
-              <span class="bank-field-value text-muted" id="profileBankBranch">ออมทรัพย์ &bull; สาขาสยามพารากอน</span>
-            </div>
           </div>
         </div>
       </div>
       <div class="profile-bank-card-actions">
-        <button type="button" class="btn-profile-edit-bank" onclick="openEditProfileModal('bank')">
+        <button type="button" class="btn-profile-edit-bank" onclick="openManageBankModal()">
           <i class="fa-solid fa-pen-to-square"></i> จัดการบัญชีธนาคาร
         </button>
       </div>
@@ -370,84 +363,109 @@
             </label>
             <textarea id="editBio" class="report-textarea" rows="3" placeholder="เขียนคำแนะนำตัวสั้นๆ เกี่ยวกับตัวคุณ..."></textarea>
           </div>
-
-          <!-- Bank Account Information Section (ข้อมูลบัญชีธนาคารสำหรับรับเงิน) -->
-          <div class="edit-profile-section-divider">
-            <div class="edit-profile-section-header">
-              <i class="fa-solid fa-building-columns" style="color: var(--accent-gold);"></i>
-              <div>
-                <strong style="display:block; font-size: 0.95rem; color: var(--text-primary);">ข้อมูลบัญชีธนาคารสำหรับรับเงิน (Payout & Escrow Refund)</strong>
-                <small style="color: var(--text-muted); font-size: 0.78rem;">เลือกธนาคารไทยและระบุเลขที่บัญชีสำหรับรับเงินโอนค่าสินค้าจากการประมูลหรือเงินคืน Escrow</small>
-              </div>
-            </div>
-          </div>
-
-          <div class="edit-grid-2col">
-            <div class="form-group">
-              <label for="editBankCode" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
-                <i class="fa-solid fa-building-columns"></i> เลือกธนาคารไทย (Thai Bank) <span class="required" style="color: #ef4444;">*</span>:
-              </label>
-              <select id="editBankCode" class="composer-input form-select-custom" style="width:100%; border-radius:var(--radius-sm);" onchange="handleBankSelectChange(this.value)" required>
-                <option value="">-- กรุณาเลือกธนาคารไทย --</option>
-                <option value="kbank">ธนาคารกสิกรไทย (Kasikornbank - KBANK)</option>
-                <option value="scb">ธนาคารไทยพาณิชย์ (Siam Commercial Bank - SCB)</option>
-                <option value="bbl">ธนาคารกรุงเทพ (Bangkok Bank - BBL)</option>
-                <option value="ktb">ธนาคารกรุงไทย (Krungthai Bank - KTB)</option>
-                <option value="bay">ธนาคารกรุงศรีอยุธยา (Bank of Ayudhya - BAY)</option>
-                <option value="ttb">ธนาคารทหารไทยธนชาต (TMBThanachart - TTB)</option>
-                <option value="gsb">ธนาคารออมสิน (Government Savings Bank - GSB)</option>
-                <option value="baac">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (ธ.ก.ส. / BAAC)</option>
-                <option value="uob">ธนาคารยูโอบี (United Overseas Bank - UOB)</option>
-                <option value="cimb">ธนาคารซีไอเอ็มบี ไทย (CIMB Thai)</option>
-                <option value="kk">ธนาคารเกียรตินาคินภัทร (Kiatnakin Phatra - KKP)</option>
-                <option value="tisco">ธนาคารทิสโก้ (TISCO Bank)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="editBankAccountNumber" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
-                <i class="fa-solid fa-money-check-dollar"></i> หมายเลขบัญชีธนาคาร (Account Number) <span class="required" style="color: #ef4444;">*</span>:
-              </label>
-              <input type="text" id="editBankAccountNumber" class="composer-input" placeholder="เช่น 089-2-94819-0" maxlength="20" style="width:100%; border-radius:var(--radius-sm);" oninput="formatBankAccountInput(this)" required>
-              <small style="color:var(--text-muted); font-size:0.75rem; margin-top:4px; display:block;">กรอกเฉพาะตัวเลข (10-12 หลัก ระบบจะจัดรูปแบบให้อัตโนมัติ)</small>
-            </div>
-          </div>
-
-          <div class="edit-grid-2col">
-            <div class="form-group">
-              <label for="editBankAccountName" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
-                <i class="fa-solid fa-id-card"></i> ชื่อเจ้าของบัญชี (Account Holder Name) <span class="required" style="color: #ef4444;">*</span>:
-              </label>
-              <input type="text" id="editBankAccountName" class="composer-input" placeholder="ชื่อ-นามสกุลจริงเจ้าของบัญชี" style="width:100%; border-radius:var(--radius-sm);" oninput="updateBankModalPreview()" required>
-              <small style="color:var(--text-muted); font-size:0.75rem; margin-top:4px; display:block;">ต้องตรงกับชื่อจริงในการยืนยันตัวตนเพื่อความปลอดภัย</small>
-            </div>
-
-            <div class="form-group">
-              <label for="editBankBranch" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
-                <i class="fa-solid fa-location-dot"></i> สาขา / ประเภทบัญชี (Branch / Type):
-              </label>
-              <input type="text" id="editBankBranch" class="composer-input" placeholder="เช่น ออมทรัพย์ / สาขาสยามพารากอน" style="width:100%; border-radius:var(--radius-sm);">
-            </div>
-          </div>
-
-          <!-- Bank Account Live Preview Box in Modal -->
-          <div class="edit-bank-preview-box" id="editBankPreviewBox">
-            <div class="bank-preview-badge-logo" id="editBankPreviewBadge">KBANK</div>
-            <div class="bank-preview-details">
-              <div class="bank-preview-name" id="editBankPreviewName">ธนาคารกสิกรไทย (Kasikornbank)</div>
-              <div class="bank-preview-acc" id="editBankPreviewAcc">089-2-94819-0 &bull; Alexander Sterling</div>
-            </div>
-            <span class="bank-preview-verified-tag"><i class="fa-solid fa-shield-halved"></i> รองรับ Escrow Vault</span>
-          </div>
         </div>
 
-        <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--border-subtle); display:flex; justify-content:flex-end; gap:12px; position:sticky; bottom:0; background:var(--bg-modal); z-index:10;">
+        <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--border-subtle); display:flex; justify-content:flex-end; gap:12px;">
           <button type="button" class="btn btn-view" onclick="closeEditProfileModal()">ยกเลิก</button>
           <button type="submit" class="btn btn-profile-primary btn-profile-edit">
             <i class="fa-solid fa-floppy-disk"></i> บันทึกการเปลี่ยนแปลง
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Manage Bank Account Modal (จัดการบัญชีธนาคาร) -->
+  <div class="modal-backdrop" id="manageBankModal" role="dialog" aria-modal="true" aria-labelledby="manageBankTitle" onclick="if (event.target === this) closeManageBankModal()">
+    <div class="modal-container modal-manage-bank-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="manageBankTitle">
+          <i class="fa-solid fa-building-columns" style="color: var(--accent-gold);"></i> จัดการบัญชีธนาคาร
+        </h3>
+        <button class="modal-close" onclick="closeManageBankModal()" aria-label="ปิดหน้าต่าง">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding: 24px 28px;">
+        <!-- Luxury Virtual Bank Card Preview -->
+        <div class="virtual-bank-card" id="virtualBankCard">
+          <div class="v-card-shine"></div>
+          <div class="v-card-top">
+            <div class="v-card-chip-box">
+              <i class="fa-solid fa-microchip v-card-chip-icon"></i>
+              <i class="fa-solid fa-wifi v-card-wifi-icon"></i>
+            </div>
+            <div class="v-card-bank-badge" id="vCardBankBadge">KBANK</div>
+          </div>
+          <div class="v-card-number-row">
+            <span class="v-card-number" id="vCardNumber">089-2-94819-0</span>
+          </div>
+          <div class="v-card-bottom">
+            <div class="v-card-col">
+              <span class="v-card-label">ชื่อ - นามสกุลเจ้าของบัญชี</span>
+              <span class="v-card-val" id="vCardHolderName">ALEXANDER STERLING</span>
+            </div>
+            <div class="v-card-col v-card-col-right">
+              <span class="v-card-label">ธนาคาร</span>
+              <span class="v-card-val" id="vCardBankName">KASIKORNBANK</span>
+            </div>
+          </div>
+        </div>
+
+        <form id="manageBankForm" onsubmit="handleSaveBankForm(event)">
+          <!-- 1. ชื่อธนาคาร -->
+          <div class="form-group bank-modal-field">
+            <label for="bankModalSelect" class="form-label-gold">
+              <i class="fa-solid fa-building-columns"></i> ชื่อธนาคาร <span class="required" style="color:#ef4444;">*</span>
+            </label>
+            <select id="bankModalSelect" class="composer-input form-select-custom bank-field-input" onchange="handleBankModalChange(this.value)" required>
+              <option value="">-- กรุณาเลือกธนาคารไทย --</option>
+              <option value="kbank">ธนาคารกสิกรไทย (KBANK - Kasikornbank)</option>
+              <option value="scb">ธนาคารไทยพาณิชย์ (SCB - Siam Commercial Bank)</option>
+              <option value="bbl">ธนาคารกรุงเทพ (BBL - Bangkok Bank)</option>
+              <option value="ktb">ธนาคารกรุงไทย (KTB - Krungthai Bank)</option>
+              <option value="bay">ธนาคารกรุงศรีอยุธยา (BAY - Bank of Ayudhya)</option>
+              <option value="ttb">ธนาคารทหารไทยธนชาต (TTB - TMBThanachart)</option>
+              <option value="gsb">ธนาคารออมสิน (GSB - Government Savings Bank)</option>
+              <option value="baac">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (ธ.ก.ส. / BAAC)</option>
+              <option value="uob">ธนาคารยูโอบี (UOB - United Overseas Bank)</option>
+              <option value="cimb">ธนาคารซีไอเอ็มบี ไทย (CIMB Thai)</option>
+              <option value="kk">ธนาคารเกียรตินาคินภัทร (KKP - Kiatnakin Phatra)</option>
+              <option value="tisco">ธนาคารทิสโก้ (TISCO Bank)</option>
+            </select>
+          </div>
+
+          <!-- 2. หมายเลขบัญชี -->
+          <div class="form-group bank-modal-field">
+            <label for="bankModalAccNumber" class="form-label-gold">
+              <i class="fa-solid fa-money-check-dollar"></i> เลขบัญชี <span class="required" style="color:#ef4444;">*</span>
+            </label>
+            <div class="bank-input-with-icon">
+              <i class="fa-solid fa-credit-card bank-input-icon"></i>
+              <input type="text" id="bankModalAccNumber" class="composer-input bank-acc-input" placeholder="000-0-00000-0" maxlength="20" oninput="formatBankModalAccInput(this)" required>
+            </div>
+            <small class="form-helper-text">กรอกเฉพาะตัวเลข 10-12 หลัก (ระบบจัดรูปแบบให้อัตโนมัติ)</small>
+          </div>
+
+          <!-- 3. ชื่อ - นามสกุล -->
+          <div class="form-group bank-modal-field" style="margin-bottom: 24px;">
+            <label for="bankModalAccName" class="form-label-gold">
+              <i class="fa-solid fa-user"></i> ชื่อ - นามสกุล <span class="required" style="color:#ef4444;">*</span>
+            </label>
+            <div class="bank-input-with-icon">
+              <i class="fa-solid fa-user bank-input-icon"></i>
+              <input type="text" id="bankModalAccName" class="composer-input" placeholder="ชื่อและนามสกุลจริงเจ้าของบัญชี" oninput="updateVirtualCardName(this.value)" required>
+            </div>
+            <small class="form-helper-text">โปรดระบุชื่อ-นามสกุลจริงให้ตรงกับหน้าสมุดบัญชี</small>
+          </div>
+
+          <div class="modal-footer bank-modal-footer">
+            <button type="button" class="btn btn-view" onclick="closeManageBankModal()">ยกเลิก</button>
+            <button type="submit" class="btn btn-profile-primary btn-profile-edit">
+              <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลบัญชี
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 

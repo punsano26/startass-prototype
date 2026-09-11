@@ -536,7 +536,8 @@ function loadOrders() {
     startPrice: 3100000,
     bidIncrement: 50000,
     status: 'WON', // ENUM: 'WINNING' | 'OUTBID' | 'WON' | 'ENDED'
-    statusLabel: 'ชนะการประมูลแล้ว (รอประสานงานจัดส่ง)',
+    statusLabel: 'ชนะการประมูลแล้ว (รอชำระเงินเข้า Escrow)',
+    paymentStatus: 'UNPAID',
     placedAt: '7 ก.ย. 2026, 14:15',
     updatedAt: '8 ก.ย. 2026, 16:30',
     seller: {
@@ -566,7 +567,10 @@ function loadOrders() {
     startPrice: 98000000,
     bidIncrement: 1000000,
     status: 'WON', // ENUM: 'WINNING' | 'OUTBID' | 'WON' | 'ENDED'
-    statusLabel: 'ชนะการประมูลแล้ว (รอประสานงานจัดส่ง)',
+    statusLabel: 'ชำระเงินเข้า Escrow แล้ว (รอผู้ขายจัดส่ง)',
+    paymentStatus: 'PAID',
+    paidAmount: 145000000,
+    paidAt: '8 ก.ย. 2026, 11:30',
     placedAt: '6 ก.ย. 2026, 10:20',
     updatedAt: '8 ก.ย. 2026, 11:45',
     seller: {
@@ -595,6 +599,13 @@ function loadOrders() {
           parsed.push(seedWonOrder3);
           changed = true;
         }
+        // Ensure paymentStatus is consistent for existing orders
+        parsed.forEach(o => {
+          if (o.status === 'WON' && !o.paymentStatus) {
+            o.paymentStatus = (o.orderId === 'ORD-AUC-03') ? 'PAID' : 'UNPAID';
+            changed = true;
+          }
+        });
         if (changed) {
           saveOrders(parsed);
         }
@@ -4006,6 +4017,12 @@ function initOrderDetailPage() {
   }
 
   renderOrderDetail(selectedOrder.orderId);
+
+  if (urlParams.get('payment') === 'success' || urlParams.get('paid') === '1') {
+    setTimeout(() => {
+      showToast('🎉 ชำระเงินเข้าสู่ระบบ Escrow Vault สำเร็จ! เงินถูกพักไว้ในระบบอย่างปลอดภัย 100%');
+    }, 450);
+  }
 }
 
 function renderOrderDetail(orderId) {
@@ -4028,11 +4045,12 @@ function renderOrderDetail(orderId) {
 
   // Check if auction is won or winning
   const isWon = order.status === 'WON';
+  const isPaid = isWon && order.paymentStatus === 'PAID';
   const isWinning = !isWon && isUserHighestBidder(order.itemId);
   const currentStatus = isWon ? 'WON' : (isWinning ? 'WINNING' : 'OUTBID');
   const statusClass = getStatusClass(currentStatus);
   const statusLabel = isWon
-    ? (order.statusLabel || 'ชนะการประมูลแล้ว (รอการจัดส่ง)')
+    ? (isPaid ? 'ชำระเงินเข้า Escrow แล้ว (รอผู้ขายจัดส่ง)' : (order.statusLabel || 'ชนะการประมูลแล้ว (รอชำระเงินเข้า Escrow)'))
     : (isWinning ? 'กำลังนำการประมูล (ราคาสูงสุด)' : 'โดนแซงราคาแล้ว (ต้องเสนอราคาเพิ่ม)');
 
   const images = (order.images && order.images.length > 0) ? order.images : [order.image];
@@ -4046,16 +4064,17 @@ function renderOrderDetail(orderId) {
 
   const time = getTimeRemaining(order.endDate || new Date(Date.now() + 2 * 86400000).toISOString());
   const timerText = isWon
-    ? 'ชนะการประมูลแล้ว'
+    ? (isPaid ? 'ชนะแล้ว (ชำระเงินเรียบร้อย)' : 'ชนะการประมูลแล้ว (รอชำระเงิน)')
     : (time.expired ? 'ปิดการประมูลแล้ว' : `${time.days} วัน ${time.hours} ชม. ${time.minutes} นาที ${time.seconds} วิ`);
 
   // Order Switcher Chips HTML
   const chipsHtml = orders.map(o => {
     const isAct = o.orderId === order.orderId;
     const isWonItem = o.status === 'WON';
+    const isPaidItem = isWonItem && o.paymentStatus === 'PAID';
     const oWinning = !isWonItem && isUserHighestBidder(o.itemId);
-    const badgeClass = isWonItem ? 'status-won' : (oWinning ? 'status-winning' : 'status-outbid');
-    const badgeText = isWonItem ? 'ชนะแล้ว' : (oWinning ? 'กำลังนำ' : 'โดนแซง');
+    const badgeClass = isWonItem ? (isPaidItem ? 'status-winning' : 'status-won') : (oWinning ? 'status-winning' : 'status-outbid');
+    const badgeText = isWonItem ? (isPaidItem ? 'ชำระแล้ว' : 'รอชำระ') : (oWinning ? 'กำลังนำ' : 'โดนแซง');
     return `
       <div class="order-chip ${isAct ? 'active' : ''}" onclick="renderOrderDetail('${o.orderId}')" title="${o.title}">
         <img src="${o.image}" alt="${o.title}" class="order-chip-thumb">
@@ -4150,6 +4169,15 @@ function renderOrderDetail(orderId) {
           <i class="fa-solid fa-arrow-left"></i> การประมูลทั้งหมด
         </a>
         ${isWon ? `
+          ${!isPaid ? `
+            <a href="Payment.html?orderId=${encodeURIComponent(order.orderId)}" class="btn btn-order-pay-now" title="ดำเนินการชำระเงินเข้าสู่ Escrow Vault">
+              <i class="fa-solid fa-credit-card"></i> <span>ชำระเงินเข้า Escrow (Pay Now)</span>
+            </a>
+          ` : `
+            <span class="order-escrow-paid-badge" title="ชำระเงินเข้าสู่ระบบ Escrow สำเร็จแล้ว">
+              <i class="fa-solid fa-circle-check"></i> <span>ชำระเงินเข้า Escrow แล้ว</span>
+            </span>
+          `}
           <button type="button" class="btn btn-order-p2p" onclick="openSellerP2PChat('${order.orderId}')" title="เปิดห้องแชตคุยกับผู้ขายโดยตรง">
             <i class="fa-solid fa-comments"></i> แชต P2P กับผู้ขาย
           </button>
@@ -4185,7 +4213,7 @@ function renderOrderDetail(orderId) {
                 <i class="${getCategoryIcon(order.category)}"></i> ${order.categoryLabel}
               </span>
               <span class="order-status-badge ${statusClass}" style="background: rgba(11, 15, 25, 0.75); backdrop-filter: blur(8px);">
-                <span class="status-pulse-dot"></span> ${isWon ? 'ชนะการประมูล' : (isWinning ? 'กำลังนำการประมูล' : 'โดนแซงราคา')}
+                <span class="status-pulse-dot"></span> ${isWon ? (isPaid ? 'ชนะแล้ว (ชำระแล้ว)' : 'ชนะแล้ว (รอชำระ)') : (isWinning ? 'กำลังนำการประมูล' : 'โดนแซงราคา')}
               </span>
             </div>
           </div>
@@ -4252,7 +4280,9 @@ function renderOrderDetail(orderId) {
                 </span>
                 <span class="price-box-val-gold">${formatCurrency(order.userBid)}</span>
                 ${isWon 
-                  ? `<span class="price-user-callout" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.4);"><i class="fa-solid fa-trophy"></i> ชนะการประมูล - ปลดล็อกสิทธิ์ P2P แชต</span>`
+                  ? (isPaid 
+                    ? `<span class="price-user-callout" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.4);"><i class="fa-solid fa-circle-check"></i> ชนะประมูล & ชำระเงินเข้า Escrow แล้ว</span>`
+                    : `<span class="price-user-callout" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);"><i class="fa-solid fa-credit-card"></i> ชนะการประมูล - รอชำระเงินเข้า Escrow</span>`)
                   : (isWinning 
                     ? `<span class="price-user-callout"><i class="fa-solid fa-crown"></i> คุณเป็นผู้นำการประมูล</span>` 
                     : `<span class="price-user-callout" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5;"><i class="fa-solid fa-triangle-exclamation"></i> โดนแซงราคา - เสนอเพิ่มเพื่อชนะ</span>`)}
@@ -4269,8 +4299,8 @@ function renderOrderDetail(orderId) {
                 <span class="value">+${formatCurrency(order.bidIncrement || 1000)}</span>
               </div>
               <div class="matrix-sub-item">
-                <span class="label">สถานะคำสั่งซื้อ</span>
-                <span class="value" style="color: ${isWon ? '#10b981' : (isWinning ? '#34d399' : '#fb923c')}; font-weight: 700;">${isWon ? 'ชนะการประมูล' : (isWinning ? 'กำลังนำการประมูล' : 'โดนแซงราคา')}</span>
+                <span class="label">สถานะการชำระเงิน</span>
+                <span class="value" style="color: ${isWon ? (isPaid ? '#10b981' : '#f59e0b') : (isWinning ? '#34d399' : '#fb923c')}; font-weight: 700;">${isWon ? (isPaid ? 'ชำระเข้า Escrow แล้ว' : 'รอชำระเงิน') : (isWinning ? 'ผู้นำประมูล' : 'โดนแซงราคา')}</span>
               </div>
             </div>
           </div>
@@ -4280,19 +4310,35 @@ function renderOrderDetail(orderId) {
             <div class="timer-label-box">
               <i class="${isWon ? 'fa-solid fa-trophy' : 'fa-regular fa-clock'}" style="${isWon ? 'color: #f59e0b;' : ''}"></i>
               <div>
-                <strong style="display: block; font-size: 0.88rem; color: #fff;">${isWon ? 'การประมูลสิ้นสุดแล้ว' : 'เวลาประมูลคงเหลือ'}</strong>
+                <strong style="display: block; font-size: 0.88rem; color: #fff;">${isWon ? (isPaid ? 'การประมูลสิ้นสุด (ชำระเงินสำเร็จ)' : 'การประมูลสิ้นสุดแล้ว') : 'เวลาประมูลคงเหลือ'}</strong>
                 <span style="font-size: 0.78rem; color: #94a3b8;">${isWon ? 'คุณเป็นผู้ชนะการประมูลอันดับ 1' : `สิ้นสุด: ${new Date(order.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}</span>
               </div>
             </div>
-            <span class="timer-countdown-text" style="${isWon ? 'color: #10b981;' : ''}">${isWon ? '<i class="fa-solid fa-circle-check"></i> ชนะแล้ว' : timerText}</span>
+            <span class="timer-countdown-text" style="${isWon ? 'color: #10b981;' : ''}">${isWon ? (isPaid ? '<i class="fa-solid fa-shield-check"></i> Escrow คุ้มครอง' : '<i class="fa-solid fa-trophy"></i> ชนะแล้ว') : timerText}</span>
           </div>
 
           <!-- CTA Buttons & Lock Notice -->
           <div class="order-cta-group">
             ${isWon ? `
-              <button type="button" class="btn btn-order-p2p-cta" onclick="openSellerP2PChat('${order.orderId}')">
-                <i class="fa-solid fa-comments"></i> เปิดห้องแชต P2P กับผู้ขาย
-              </button>
+              ${!isPaid ? `
+                <a href="Payment.html?orderId=${encodeURIComponent(order.orderId)}" class="btn btn-order-pay-cta" title="ดำเนินการชำระเงินเข้าสู่ Escrow Vault">
+                  <div class="btn-pay-content-wrap">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>ชำระเงินค่าสินค้าเข้าสู่ Escrow Vault</span>
+                  </div>
+                  <span class="btn-pay-price-tag">${formatCurrency(order.userBid)}</span>
+                </a>
+                <button type="button" class="btn btn-order-secondary" onclick="openSellerP2PChat('${order.orderId}')">
+                  <i class="fa-solid fa-comments"></i> ติดต่อผู้ขาย (P2P Chat)
+                </button>
+              ` : `
+                <button type="button" class="btn btn-order-p2p-cta" onclick="openSellerP2PChat('${order.orderId}')">
+                  <i class="fa-solid fa-comments"></i> เปิดห้องแชต P2P กับผู้ขาย
+                </button>
+                <a href="Payment.html?orderId=${encodeURIComponent(order.orderId)}" class="btn btn-order-secondary" title="ดูรายละเอียดการชำระเงิน Escrow">
+                  <i class="fa-solid fa-file-invoice-dollar"></i> ดูหลักฐานการชำระเงิน Escrow
+                </a>
+              `}
             ` : (isWinning ? `
               <button type="button" class="btn btn-order-raise btn-bid-locked" disabled title="คุณเป็นผู้ให้ราคาสูงสุดแล้ว (${formatCurrency(order.userBid)}) ไม่สามารถเสนอราคาซ้ำจนกว่าจะมีผู้ประมูลอื่นเสนอราคาแข่ง">
                 <i class="fa-solid fa-lock"></i> คุณเป็นผู้นำการประมูล (รอผู้ประมูลอื่น)
@@ -4309,13 +4355,34 @@ function renderOrderDetail(orderId) {
 
           <!-- Informative Lock or Outbid or Won Banner -->
           ${isWon ? `
-            <div class="order-won-banner">
-              <div class="won-banner-icon"><i class="fa-solid fa-trophy"></i></div>
-              <div class="won-banner-info">
-                <strong>ชนะการประมูลแล้ว — เปิดสิทธิ์ Escrow และห้องแชต P2P!</strong>
-                <span>ยินดีด้วย! คุณชนะการประมูลรายการนี้ในราคา <strong>${formatCurrency(order.userBid)}</strong> สิทธิ์การสนทนาส่วนตัว (P2P Chat) กับผู้ขาย [@${seller.nickname}] เปิดใช้งานแล้ว พร้อมระบบ STARTASS Escrow คุ้มครองความปลอดภัย 100%</span>
+            ${!isPaid ? `
+              <div class="order-won-banner order-won-payment-pending">
+                <div class="won-banner-icon"><i class="fa-solid fa-credit-card"></i></div>
+                <div class="won-banner-info">
+                  <div class="won-banner-title-row">
+                    <strong>คุณชนะการประมูล — กรุณาชำระเงินค่าสินค้าเข้าสู่ Escrow Vault</strong>
+                    <span class="won-pending-pill"><i class="fa-solid fa-clock"></i> รอชำระเงิน</span>
+                  </div>
+                  <span>คุณชนะการประมูลรายการนี้ในราคา <strong>${formatCurrency(order.userBid)}</strong> กรุณาดำเนินการโอนเงินเข้าสู่ Escrow เพื่อให้ผู้ขายเตรียมแพ็คและจัดส่งสินค้า โดยยอดเงินของคุณจะถูกคุ้มครองปลอดภัย 100% จนกว่าจะได้รับสินค้าและตรวจรับตรงปกภายใน 10 วัน</span>
+                  <div class="won-banner-action-row">
+                    <a href="Payment.html?orderId=${encodeURIComponent(order.orderId)}" class="btn-won-pay-link">
+                      <i class="fa-solid fa-arrow-right-to-bracket"></i> ไปยังหน้าชำระเงิน (Proceed to Payment)
+                    </a>
+                  </div>
+                </div>
               </div>
-            </div>
+            ` : `
+              <div class="order-won-banner order-won-paid">
+                <div class="won-banner-icon won-icon-success"><i class="fa-solid fa-shield-check"></i></div>
+                <div class="won-banner-info">
+                  <div class="won-banner-title-row">
+                    <strong style="color: #34d399;">ชำระเงินเข้าสู่ระบบคุ้มครอง Escrow สำเร็จแล้ว</strong>
+                    <span class="won-paid-pill"><i class="fa-solid fa-lock"></i> พักเงินใน Escrow ปลอดภัย 100%</span>
+                  </div>
+                  <span>ยอดเงินจำนวน <strong>${formatCurrency(order.paidAmount || order.userBid)}</strong> ได้รับการยืนยันเข้าสู่ระบบ STARTASS Escrow Vault แล้ว (${order.paidAt || 'เรียบร้อยแล้ว'}) ผู้ขายได้รับแจ้งเตือนและกำลังดำเนินการแพ็คจัดส่งสินค้าแบบ White-Glove พร้อมประกันภัย</span>
+                </div>
+              </div>
+            `}
           ` : (isWinning ? `
             <div class="order-bid-lock-banner">
               <div class="bid-lock-icon"><i class="fa-solid fa-shield-halved"></i></div>
@@ -5135,7 +5202,7 @@ function focusSellerTrackingInput() {
       showToast('⚠️ รอลูกค้า (Dealer) ชำระเงินเข้า Escrow ก่อน จึงจะสามารถกรอกหมายเลขพัสดุได้');
     }
     setChatViewRole('dealer');
-    openEscrowPaymentModal(activeStandaloneChatOrderId);
+    window.location.href = `Payment.html?orderId=${encodeURIComponent(activeStandaloneChatOrderId)}`;
     return;
   }
 
@@ -5212,7 +5279,7 @@ function renderChatEscrowActionBar(orderId) {
             </p>
           </div>
           <div class="escrow-card-right">
-            <button type="button" class="btn-dealer-pay-glow" onclick="openEscrowPaymentModal('${chat.orderId}')" title="กดเพื่อชำระเงินเข้า Escrow">
+            <button type="button" class="btn-dealer-pay-glow" onclick="window.location.href='Payment.html?orderId=' + encodeURIComponent('${chat.orderId}')" title="กดเพื่อไปยังหน้าชำระเงินเข้า Escrow (Payment.html)">
               <div class="btn-glow-effect"></div>
               <div class="btn-pay-left-cluster">
                 <div class="btn-pay-icon-box">
@@ -5220,7 +5287,7 @@ function renderChatEscrowActionBar(orderId) {
                 </div>
                 <div class="btn-pay-label-box">
                   <span class="pay-sub-label">ปุ่มชำระเงินผู้ชนะประมูล</span>
-                  <strong class="pay-main-label">ชำระเงินเข้า Escrow [ Dealer ]</strong>
+                  <strong class="pay-main-label">ไปยังหน้าชำระเงิน [ Payment.html ]</strong>
                 </div>
               </div>
               <div class="btn-pay-amount-pill">
@@ -5254,8 +5321,8 @@ function renderChatEscrowActionBar(orderId) {
                   <i class="fa-solid fa-truck-fast"></i> บันทึกพัสดุ
                 </button>
               </div>
-              <button type="button" class="btn-quick-switch-hint" onclick="setChatViewRole('dealer'); openEscrowPaymentModal('${chat.orderId}')">
-                <i class="fa-solid fa-bolt"></i> ⚡ สลับเป็น Dealer เพื่อกดชำระเงินทดสอบ
+              <button type="button" class="btn-quick-switch-hint" onclick="window.location.href='Payment.html?orderId=' + encodeURIComponent('${chat.orderId}')">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> ⚡ ไปยังหน้าชำระเงิน Payment.html
               </button>
             </div>
           </div>
@@ -5727,6 +5794,24 @@ function confirmEscrowPayment(orderId, paymentMethod = 'PromptPay QR') {
     saveOrders(orders);
   }
 
+  // Create Escrow Payment confirmation notification
+  const notifications = loadNotifications();
+  notifications.unshift({
+    id: 'notif-pay-' + Date.now(),
+    type: 'won',
+    itemId: chat.itemId,
+    orderId: chat.orderId,
+    title: '🛡️ ยืนยันการชำระเงินเข้าสู่ Escrow สำเร็จ',
+    message: `คุณได้โอนเงิน ${winBidFormatted} เข้าสู่ STARTASS Escrow Vault สำหรับคำสั่งซื้อ #${chat.orderId} เรียบร้อยแล้ว ยอดเงินปลอดภัย 100%`,
+    itemTitle: chat.title,
+    time: 'เมื่อสักครู่',
+    read: false,
+    createdAt: new Date().toISOString()
+  });
+  saveNotifications(notifications);
+  updateNotificationBadge();
+  renderNotificationsList();
+
   // Switch role to seller so user immediately sees the input tracking number unlocked!
   activeChatViewRole = 'seller';
 
@@ -5735,8 +5820,251 @@ function confirmEscrowPayment(orderId, paymentMethod = 'PromptPay QR') {
   scrollStandaloneChatToBottom();
 
   if (typeof showToast === 'function') {
-    showToast(`✅ ชำระเงินเข้า Escrow สำเร็จ! สลับเป็นมุมมอง Seller พร้อมกรอกหมายเลขพัสดุได้ทันที`);
+    showToast(`✅ ชำระเงินเข้า Escrow สำเร็จ! เงินถูกพักไว้ในระบบอย่างปลอดภัย 100%`);
   }
+}
+
+// ==========================================================================
+// DEDICATED ESCROW PAYMENT CHECKOUT PAGE ENGINE (pages/Payment.html)
+// ==========================================================================
+let currentCheckoutOrderId = null;
+let currentCheckoutMethod = 'promptpay';
+let currentSelectedSlipFile = null;
+
+function initPaymentCheckoutPage() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetId = urlParams.get('orderId') || urlParams.get('id') || 'ORD-AUC-02';
+
+  const orders = loadOrders();
+  let order = orders.find(o => o.orderId === targetId || o.itemId === targetId);
+  if (!order) {
+    order = orders.find(o => o.status === 'WON') || orders[0];
+  }
+  if (!order) return;
+
+  currentCheckoutOrderId = order.orderId;
+  const isPaid = order.paymentStatus === 'PAID';
+  const winBidVal = order.userBid || order.currentBid || 12500000;
+  const winBidFormatted = formatCurrency(winBidVal);
+  const seller = order.seller || {
+    name: 'Kyoto Rare Collectibles Japan',
+    nickname: 'KyotoVault_Cards',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80'
+  };
+
+  // Bind order identification
+  const orderIdDisplay = document.getElementById('paymentOrderIdDisplay');
+  const orderIdBadge = document.getElementById('paymentOrderIdBadge');
+  const itemImg = document.getElementById('paymentItemImg');
+  const itemTitle = document.getElementById('paymentItemTitle');
+  const itemCategory = document.getElementById('paymentItemCategory');
+  const sellerName = document.getElementById('paymentSellerName');
+  const sellerNickname = document.getElementById('paymentSellerNickname');
+  const sellerAvatar = document.getElementById('paymentSellerAvatar');
+  const winBidEl = document.getElementById('paymentWinningBidVal');
+  const totalAmountEl = document.getElementById('paymentTotalAmountVal');
+  const qrAmountDisplay = document.getElementById('qrAmountDisplay');
+  const qrRef1 = document.getElementById('qrRef1');
+  const btnBackToOrder = document.getElementById('btnBackToOrder');
+  const btnCancelPayment = document.getElementById('btnCancelPayment');
+  const btnConfirmPayNow = document.getElementById('btnConfirmPayNow');
+
+  if (orderIdDisplay) orderIdDisplay.textContent = `#${order.orderId}`;
+  if (orderIdBadge) orderIdBadge.textContent = `#${order.orderId}`;
+  if (itemImg) itemImg.src = order.image;
+  if (itemTitle) itemTitle.textContent = order.title;
+  if (itemCategory) itemCategory.textContent = order.categoryLabel || 'ของสะสมพิเศษ';
+  if (sellerName) sellerName.textContent = seller.name || 'ผู้ขาย';
+  if (sellerNickname) sellerNickname.textContent = `@${seller.nickname || 'seller'}`;
+  if (sellerAvatar) sellerAvatar.src = seller.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80';
+  if (winBidEl) winBidEl.textContent = winBidFormatted;
+  if (totalAmountEl) totalAmountEl.textContent = winBidFormatted;
+  if (qrAmountDisplay) qrAmountDisplay.textContent = `${winBidFormatted} THB`;
+
+  const numOnly = order.orderId.replace(/[^0-9]/g, '') || '89241';
+  if (qrRef1) qrRef1.textContent = `ESC-${numOnly}-${Math.floor(Math.random() * 899 + 100)}`;
+
+  const returnUrl = `ordersdetail.html?id=${encodeURIComponent(order.orderId)}`;
+  if (btnBackToOrder) btnBackToOrder.href = returnUrl;
+  if (btnCancelPayment) btnCancelPayment.href = returnUrl;
+
+  if (isPaid) {
+    const statusPill = document.querySelector('.payment-status-pill');
+    if (statusPill) {
+      statusPill.innerHTML = '<i class="fa-solid fa-circle-check"></i> ชำระเงินเข้า Escrow เรียบร้อยแล้ว';
+      statusPill.style.background = 'rgba(16, 185, 129, 0.2)';
+      statusPill.style.color = '#34d399';
+      statusPill.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+    }
+    if (btnConfirmPayNow) {
+      btnConfirmPayNow.innerHTML = '<i class="fa-solid fa-circle-check"></i> <span>รายการนี้ชำระเงินเรียบร้อยแล้ว (กลับหน้ารายละเอียด)</span>';
+      btnConfirmPayNow.onclick = function () {
+        window.location.href = returnUrl;
+      };
+    }
+  }
+}
+
+function switchCheckoutMethod(method, btnEl) {
+  currentCheckoutMethod = method;
+  document.querySelectorAll('.btn-pay-method-tab').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+
+  const pPrompt = document.getElementById('panelPromptPay');
+  const pBank = document.getElementById('panelBank');
+  const pWallet = document.getElementById('panelWallet');
+
+  if (pPrompt) pPrompt.style.display = method === 'promptpay' ? 'block' : 'none';
+  if (pBank) pBank.style.display = method === 'bank' ? 'block' : 'none';
+  if (pWallet) pWallet.style.display = method === 'wallet' ? 'block' : 'none';
+}
+
+function copyCheckoutBankAcc(event) {
+  if (event) event.preventDefault();
+  const accEl = document.getElementById('bankAccNumberCode');
+  const acc = accEl ? accEl.textContent.trim() : '089-2-94819-0';
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(acc).then(() => {
+      showToast('📋 คัดลอกเลขบัญชี Escrow Vault (' + acc + ') เรียบร้อยแล้ว');
+    }).catch(() => {
+      copyFallbackAcc(acc);
+    });
+  } else {
+    copyFallbackAcc(acc);
+  }
+}
+
+function handleCopyQRRef() {
+  const refEl = document.getElementById('qrRef1');
+  const ref = refEl ? refEl.textContent.trim() : 'ESC-89241';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(ref).then(() => {
+      showToast('📋 คัดลอกหมายเลขอ้างอิง Ref 1 (' + ref + ') เรียบร้อยแล้ว');
+    }).catch(() => {
+      showToast('หมายเลขอ้างอิง: ' + ref);
+    });
+  } else {
+    showToast('หมายเลขอ้างอิง: ' + ref);
+  }
+}
+
+function handleDownloadQR() {
+  showToast('📥 บันทึกภาพคิวอาร์โค้ด PromptPay สำเร็จ พร้อมเปิดแอปธนาคารเพื่อสแกนจ่าย');
+}
+
+function handleSlipFileSelect(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  currentSelectedSlipFile = file;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const previewImg = document.getElementById('slipPreviewImg');
+    const previewBox = document.getElementById('slipPreviewBox');
+    const promptContent = document.getElementById('slipPromptContent');
+    const fileNameEl = document.getElementById('slipFileName');
+
+    if (previewImg) previewImg.src = e.target.result;
+    if (fileNameEl) fileNameEl.textContent = file.name;
+    if (previewBox) previewBox.style.display = 'flex';
+    if (promptContent) promptContent.style.display = 'none';
+
+    showToast('📎 แนบรูปสลิปการโอนเงินเรียบร้อยแล้ว');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeSelectedSlip(event) {
+  if (event) event.stopPropagation();
+  currentSelectedSlipFile = null;
+  const fileInput = document.getElementById('slipFileInput');
+  const previewBox = document.getElementById('slipPreviewBox');
+  const promptContent = document.getElementById('slipPromptContent');
+
+  if (fileInput) fileInput.value = '';
+  if (previewBox) previewBox.style.display = 'none';
+  if (promptContent) promptContent.style.display = 'block';
+
+  showToast('ลบรูปสลิปเรียบร้อย');
+}
+
+function handleExecutePayment() {
+  const agreeChk = document.getElementById('chkEscrowTermsAgree');
+  if (agreeChk && !agreeChk.checked) {
+    showToast('⚠️ กรุณาทำเครื่องหมายยินยอมเงื่อนไขการคุ้มครอง Escrow Vault ก่อนดำเนินการ');
+    agreeChk.focus();
+    return;
+  }
+
+  const btn = document.getElementById('btnConfirmPayNow');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>กำลังตรวจสอบและนำเงินเข้าสู่ระบบ Escrow Vault...</span>';
+  }
+
+  setTimeout(() => {
+    const orders = loadOrders();
+    const targetOrderId = currentCheckoutOrderId || 'ORD-AUC-02';
+    const order = orders.find(o => o.orderId === targetOrderId);
+    const winBidVal = order ? (order.userBid || order.currentBid || 12500000) : 12500000;
+    const winBidFormatted = formatCurrency(winBidVal);
+
+    const methodNames = {
+      promptpay: 'PromptPay QR Code',
+      bank: 'โอนผ่านธนาคารกสิกรไทย (KBANK)',
+      wallet: 'STARTASS Escrow Wallet'
+    };
+    const methodName = methodNames[currentCheckoutMethod] || 'PromptPay QR Code';
+
+    // Call confirmEscrowPayment to update order and chat state
+    confirmEscrowPayment(targetOrderId, methodName);
+
+    // Show Success Overlay
+    const overlay = document.getElementById('paymentSuccessOverlay');
+    const amountText = document.getElementById('successAmountText');
+    const orderIdText = document.getElementById('successOrderId');
+    const txIdText = document.getElementById('successTxId');
+    const methodText = document.getElementById('successMethodText');
+    const timestampText = document.getElementById('successTimestamp');
+
+    const txId = 'TX-' + Math.floor(100000000 + Math.random() * 900000000);
+    const nowTimeStr = new Date().toLocaleString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    if (amountText) amountText.textContent = winBidFormatted;
+    if (orderIdText) orderIdText.textContent = `#${targetOrderId}`;
+    if (txIdText) txIdText.textContent = txId;
+    if (methodText) methodText.textContent = methodName;
+    if (timestampText) timestampText.textContent = nowTimeStr;
+
+    if (overlay) {
+      overlay.style.display = 'flex';
+    }
+
+    // Auto redirect after 2 seconds
+    let secondsLeft = 2;
+    const countdownEl = document.getElementById('redirectCountdown');
+    if (countdownEl) countdownEl.textContent = secondsLeft;
+
+    const interval = setInterval(() => {
+      secondsLeft--;
+      if (countdownEl) countdownEl.textContent = secondsLeft;
+      if (secondsLeft <= 0) {
+        clearInterval(interval);
+        redirectNowToOrderDetail();
+      }
+    }, 1000);
+  }, 900);
+}
+
+function redirectNowToOrderDetail() {
+  const targetOrderId = currentCheckoutOrderId || 'ORD-AUC-02';
+  window.location.href = `ordersdetail.html?id=${encodeURIComponent(targetOrderId)}&payment=success`;
+}
+
+function handleChatGoToPayment() {
+  const targetId = activeStandaloneChatOrderId || 'ORD-AUC-02';
+  window.location.href = `Payment.html?orderId=${encodeURIComponent(targetId)}`;
 }
 
 function handleSellerSubmitTracking(event, orderId) {

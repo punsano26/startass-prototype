@@ -5150,12 +5150,14 @@ function renderChatEscrowActionBar(orderId) {
 
   barEl.innerHTML = `
     <div class="chat-payment-circle-launcher-wrap" id="chatPaymentLauncherWrap">
-      <!-- Circular Trigger on Top-Left of Chat Messages Window (ซ่อนไว้ในกลมๆบนซ้าย) -->
+      <!-- Draggable Circular Trigger on Chat Messages Window (ลากไปวางตำแหน่งใดก็ได้) -->
       <button type="button" 
               class="btn-payment-circle-launcher ${isPaid ? 'is-paid' : 'is-pending'} ${isChatPaymentDrawerOpen ? 'is-expanded' : ''}" 
               id="btnPaymentCircleLauncher" 
-              onclick="toggleChatPaymentDrawer()" 
-              title="${isPaid ? '🛡️ เงินอยู่ใน Escrow แล้ว (คลิกเพื่อดูสถานะ)' : '💳 เมนูชำระเงิน Escrow ฿' + winningBidFormatted + ' (คลิกเพื่อเปิด/ปิด)'}">
+              title="${isPaid ? '🛡️ เงินอยู่ใน Escrow แล้ว (คลิกเพื่อดูสถานะ หรือคลิกลากย้ายตำแหน่ง)' : '💳 เมนูชำระเงิน Escrow ฿' + winningBidFormatted + ' (คลิกเพื่อเปิด/ปิด หรือคลิกลากย้ายตำแหน่ง)'}">
+        <span class="payment-circle-drag-handle" title="คลิกค้างเพื่อลากย้ายตำแหน่ง">
+          <i class="fa-solid fa-grip-vertical"></i>
+        </span>
         <div class="payment-circle-round">
           <i class="${isPaid ? (hasTracking ? 'fa-solid fa-truck-fast' : 'fa-solid fa-shield-check') : 'fa-solid fa-credit-card'}"></i>
           ${!isPaid ? '<span class="circle-pulse-beacon"></span>' : ''}
@@ -5210,11 +5212,25 @@ function renderChatEscrowActionBar(orderId) {
       </div>
     </div>
   `;
+
+  // Restore dragged position if previously moved
+  if (chatLauncherPosition.left !== null && chatLauncherPosition.top !== null) {
+    barEl.style.left = `${chatLauncherPosition.left}px`;
+    barEl.style.top = `${chatLauncherPosition.top}px`;
+    updatePopoverAlignment(chatLauncherPosition.left, chatLauncherPosition.top);
+  }
+
+  // Initialize Drag-and-Drop capability
+  makePaymentCircleDraggable();
 }
 
 let isChatPaymentDrawerOpen = false;
+let isDraggingLauncher = false;
+let chatLauncherPosition = { left: null, top: null };
 
 function toggleChatPaymentDrawer(forceState) {
+  if (isDraggingLauncher) return;
+
   if (typeof forceState === 'boolean') {
     isChatPaymentDrawerOpen = forceState;
   } else {
@@ -5232,6 +5248,128 @@ function toggleChatPaymentDrawer(forceState) {
       arrow.className = `fa-solid ${isChatPaymentDrawerOpen ? 'fa-chevron-up' : 'fa-chevron-down'} pill-arrow`;
     }
   }
+}
+
+function updatePopoverAlignment(left, top, wrapperRect) {
+  const card = document.getElementById('chatPaymentFloatingCard');
+  if (!card) return;
+  const wrapper = document.getElementById('chatMessagesAreaWrapper');
+  const rect = wrapperRect || (wrapper ? wrapper.getBoundingClientRect() : null);
+  if (!rect) return;
+
+  // Horizontal smart orientation: if dragged to right half, align card to right edge
+  if (left > rect.width * 0.5) {
+    card.classList.add('align-right');
+  } else {
+    card.classList.remove('align-right');
+  }
+
+  // Vertical smart orientation: if dragged to lower half, open upward
+  if (top > rect.height * 0.45) {
+    card.classList.add('open-upward');
+  } else {
+    card.classList.remove('open-upward');
+  }
+}
+
+function makePaymentCircleDraggable() {
+  const launcherBtn = document.getElementById('btnPaymentCircleLauncher');
+  const barEl = document.getElementById('chatEscrowActionBar');
+  const wrapper = document.getElementById('chatMessagesAreaWrapper');
+  if (!launcherBtn || !barEl || !wrapper) return;
+
+  let startX, startY;
+  let initialLeft, initialTop;
+  let hasMoved = false;
+
+  function onPointerDown(e) {
+    // Ignore drag if clicking inside floating card or buttons
+    if (e.target.closest('#chatPaymentFloatingCard') || e.target.closest('.btn-close-floating-card')) {
+      return;
+    }
+
+    const pointer = e.touches ? e.touches[0] : e;
+    startX = pointer.clientX;
+    startY = pointer.clientY;
+
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const barRect = barEl.getBoundingClientRect();
+
+    initialLeft = barRect.left - wrapperRect.left;
+    initialTop = barRect.top - wrapperRect.top;
+    hasMoved = false;
+
+    window.addEventListener('mousemove', onPointerMove, { passive: false });
+    window.addEventListener('mouseup', onPointerUp);
+    window.addEventListener('touchmove', onPointerMove, { passive: false });
+    window.addEventListener('touchend', onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    const pointer = e.touches ? e.touches[0] : e;
+    const dx = pointer.clientX - startX;
+    const dy = pointer.clientY - startY;
+
+    if (!hasMoved && Math.hypot(dx, dy) > 5) {
+      hasMoved = true;
+      isDraggingLauncher = true;
+      launcherBtn.classList.add('is-dragging');
+    }
+
+    if (hasMoved) {
+      if (e.cancelable) e.preventDefault();
+
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const launcherRect = launcherBtn.getBoundingClientRect();
+
+      let newLeft = initialLeft + dx;
+      let newTop = initialTop + dy;
+
+      // Constrain position within chatMessagesAreaWrapper
+      const minLeft = 8;
+      const maxLeft = Math.max(8, wrapperRect.width - launcherRect.width - 8);
+      const minTop = 8;
+      const maxTop = Math.max(8, wrapperRect.height - launcherRect.height - 8);
+
+      newLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
+      newTop = Math.max(minTop, Math.min(newTop, maxTop));
+
+      barEl.style.left = `${newLeft}px`;
+      barEl.style.top = `${newTop}px`;
+
+      chatLauncherPosition.left = newLeft;
+      chatLauncherPosition.top = newTop;
+
+      updatePopoverAlignment(newLeft, newTop, wrapperRect);
+    }
+  }
+
+  function onPointerUp() {
+    window.removeEventListener('mousemove', onPointerMove);
+    window.removeEventListener('mouseup', onPointerUp);
+    window.removeEventListener('touchmove', onPointerMove);
+    window.removeEventListener('touchend', onPointerUp);
+
+    if (hasMoved) {
+      launcherBtn.classList.remove('is-dragging');
+      launcherBtn.classList.add('is-dropped');
+      setTimeout(() => launcherBtn.classList.remove('is-dropped'), 350);
+
+      // Guard click event
+      setTimeout(() => {
+        isDraggingLauncher = false;
+      }, 100);
+    } else {
+      // Normal click without dragging
+      toggleChatPaymentDrawer();
+    }
+  }
+
+  // Remove existing listener to prevent duplicate binding
+  launcherBtn.onmousedown = null;
+  launcherBtn.ontouchstart = null;
+  launcherBtn.addEventListener('mousedown', onPointerDown);
+  launcherBtn.addEventListener('touchstart', onPointerDown, { passive: true });
 }
 
 if (!window.__chatPaymentListenersAttached) {

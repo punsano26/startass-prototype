@@ -383,3 +383,38 @@ Every auction item card must incorporate:
 - **`<= 768px`**: Flow pipeline transforms to scrollable touch ribbon (`overflow-x: auto`), action buttons become stacked full-width.
 - **`<= 580px`**: QR Code presentation stacks vertically; metadata fields wrap safely.
 - **`<= 360px` (down to 320px)**: Compact QR SVG (140px), minimal padding (8–12px), touch targets >= 44px, zero horizontal overflow.
+
+---
+
+## 13. CSS Authoring Safety Invariants (Startass Prototype)
+
+### A. Always Verify CSS Class Names Against JS-Rendered HTML
+
+Because all page sections in this prototype are **rendered dynamically by `js/main.js`** (not hardcoded in HTML), CSS class names must be verified against the actual JS template string before writing styles.
+
+**Mandatory workflow before writing any CSS for a dynamically-rendered section:**
+
+1. **Grep the JS render function first**: Search `js/main.js` for the container's element ID or the render function name (e.g., `renderOrdersList`, `renderBidderCardsHTML`) to find the exact CSS class names used in the template literal.
+2. **Cross-check existing CSS**: Search `css/style.css` for those exact class names. Only write new CSS for classes that are actually emitted by the JS.
+3. **Never invent class names**: Do not write CSS for classes that aren't present in the JS output. If you need a new class, add it to **both** the JS template AND the CSS in the same edit.
+
+**Anti-pattern to avoid:**
+```css
+/* WRONG — writing CSS for a class that JS doesn't render */
+.orders-hero-icon { ... }     /* JS uses .orders-hero-pill, not .orders-hero-icon */
+.orders-hero-subtitle { ... } /* JS uses .orders-hero-sub, not .orders-hero-subtitle */
+
+/* CORRECT — verify JS output first, then write matching CSS */
+.orders-hero-pill { ... }     /* confirmed in renderOrdersList() template literal */
+.orders-hero-sub { ... }      /* confirmed in renderOrdersList() template literal */
+```
+
+### B. No Duplicate CSS Selectors
+
+When adding CSS properties to an existing class (e.g., adding `display: flex` to `.orders-list-hero-card`), always **edit the existing rule** — never create a second declaration block for the same selector. Duplicate rules cause unpredictable cascade overrides and are difficult to debug.
+
+**Workflow**: Before writing a new `.class-name { ... }` block, always run:
+```powershell
+Select-String -Path "css\style.css" -Pattern "\.class-name"
+```
+to confirm whether the selector already exists. If it does, edit it in place using `replace_file_content` on the existing lines.

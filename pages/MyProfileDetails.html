@@ -176,7 +176,7 @@
             </div>
 
             <p class="profile-bio-text" id="myProfileBio">
-              นักสะสมรถยนต์คลาสสิก อุปกรณ์เทคโนโลยียุคบุกเบิก และการ์ดระดับ PSA 10 เข้าร่วมประมูลจริงในระบบ Escrow ปลอดภัย 100% มีประวัติชำระเงินตรงเวลาสม่ำเสมอ
+              นักสะสมรถยนต์คลาสสิก อุปกรณ์เทคโนโลยียุคบุกเบิก และการ์ดระดับ PSA 10 เข้าร่วมประมูลจริงในระบบชำระเงินปลอดภัย 100% มีประวัติชำระเงินตรงเวลาสม่ำเสมอ
             </p>
           </div>
         </div>
@@ -193,7 +193,7 @@
       </div>
     </section>
 
-    <!-- Linked Bank Account for Escrow Payouts Card -->
+    <!-- Linked Bank Account for Payment Payouts Card -->
     <section class="profile-bank-card" id="myProfileBankCard">
       <div class="profile-bank-card-content">
         <div class="profile-bank-badge-box" id="profileBankBadgeBox">
@@ -315,159 +315,11 @@
 
   </div>
 
-  <!-- MODAL: Edit Profile Modal -->
-  <div class="modal-backdrop" id="editProfileModal" role="dialog" aria-modal="true" aria-labelledby="editProfileTitle">
-    <div class="modal-container modal-edit-profile-container">
-      <div class="modal-header">
-        <h3 class="modal-title" id="editProfileTitle">
-          <i class="fa-solid fa-user-pen" style="color: var(--accent-gold);"></i> แก้ไขข้อมูลโปรไฟล์ส่วนตัว
-        </h3>
-        <button class="modal-close" onclick="closeEditProfileModal()" aria-label="ปิดหน้าต่าง">&times;</button>
-      </div>
-      
-      <form id="editProfileForm" onsubmit="handleSaveProfileForm(event)">
-        <div class="modal-body">
-          <!-- Avatar Preview & Input -->
-          <div class="edit-profile-avatar-preview-box">
-            <img id="editAvatarPreview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Avatar Preview" class="edit-avatar-img">
-            <div class="edit-avatar-inputs">
-              <label for="editAvatarUrl" style="display:block; font-size:0.85rem; color:var(--text-secondary); margin-bottom:6px;">
-                ลิงก์รูปโปรไฟล์ (Avatar Image URL):
-              </label>
-              <input type="url" id="editAvatarUrl" class="composer-input" placeholder="https://..." oninput="previewAvatarFromInput(this)" style="width:100%; border-radius:var(--radius-sm);">
-              <small style="color:var(--text-muted); font-size:0.75rem; margin-top:4px; display:block;">รองรับลิงก์รูปภาพ Unsplash หรือ Image CDN</small>
-            </div>
-          </div>
+  <!-- COMPONENT: Edit Profile Modal -->
+  <div id="editProfileModalContainer"></div>
 
-          <!-- 2-Column Form Grid -->
-          <div class="edit-grid-2col">
-            <div class="form-group">
-              <label for="editFullName" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
-                ชื่อ-นามสกุลจริง (Full Name):
-              </label>
-              <input type="text" id="editFullName" class="composer-input" style="width:100%; border-radius:var(--radius-sm);" required>
-            </div>
-
-            <div class="form-group">
-              <label for="editNickname" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
-                ชื่อเล่น / นามแฝงในตลาด (Nickname):
-              </label>
-              <input type="text" id="editNickname" class="composer-input" style="width:100%; border-radius:var(--radius-sm);" required>
-            </div>
-          </div>
-
-
-          <div class="form-group">
-            <label for="editBio" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
-              คำแนะนำตัว / คำอธิบายประวัติการสะสม (Bio):
-            </label>
-            <textarea id="editBio" class="report-textarea" rows="3" placeholder="เขียนคำแนะนำตัวสั้นๆ เกี่ยวกับตัวคุณ..."></textarea>
-          </div>
-        </div>
-
-        <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--border-subtle); display:flex; justify-content:flex-end; gap:12px;">
-          <button type="button" class="btn btn-view" onclick="closeEditProfileModal()">ยกเลิก</button>
-          <button type="submit" class="btn btn-profile-primary btn-profile-edit">
-            <i class="fa-solid fa-floppy-disk"></i> บันทึกการเปลี่ยนแปลง
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: Manage Bank Account Modal (จัดการบัญชีธนาคาร) -->
-  <div class="modal-backdrop" id="manageBankModal" role="dialog" aria-modal="true" aria-labelledby="manageBankTitle" onclick="if (event.target === this) closeManageBankModal()">
-    <div class="modal-container modal-manage-bank-container">
-      <div class="modal-header">
-        <h3 class="modal-title" id="manageBankTitle">
-          <i class="fa-solid fa-building-columns" style="color: var(--accent-gold);"></i> จัดการบัญชีธนาคาร
-        </h3>
-        <button class="modal-close" onclick="closeManageBankModal()" aria-label="ปิดหน้าต่าง">&times;</button>
-      </div>
-
-      <div class="modal-body" style="padding: 24px 28px;">
-        <!-- Luxury Virtual Bank Card Preview -->
-        <div class="virtual-bank-card" id="virtualBankCard">
-          <div class="v-card-shine"></div>
-          <div class="v-card-top">
-            <div class="v-card-chip-box">
-              <i class="fa-solid fa-microchip v-card-chip-icon"></i>
-              <i class="fa-solid fa-wifi v-card-wifi-icon"></i>
-            </div>
-            <div class="v-card-bank-badge" id="vCardBankBadge">KBANK</div>
-          </div>
-          <div class="v-card-number-row">
-            <span class="v-card-number" id="vCardNumber">089-2-94819-0</span>
-          </div>
-          <div class="v-card-bottom">
-            <div class="v-card-col">
-              <span class="v-card-label">ชื่อ - นามสกุลเจ้าของบัญชี</span>
-              <span class="v-card-val" id="vCardHolderName">ALEXANDER STERLING</span>
-            </div>
-            <div class="v-card-col v-card-col-right">
-              <span class="v-card-label">ธนาคาร</span>
-              <span class="v-card-val" id="vCardBankName">KASIKORNBANK</span>
-            </div>
-          </div>
-        </div>
-
-        <form id="manageBankForm" onsubmit="handleSaveBankForm(event)">
-          <!-- 1. ชื่อธนาคาร -->
-          <div class="form-group bank-modal-field">
-            <label for="bankModalSelect" class="form-label-gold">
-              <i class="fa-solid fa-building-columns"></i> ชื่อธนาคาร <span class="required" style="color:#ef4444;">*</span>
-            </label>
-            <select id="bankModalSelect" class="composer-input form-select-custom bank-field-input" onchange="handleBankModalChange(this.value)" required>
-              <option value="">-- กรุณาเลือกธนาคารไทย --</option>
-              <option value="kbank">ธนาคารกสิกรไทย (KBANK - Kasikornbank)</option>
-              <option value="scb">ธนาคารไทยพาณิชย์ (SCB - Siam Commercial Bank)</option>
-              <option value="bbl">ธนาคารกรุงเทพ (BBL - Bangkok Bank)</option>
-              <option value="ktb">ธนาคารกรุงไทย (KTB - Krungthai Bank)</option>
-              <option value="bay">ธนาคารกรุงศรีอยุธยา (BAY - Bank of Ayudhya)</option>
-              <option value="ttb">ธนาคารทหารไทยธนชาต (TTB - TMBThanachart)</option>
-              <option value="gsb">ธนาคารออมสิน (GSB - Government Savings Bank)</option>
-              <option value="baac">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (ธ.ก.ส. / BAAC)</option>
-              <option value="uob">ธนาคารยูโอบี (UOB - United Overseas Bank)</option>
-              <option value="cimb">ธนาคารซีไอเอ็มบี ไทย (CIMB Thai)</option>
-              <option value="kk">ธนาคารเกียรตินาคินภัทร (KKP - Kiatnakin Phatra)</option>
-              <option value="tisco">ธนาคารทิสโก้ (TISCO Bank)</option>
-            </select>
-          </div>
-
-          <!-- 2. หมายเลขบัญชี -->
-          <div class="form-group bank-modal-field">
-            <label for="bankModalAccNumber" class="form-label-gold">
-              <i class="fa-solid fa-money-check-dollar"></i> เลขบัญชี <span class="required" style="color:#ef4444;">*</span>
-            </label>
-            <div class="bank-input-with-icon">
-              <i class="fa-solid fa-credit-card bank-input-icon"></i>
-              <input type="text" id="bankModalAccNumber" class="composer-input bank-acc-input" placeholder="000-0-00000-0" maxlength="20" oninput="formatBankModalAccInput(this)" required>
-            </div>
-            <small class="form-helper-text">กรอกเฉพาะตัวเลข 10-12 หลัก (ระบบจัดรูปแบบให้อัตโนมัติ)</small>
-          </div>
-
-          <!-- 3. ชื่อ - นามสกุล -->
-          <div class="form-group bank-modal-field" style="margin-bottom: 24px;">
-            <label for="bankModalAccName" class="form-label-gold">
-              <i class="fa-solid fa-user"></i> ชื่อ - นามสกุล <span class="required" style="color:#ef4444;">*</span>
-            </label>
-            <div class="bank-input-with-icon">
-              <i class="fa-solid fa-user bank-input-icon"></i>
-              <input type="text" id="bankModalAccName" class="composer-input" placeholder="ชื่อและนามสกุลจริงเจ้าของบัญชี" oninput="updateVirtualCardName(this.value)" required>
-            </div>
-            <small class="form-helper-text">โปรดระบุชื่อ-นามสกุลจริงให้ตรงกับหน้าสมุดบัญชี</small>
-          </div>
-
-          <div class="modal-footer bank-modal-footer">
-            <button type="button" class="btn btn-view" onclick="closeManageBankModal()">ยกเลิก</button>
-            <button type="submit" class="btn btn-profile-primary btn-profile-edit">
-              <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลบัญชี
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  <!-- COMPONENT: Manage Bank Account Modal -->
+  <div id="manageBankModalContainer"></div>
 
   <!-- COMPONENT: Auction Bid Modal (เสนอราคาประมูลสินค้า) -->
   <div id="auctionBidModalContainer"></div>
@@ -475,130 +327,8 @@
   <!-- COMPONENT: Auction Item Detail Modal (รายละเอียดรายการประมูล) -->
   <div id="auctionDetailModalContainer"></div>
 
-  <!-- MODAL: Create New Auction Post (With Multi-Image DropZone) -->
-  <div class="modal-backdrop" id="createModal" role="dialog" aria-modal="true" aria-labelledby="createModalTitle">
-    <div class="modal-container modal-create-container">
-      <div class="modal-header">
-        <h3 class="modal-title" id="createModalTitle">
-          <i class="fa-solid fa-plus-circle" style="color: var(--accent-gold);"></i> สร้างโพสต์ประมูลสินค้าใหม่
-        </h3>
-        <button class="modal-close" onclick="closeCreateModal()" aria-label="ปิดหน้าต่าง">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="createAuctionForm" onsubmit="handleCreateAuction(event)">
-          <div class="create-modal-layout">
-            <!-- Left Column: Form Inputs -->
-            <div class="create-modal-left">
-              <div class="form-group">
-                <label for="createTitle">ชื่อสินค้า / รุ่น / แบรนด์ <span class="required">*</span></label>
-                <input type="text" id="createTitle" class="form-control" placeholder="เช่น 1967 Shelby GT500 Fastback" required>
-              </div>
-
-              <div class="form-row-2col">
-                <div class="form-group">
-                  <label for="createCategory">หมวดหมู่สินค้า <span class="required">*</span></label>
-                  <select id="createCategory" class="form-control" required>
-                    <option value="">-- เลือกหมวดหมู่ --</option>
-                    <option value="cars">โมเดลรถยนต์ & ซูเปอร์คาร์</option>
-                    <option value="cards">การ์ดสะสมหายาก</option>
-                    <option value="tech">เทคโนโลยี & ซูเปอร์คอมพิวเตอร์</option>
-                    <option value="trees">บอนไซ & ไม้ด่างหายาก</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="createStatus">สถานะการโพสต์ <span class="required">*</span></label>
-                  <select id="createStatus" class="form-control" required>
-                    <option value="active">เปิดประมูลทันที (Active)</option>
-                    <option value="draft">บันทึกเป็นแบบร่าง (Draft)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-row-2col">
-                <div class="form-group">
-                  <label for="createStartPrice">ราคาเริ่มต้น (บาท) <span class="required">*</span></label>
-                  <div class="input-currency-wrapper">
-                    <span class="currency-symbol">฿</span>
-                    <input type="number" id="createStartPrice" class="form-control with-prefix" placeholder="500000" min="1" step="1" required>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="createBidIncrement">การเคาะเสนอราคาขั้นต่ำ (บาท) <span class="required">*</span></label>
-                  <select id="createBidIncrement" class="form-control" required>
-                    <option value="10000">+ ฿10,000 ต่อครั้ง</option>
-                    <option value="50000" selected>+ ฿50,000 ต่อครั้ง</option>
-                    <option value="100000">+ ฿100,000 ต่อครั้ง</option>
-                    <option value="500000">+ ฿500,000 ต่อครั้ง</option>
-                    <option value="1000000">+ ฿1,000,000 ต่อครั้ง</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-row-2col">
-                <div class="form-group">
-                  <label for="createStartDate">วันเวลาเริ่มต้นการประมูล <span class="required">*</span></label>
-                  <input type="datetime-local" id="createStartDate" class="form-control" required>
-                </div>
-                <div class="form-group">
-                  <label for="createEndDate">วันเวลาสิ้นสุดการประมูล <span class="required">*</span></label>
-                  <input type="datetime-local" id="createEndDate" class="form-control" required>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="createSpecs">คุณสมบัติเฉพาะ (คั่นแต่ละข้อด้วยเครื่องหมายจุลภาค , )</label>
-                <input type="text" id="createSpecs" class="form-control" placeholder="เช่น เครื่องยนต์ 428ci, เอกสารแท้, สีพิเศษ">
-              </div>
-
-              <div class="form-group">
-                <label for="createDescription">คำอธิบายรายละเอียดสินค้าอย่างครบถ้วน <span class="required">*</span></label>
-                <textarea id="createDescription" class="form-control" rows="3" placeholder="ระบุประวัติ รายละเอียด สภาพสินค้า ความแท้ และการรับประกัน..." required></textarea>
-              </div>
-            </div>
-
-            <!-- Right Column: Media Upload Dropzone -->
-            <div class="create-modal-right">
-              <label class="media-upload-label">
-                <i class="fa-solid fa-images"></i> รูปภาพสินค้า (รองรับอัปโหลดหลายรูป)
-              </label>
-              <div class="image-upload-zone" id="imageDropZone" onclick="document.getElementById('createImageFile').click()">
-                <input type="file" id="createImageFile" accept="image/*" multiple style="display: none;" onchange="handleImageFileSelect(event)">
-                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                <div class="upload-title">ลากไฟล์รูปภาพมาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</div>
-                <div class="upload-hint">รองรับไฟล์ JPG, PNG, WEBP (เลือกได้พร้อมกันหลายรูป)</div>
-              </div>
-
-              <!-- Preview Display -->
-              <div class="create-image-preview" id="createImagePreview">
-                <div class="empty-preview" id="emptyPreviewNotice">
-                  <i class="fa-regular fa-image"></i>
-                  <span>ยังไม่มีรูปภาพตัวอย่างที่เลือก</span>
-                </div>
-                <img id="previewImg" src="" alt="ภาพตัวอย่าง" style="display: none;">
-                <span class="image-preview-badge" id="previewBadge" style="display: none;">รูปที่ 1 จาก 1 รูป</span>
-                <button type="button" class="btn-remove-preview" id="btnRemovePreview" onclick="removeActivePreviewImage(event)" style="display: none;" title="ลบรูปภาพนี้">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </div>
-
-              <!-- Thumbnails Gallery Strip -->
-              <div class="create-thumbnails-strip" id="createThumbnailsStrip" style="display: none;"></div>
-
-              <div class="form-group" style="margin-top: 14px;">
-                <label for="createImageUrl" style="font-size: 0.85rem; color: var(--text-secondary);">หรือกรอกลิงก์รูปภาพโดยตรง (Image URL)</label>
-                <input type="url" id="createImageUrl" class="form-control" placeholder="https://images.unsplash.com/..." oninput="handleImageUrlInput(this.value)">
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-footer" style="padding-top: 18px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 12px;">
-            <button type="button" class="btn btn-view" onclick="closeCreateModal()">ยกเลิก</button>
-            <button type="submit" class="btn btn-bid"><i class="fa-solid fa-check"></i> เผยแพร่โพสต์การประมูล</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  <!-- COMPONENT: Create Auction Listing Modal -->
+  <div id="createAuctionModalContainer"></div>
 
   <!-- Interactive Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
@@ -606,6 +336,9 @@
   <!-- Modal Components -->
   <script src="../components/modals/AuctionBidModal.js"></script>
   <script src="../components/modals/AuctionDetailModal.js"></script>
+  <script src="../components/modals/CreateAuctionModal.js"></script>
+  <script src="../components/modals/EditProfileModal.js"></script>
+  <script src="../components/modals/ManageBankModal.js"></script>
 
   <!-- Main JavaScript Engine -->
   <script src="../js/main.js"></script>

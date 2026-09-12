@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>STARTASS - ชำระเงินเข้าสู่ระบบ Escrow Vault (Payment Checkout)</title>
+  <title>STARTASS - ชำระเงินค่าสินค้า (Payment Checkout)</title>
   
   <!-- Browser Tab Icon (Favicon) -->
   <link rel="icon" type="image/png" href="../images/logo.png">
@@ -141,21 +141,21 @@
       <span class="crumb-sep">/</span>
       <a href="ordersdetail.html">คำสั่งซื้อของฉัน</a>
       <span class="crumb-sep">/</span>
-      <span class="crumb-active">ชำระเงินเข้า Escrow Vault</span>
+      <span class="crumb-active">ชำระเงินค่าสินค้า</span>
     </nav>
 
     <!-- Page Header Banner -->
     <header class="payment-header-banner">
       <div class="payment-header-info">
         <div class="payment-meta-badge-row">
-          <span class="payment-badge-escrow"><i class="fa-solid fa-shield-halved"></i> STARTASS Escrow Vault</span>
+          <span class="payment-badge-escrow"><i class="fa-solid fa-shield-halved"></i> ระบบคุ้มครองการชำระเงิน Escrow</span>
           <span class="payment-order-id-badge" id="paymentOrderIdDisplay">#ORD-AUC-02</span>
-          <span class="payment-status-pill"><i class="fa-solid fa-clock"></i> รอชำระเงิน</span>
+          <span class="payment-status-pill" id="paymentStatusPill"><i class="fa-solid fa-clock"></i> รอชำระเงิน</span>
         </div>
-        <h1 class="payment-page-title">ชำระเงินค่าสินค้าเข้าสู่ระบบคุ้มครอง Escrow</h1>
+        <h1 class="payment-page-title">ชำระเงินค่าสินค้า</h1>
         <p class="payment-page-subtitle">
-          เงินของคุณจะถูกจัดเก็บรักษาอย่างปลอดภัยในระบบส่วนกลาง (Escrow Account) 
-          ผู้ขายจะได้รับเงินหลังจากที่คุณได้รับสินค้าและตรวจรับภายใน <strong>10 วัน</strong>
+          ยอดเงินของคุณจะถูกเก็บรักษาอย่างปลอดภัยในระบบ Escrow ส่วนกลาง 
+          ผู้ขายจะได้รับเงินหลังจากที่คุณได้รับสินค้าและตรวจรับเรียบร้อยภายใน <strong>10 วัน</strong>
         </p>
       </div>
       <div class="payment-header-actions">
@@ -165,8 +165,8 @@
       </div>
     </header>
 
-    <!-- Escrow Protection Flow Pipeline Steps -->
-    <section class="payment-flow-pipeline" aria-label="ขั้นตอนการคุ้มครอง Escrow">
+    <!-- Payment Protection Flow Pipeline Steps -->
+    <section class="payment-flow-pipeline" aria-label="ขั้นตอนการชำระเงิน">
       <div class="flow-step-item step-done">
         <div class="flow-step-dot"><i class="fa-solid fa-check"></i></div>
         <div class="flow-step-text">
@@ -174,28 +174,28 @@
           <span>ยืนยันสิทธิ์ผู้ซื้อ</span>
         </div>
       </div>
-      <div class="flow-step-line step-active-line"></div>
-      <div class="flow-step-item step-active">
+      <div class="flow-step-line step-active-line" id="pipelineLine1"></div>
+      <div class="flow-step-item step-active" id="pipelineStep2">
         <div class="flow-step-dot"><i class="fa-solid fa-credit-card"></i></div>
         <div class="flow-step-text">
-          <strong>2. โอนเงินเข้า Escrow</strong>
-          <span>ขั้นตอนนี้ (ล็อคเงิน 100%)</span>
+          <strong>2. ชำระเงินค่าสินค้า</strong>
+          <span>ขั้นตอนนี้ (คุ้มครองเงิน 100% ใน Escrow)</span>
         </div>
       </div>
-      <div class="flow-step-line"></div>
-      <div class="flow-step-item">
+      <div class="flow-step-line" id="pipelineLine2"></div>
+      <div class="flow-step-item" id="pipelineStep3">
         <div class="flow-step-dot"><i class="fa-solid fa-truck-fast"></i></div>
         <div class="flow-step-text">
           <strong>3. ผู้ขายจัดส่ง</strong>
-          <span>ขนส่ง White-Glove</span>
+          <span>จัดส่งแบบมีประกันคุ้มครอง</span>
         </div>
       </div>
-      <div class="flow-step-line"></div>
-      <div class="flow-step-item">
+      <div class="flow-step-line" id="pipelineLine3"></div>
+      <div class="flow-step-item" id="pipelineStep4">
         <div class="flow-step-dot"><i class="fa-solid fa-handshake"></i></div>
         <div class="flow-step-text">
           <strong>4. ตรวจรับใน 10 วัน</strong>
-          <span>ตรวจสอบและปล่อยเงิน</span>
+          <span>ตรวจสอบสินค้าและปล่อยยอดเงิน</span>
         </div>
       </div>
     </section>
@@ -203,242 +203,144 @@
     <!-- Main Payment Grid: 2 Columns -->
     <div class="payment-grid-layout">
 
-      <!-- LEFT COLUMN: Payment Methods & Upload Slip Form -->
+      <!-- LEFT COLUMN: PromptPay QR & Real-time Status Tracker -->
       <div class="payment-main-col">
 
-        <!-- Payment Methods Card -->
-        <div class="payment-card">
+        <!-- PromptPay QR Card (Single Payment Method) -->
+        <div class="payment-card payment-promptpay-card">
           <div class="payment-card-header">
-            <h3 class="payment-card-title">
-              <i class="fa-solid fa-credit-card" style="color: var(--accent-gold);"></i>
-              <span>เลือกช่องทางการชำระเงิน</span>
-            </h3>
-            <span class="payment-secure-tag"><i class="fa-solid fa-lock"></i> เข้ารหัสความปลอดภัย 256-Bit</span>
+            <h2 class="payment-card-title">
+              <i class="fa-solid fa-qrcode" style="color: var(--accent-gold);"></i>
+              <span>ชำระเงินด้วย PromptPay QR</span>
+            </h2>
+            <span class="payment-secure-tag"><i class="fa-solid fa-shield-check"></i> ตรวจสอบยอดเงินแบบ Real-time</span>
           </div>
 
-          <!-- Method Tabs -->
-          <div class="payment-method-tabs">
-            <button type="button" class="btn-pay-method-tab active" data-method="promptpay" onclick="switchCheckoutMethod('promptpay', this)">
-              <div class="tab-icon-wrap"><i class="fa-solid fa-qrcode"></i></div>
-              <div class="tab-label-wrap">
-                <strong>PromptPay QR</strong>
-                <small>สแกนจ่ายผ่านทุกแอปธนาคาร</small>
+          <!-- PromptPay QR Container -->
+          <div class="promptpay-checkout-box">
+            <div class="qr-code-presentation">
+              <div class="qr-visual-frame">
+                <!-- SVG Vector QR Graphic -->
+                <svg viewBox="0 0 200 200" width="180" height="180" class="qr-svg-graphic" aria-label="PromptPay QR Code">
+                  <rect width="200" height="200" fill="#ffffff" rx="12"/>
+                  <!-- Top Left Finder Pattern -->
+                  <rect x="16" y="16" width="46" height="46" fill="#0b0f19" rx="4"/>
+                  <rect x="24" y="24" width="30" height="30" fill="#ffffff" rx="2"/>
+                  <rect x="30" y="30" width="18" height="18" fill="#0b0f19" rx="1"/>
+                  <!-- Top Right Finder Pattern -->
+                  <rect x="138" y="16" width="46" height="46" fill="#0b0f19" rx="4"/>
+                  <rect x="146" y="24" width="30" height="30" fill="#ffffff" rx="2"/>
+                  <rect x="152" y="30" width="18" height="18" fill="#0b0f19" rx="1"/>
+                  <!-- Bottom Left Finder Pattern -->
+                  <rect x="16" y="138" width="46" height="46" fill="#0b0f19" rx="4"/>
+                  <rect x="24" y="146" width="30" height="30" fill="#ffffff" rx="2"/>
+                  <rect x="30" y="152" width="18" height="18" fill="#0b0f19" rx="1"/>
+                  <!-- Realistic Matrix Dots -->
+                  <g fill="#0b0f19">
+                    <rect x="74" y="18" width="8" height="8"/><rect x="90" y="18" width="8" height="8"/><rect x="114" y="18" width="8" height="8"/>
+                    <rect x="74" y="34" width="8" height="8"/><rect x="106" y="34" width="8" height="8"/><rect x="122" y="34" width="8" height="8"/>
+                    <rect x="90" y="50" width="8" height="8"/><rect x="114" y="50" width="8" height="8"/>
+                    <rect x="18" y="74" width="8" height="8"/><rect x="34" y="74" width="8" height="8"/><rect x="50" y="74" width="8" height="8"/>
+                    <rect x="74" y="74" width="8" height="8"/><rect x="98" y="74" width="8" height="8"/><rect x="130" y="74" width="8" height="8"/><rect x="162" y="74" width="8" height="8"/>
+                    <rect x="18" y="90" width="8" height="8"/><rect x="42" y="90" width="8" height="8"/><rect x="66" y="90" width="8" height="8"/>
+                    <rect x="114" y="90" width="8" height="8"/><rect x="146" y="90" width="8" height="8"/><rect x="174" y="90" width="8" height="8"/>
+                    <rect x="18" y="114" width="8" height="8"/><rect x="50" y="114" width="8" height="8"/><rect x="82" y="114" width="8" height="8"/>
+                    <rect x="130" y="114" width="8" height="8"/><rect x="154" y="114" width="8" height="8"/>
+                    <rect x="74" y="138" width="8" height="8"/><rect x="98" y="138" width="8" height="8"/><rect x="122" y="138" width="8" height="8"/><rect x="162" y="138" width="8" height="8"/>
+                    <rect x="90" y="154" width="8" height="8"/><rect x="114" y="154" width="8" height="8"/><rect x="146" y="154" width="8" height="8"/><rect x="174" y="154" width="8" height="8"/>
+                    <rect x="74" y="174" width="8" height="8"/><rect x="106" y="174" width="8" height="8"/><rect x="138" y="174" width="8" height="8"/>
+                  </g>
+                  <!-- Center Brand Shield Badge -->
+                  <circle cx="100" cy="100" r="20" fill="#0b0f19"/>
+                  <circle cx="100" cy="100" r="17" fill="#f59e0b"/>
+                  <path d="M100 88 L110 92 L110 101 C110 107 105 112 100 114 C95 112 90 107 90 101 L90 92 Z" fill="#0b0f19"/>
+                </svg>
+                <span class="qr-scan-badge"><i class="fa-solid fa-expand"></i> สแกนเพื่อชำระเงิน</span>
               </div>
-            </button>
-            <button type="button" class="btn-pay-method-tab" data-method="bank" onclick="switchCheckoutMethod('bank', this)">
-              <div class="tab-icon-wrap"><i class="fa-solid fa-building-columns"></i></div>
-              <div class="tab-label-wrap">
-                <strong>โอนผ่านบัญชีธนาคาร</strong>
-                <small>ธนาคารกสิกรไทย (KBANK)</small>
-              </div>
-            </button>
-            <button type="button" class="btn-pay-method-tab" data-method="wallet" onclick="switchCheckoutMethod('wallet', this)">
-              <div class="tab-icon-wrap"><i class="fa-solid fa-wallet"></i></div>
-              <div class="tab-label-wrap">
-                <strong>STARTASS Wallet</strong>
-                <small>ตัดยอดจากวอลเล็ตทันที</small>
-              </div>
-            </button>
-          </div>
 
-          <!-- TAB PANEL 1: PromptPay QR -->
-          <div class="pay-method-panel" id="panelPromptPay" style="display: block;">
-            <div class="promptpay-checkout-box">
-              <div class="qr-code-presentation">
-                <div class="qr-visual-frame">
-                  <!-- SVG Mock QR with Startass Shield in center -->
-                  <svg viewBox="0 0 200 200" width="180" height="180" class="qr-svg-graphic" aria-label="QR Code PromptPay">
-                    <rect width="200" height="200" fill="#ffffff" rx="12"/>
-                    <!-- Top Left Finder Pattern -->
-                    <rect x="16" y="16" width="46" height="46" fill="#0b0f19" rx="4"/>
-                    <rect x="24" y="24" width="30" height="30" fill="#ffffff" rx="2"/>
-                    <rect x="30" y="30" width="18" height="18" fill="#0b0f19" rx="1"/>
-                    <!-- Top Right Finder Pattern -->
-                    <rect x="138" y="16" width="46" height="46" fill="#0b0f19" rx="4"/>
-                    <rect x="146" y="24" width="30" height="30" fill="#ffffff" rx="2"/>
-                    <rect x="152" y="30" width="18" height="18" fill="#0b0f19" rx="1"/>
-                    <!-- Bottom Left Finder Pattern -->
-                    <rect x="16" y="138" width="46" height="46" fill="#0b0f19" rx="4"/>
-                    <rect x="24" y="146" width="30" height="30" fill="#ffffff" rx="2"/>
-                    <rect x="30" y="152" width="18" height="18" fill="#0b0f19" rx="1"/>
-                    <!-- Realistic Matrix Dots -->
-                    <g fill="#0b0f19">
-                      <rect x="74" y="18" width="8" height="8"/><rect x="90" y="18" width="8" height="8"/><rect x="114" y="18" width="8" height="8"/>
-                      <rect x="74" y="34" width="8" height="8"/><rect x="106" y="34" width="8" height="8"/><rect x="122" y="34" width="8" height="8"/>
-                      <rect x="90" y="50" width="8" height="8"/><rect x="114" y="50" width="8" height="8"/>
-                      <rect x="18" y="74" width="8" height="8"/><rect x="34" y="74" width="8" height="8"/><rect x="50" y="74" width="8" height="8"/>
-                      <rect x="74" y="74" width="8" height="8"/><rect x="98" y="74" width="8" height="8"/><rect x="130" y="74" width="8" height="8"/><rect x="162" y="74" width="8" height="8"/>
-                      <rect x="18" y="90" width="8" height="8"/><rect x="42" y="90" width="8" height="8"/><rect x="66" y="90" width="8" height="8"/>
-                      <rect x="114" y="90" width="8" height="8"/><rect x="146" y="90" width="8" height="8"/><rect x="174" y="90" width="8" height="8"/>
-                      <rect x="18" y="114" width="8" height="8"/><rect x="50" y="114" width="8" height="8"/><rect x="82" y="114" width="8" height="8"/>
-                      <rect x="130" y="114" width="8" height="8"/><rect x="154" y="114" width="8" height="8"/>
-                      <rect x="74" y="138" width="8" height="8"/><rect x="98" y="138" width="8" height="8"/><rect x="122" y="138" width="8" height="8"/><rect x="162" y="138" width="8" height="8"/>
-                      <rect x="90" y="154" width="8" height="8"/><rect x="114" y="154" width="8" height="8"/><rect x="146" y="154" width="8" height="8"/><rect x="174" y="154" width="8" height="8"/>
-                      <rect x="74" y="174" width="8" height="8"/><rect x="106" y="174" width="8" height="8"/><rect x="138" y="174" width="8" height="8"/>
-                    </g>
-                    <!-- Center Brand Shield Badge -->
-                    <circle cx="100" cy="100" r="20" fill="#0b0f19"/>
-                    <circle cx="100" cy="100" r="17" fill="#f59e0b"/>
-                    <path d="M100 88 L110 92 L110 101 C110 107 105 112 100 114 C95 112 90 107 90 101 L90 92 Z" fill="#0b0f19"/>
-                  </svg>
-                  <span class="qr-scan-badge"><i class="fa-solid fa-expand"></i> สแกนเพื่อจ่าย</span>
+              <div class="qr-instructions">
+                <div class="promptpay-title-tag">
+                  <i class="fa-solid fa-bolt"></i> พร้อมเพย์ (PromptPay) อัตโนมัติ
                 </div>
-
-                <div class="qr-instructions">
-                  <div class="promptpay-title-tag">
-                    <i class="fa-solid fa-bolt"></i> พร้อมเพย์ (PromptPay) อัตโนมัติ
-                  </div>
-                  <div class="qr-guide-text">
-                    เปิดแอปพลิเคชัน Mobile Banking ของธนาคารใดก็ได้ แล้วสแกน QR Code นี้เพื่อทำรายการ ยอดเงินจะถูกเชื่อมโยงกับคำสั่งซื้อโดยอัตโนมัติ
-                  </div>
-                  
-                  <div class="qr-meta-box">
-                    <div class="qr-meta-row">
-                      <span class="qr-meta-label">ชื่อบัญชีรับเงิน:</span>
-                      <strong class="qr-meta-value">STARTASS ESCROW TRUST VAULT CO., LTD.</strong>
-                    </div>
-                    <div class="qr-meta-row">
-                      <span class="qr-meta-label">หมายเลขอ้างอิง Ref 1:</span>
-                      <strong class="qr-meta-value text-gold" id="qrRef1">ESC-89241</strong>
-                    </div>
-                    <div class="qr-meta-row">
-                      <span class="qr-meta-label">ยอดเงินที่ต้องชำระ:</span>
-                      <strong class="qr-meta-value text-emerald" id="qrAmountDisplay">฿0 THB</strong>
-                    </div>
-                  </div>
-
-                  <div class="qr-actions-row">
-                    <button type="button" class="btn-qr-download" onclick="handleDownloadQR()">
-                      <i class="fa-solid fa-download"></i> บันทึกภาพ QR Code
-                    </button>
-                    <button type="button" class="btn-qr-copy-ref" onclick="handleCopyQRRef()">
-                      <i class="fa-regular fa-copy"></i> คัดลอกหมายเลขอ้างอิง
-                    </button>
-                  </div>
+                <div class="qr-guide-text">
+                  เปิดแอปพลิเคชัน Mobile Banking ของธนาคารใดก็ได้ แล้วสแกน QR Code นี้เพื่อทำรายการ ยอดเงินจะถูกเชื่อมโยงกับคำสั่งซื้อและยืนยันผ่านระบบแบบ Real-time โดยอัตโนมัติ
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB PANEL 2: Bank Transfer -->
-          <div class="pay-method-panel" id="panelBank" style="display: none;">
-            <div class="bank-checkout-card">
-              <div class="bank-card-top">
-                <div class="bank-brand-pill kbank-brand">
-                  <i class="fa-solid fa-building-columns"></i> KBANK
-                </div>
-                <div class="bank-title-group">
-                  <strong>ธนาคารกสิกรไทย (Kasikornbank)</strong>
-                  <span>บัญชีเงินฝากกระแสรายวัน (Escrow Trust Account)</span>
-                </div>
-                <span class="bank-escrow-badge"><i class="fa-solid fa-shield"></i> บัญชี Escrow กลาง</span>
-              </div>
-
-              <div class="bank-fields-grid">
-                <div class="bank-field-item bank-field-highlight">
-                  <span class="field-caption">เลขที่บัญชีรับเงินโอน:</span>
-                  <div class="acc-copy-row">
-                    <strong class="acc-num-code" id="bankAccNumberCode">089-2-94819-0</strong>
-                    <button type="button" class="btn-copy-acc-pill" onclick="copyCheckoutBankAcc(event)" title="คัดลอกเลขบัญชี">
-                      <i class="fa-regular fa-copy"></i> คัดลอกเลขบัญชี
-                    </button>
+                
+                <div class="qr-meta-box">
+                  <div class="qr-meta-row">
+                    <span class="qr-meta-label">ชื่อบัญชีรับชำระ:</span>
+                    <strong class="qr-meta-value">STARTASS PAYMENT TRUST CO., LTD.</strong>
+                  </div>
+                  <div class="qr-meta-row">
+                    <span class="qr-meta-label">หมายเลขอ้างอิง (Ref 1):</span>
+                    <strong class="qr-meta-value text-gold" id="qrRef1">PAY-89241</strong>
+                  </div>
+                  <div class="qr-meta-row">
+                    <span class="qr-meta-label">ยอดเงินที่ต้องชำระ:</span>
+                    <strong class="qr-meta-value text-emerald" id="qrAmountDisplay">฿0 THB</strong>
                   </div>
                 </div>
 
-                <div class="bank-field-item">
-                  <span class="field-caption">ชื่อบัญชี:</span>
-                  <strong class="field-val">บจก. สตาร์ทาสส์ เอสโครว์ ทรัสต์ วอลต์ (STARTASS ESCROW TRUST VAULT CO., LTD.)</strong>
-                </div>
-
-                <div class="bank-field-item">
-                  <span class="field-caption">สาขา:</span>
-                  <span class="field-val">สาขาสำนักสีลม (Silom Main Branch)</span>
-                </div>
-
-                <div class="bank-field-item">
-                  <span class="field-caption">รหัสสาขา (Branch Code):</span>
-                  <span class="field-val">0089</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB PANEL 3: Wallet Balance -->
-          <div class="pay-method-panel" id="panelWallet" style="display: none;">
-            <div class="wallet-checkout-box">
-              <div class="wallet-visual-banner">
-                <div class="wallet-visual-icon">
-                  <i class="fa-solid fa-wallet"></i>
-                </div>
-                <div class="wallet-visual-info">
-                  <span class="wallet-caption">ยอดคงเหลือใน STARTASS Escrow Wallet ของคุณ:</span>
-                  <strong class="wallet-balance-amount">฿180,000,000 THB</strong>
-                </div>
-              </div>
-              <div class="wallet-sufficient-pill">
-                <i class="fa-solid fa-circle-check"></i>
-                <span>ยอดเงินในวอลเล็ตเพียงพอสำหรับการตัดยอดชำระเข้า Escrow อัตโนมัติทันที</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Slip Upload & Instant Verification Simulation Card -->
-        <div class="payment-card">
-          <div class="payment-card-header">
-            <h3 class="payment-card-title">
-              <i class="fa-solid fa-file-invoice-dollar" style="color: var(--accent-gold);"></i>
-              <span>แนบหลักฐานสลิปการโอนเงิน (Proof of Payment)</span>
-            </h3>
-            <span class="slip-optional-badge">ทางเลือกเพื่อความรวดเร็ว</span>
-          </div>
-
-          <div class="slip-upload-container">
-            <!-- Dropzone -->
-            <div class="slip-dropzone" id="slipDropzone" onclick="document.getElementById('slipFileInput').click()">
-              <input type="file" id="slipFileInput" accept="image/*" class="file-input-hidden" onchange="handleSlipFileSelect(event)">
-              <div class="slip-prompt-content" id="slipPromptContent">
-                <i class="fa-solid fa-cloud-arrow-up slip-upload-icon"></i>
-                <strong>คลิกเพื่อแนบรูปสลิป หรือลากไฟล์สลิปมาวางที่นี่</strong>
-                <span>รองรับรูปภาพ JPG, PNG, WEBP (จำลองการตรวจสอบอัตโนมัติ)</span>
-              </div>
-
-              <!-- Live Slip Preview Strip -->
-              <div class="slip-preview-box" id="slipPreviewBox" style="display: none;">
-                <img id="slipPreviewImg" src="" alt="สลิปโอนเงิน">
-                <div class="slip-preview-meta">
-                  <strong id="slipFileName">slip_transfer.jpg</strong>
-                  <span style="color: #34d399;"><i class="fa-solid fa-check-circle"></i> แนบไฟล์สำเร็จ พร้อมตรวจสอบ</span>
-                  <button type="button" class="btn-remove-slip" onclick="removeSelectedSlip(event)">
-                    <i class="fa-solid fa-trash-can"></i> นำรูปออก
+                <div class="qr-actions-row">
+                  <button type="button" class="btn-qr-download" onclick="handleDownloadQR()">
+                    <i class="fa-solid fa-download"></i> บันทึกภาพ QR Code
+                  </button>
+                  <button type="button" class="btn-qr-copy-ref" onclick="handleCopyQRRef()">
+                    <i class="fa-regular fa-copy"></i> คัดลอกหมายเลขอ้างอิง
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Instant Verification Checkbox -->
-            <div class="simulation-slip-check-box">
-              <label class="custom-toggle-label">
-                <input type="checkbox" id="chkAutoVerifySlip" checked>
-                <span class="custom-toggle-switch"></span>
-                <span class="custom-toggle-desc">
-                  <i class="fa-solid fa-wand-magic-sparkles text-gold"></i>
-                  <strong>จำลองการตรวจสอบสลิปโอนเงินสำเร็จทันที (Simulate Instant Verification)</strong>
-                  <small>ระบบจะตรวจสอบยอดเงินและปรับสถานะเป็น "ชำระเงินแล้ว (PAID)" ทันทีที่กดยืนยัน</small>
-                </span>
-              </label>
+            <!-- Real-time Payment Status Tracker & Listener Box -->
+            <div class="payment-live-status-container" id="paymentLiveStatusContainer">
+              <div class="live-status-header">
+                <div class="live-status-pulse-badge">
+                  <span class="pulse-radar-dot" id="liveRadarDot"></span>
+                  <span class="status-state-text" id="paymentStateLabel">กำลังรอการชำระเงิน (Waiting for Payment)</span>
+                </div>
+                <span class="status-code-tag" id="paymentStatusCode">WAITING_FOR_PAYMENT</span>
+              </div>
+
+              <!-- Real-time Status Progress Pipeline -->
+              <div class="payment-status-tracker" id="paymentStatusTracker">
+                <div class="tracker-step step-active" id="stepWaiting">
+                  <div class="tracker-dot"><i class="fa-solid fa-qrcode"></i></div>
+                  <span class="tracker-label">รอชำระเงิน</span>
+                </div>
+                <div class="tracker-connector" id="conn1"></div>
+                <div class="tracker-step" id="stepDetected">
+                  <div class="tracker-dot"><i class="fa-solid fa-satellite-dish"></i></div>
+                  <span class="tracker-label">ตรวจพบยอด</span>
+                </div>
+                <div class="tracker-connector" id="conn2"></div>
+                <div class="tracker-step" id="stepVerified">
+                  <div class="tracker-dot"><i class="fa-solid fa-badge-check"></i></div>
+                  <span class="tracker-label">ตรวจรับสำเร็จ</span>
+                </div>
+                <div class="tracker-connector" id="conn3"></div>
+                <div class="tracker-step" id="stepEscrow">
+                  <div class="tracker-dot"><i class="fa-solid fa-vault"></i></div>
+                  <span class="tracker-label">เข้าสู่ Escrow</span>
+                </div>
+              </div>
+
+              <div class="live-status-message-box" id="paymentLiveMessage">
+                <i class="fa-solid fa-circle-notch fa-spin status-spinner-icon" id="statusSpinner"></i>
+                <span id="paymentStatusDescription">ระบบกำลังรอสัญญาณการชำระเงินจากระบบธนาคารแบบ Real-time กรุณาสแกน QR Code ผ่านแอปพลิเคชัน Mobile Banking ของคุณ</span>
+              </div>
             </div>
+
           </div>
         </div>
 
-        <!-- Escrow Protection Terms Agreement Card -->
+        <!-- Payment Protection Terms Agreement Card -->
         <div class="payment-card payment-terms-card">
           <label class="escrow-terms-checkbox-wrap">
             <input type="checkbox" id="chkEscrowTermsAgree" checked required>
             <span class="terms-custom-check"></span>
             <span class="terms-text">
-              ฉันเข้าใจและยินยอมให้ระบบ <strong>STARTASS Escrow Trust Vault</strong> พักเงินจำนวนนี้ไว้ในระบบส่วนกลาง 
+              ฉันเข้าใจและยินยอมให้ระบบ <strong>STARTASS Payment Trust</strong> พักเงินจำนวนนี้ไว้ในระบบ Escrow ส่วนกลาง 
               โดยเงินจะถูกส่งมอบให้ผู้ขาย <strong>[ Seller ]</strong> หลังจากที่ฉันได้รับสินค้าและตรวจรับสินค้าตรงปกภายใน <strong>10 วัน</strong> ตามขั้นตอนระบบคุ้มครองผู้ซื้อ
             </span>
           </label>
@@ -447,10 +349,16 @@
             <a href="ordersdetail.html" class="btn btn-view btn-cancel-pay" id="btnCancelPayment">
               <i class="fa-solid fa-arrow-left"></i> ยกเลิก / กลับไปหน้ารายละเอียดคำสั่งซื้อ
             </a>
-            <button type="button" class="btn btn-pay-confirm-cta" id="btnConfirmPayNow" onclick="handleExecutePayment()">
-              <i class="fa-solid fa-shield-halved"></i>
-              <span>ยืนยันการชำระเงินเข้า Escrow Vault</span>
-              <i class="fa-solid fa-arrow-right"></i>
+            
+            <div class="payment-live-indicator-pill" id="paymentLiveIndicatorPill">
+              <span class="radar-pulse"></span>
+              <span>กำลังรอการชำระเงินผ่าน Mobile Banking...</span>
+            </div>
+
+            <!-- Developer / QA Simulation Trigger Button -->
+            <button type="button" class="btn-simulate-webhook" id="btnSimulateWebhook" onclick="handleTriggerSimulationWebhook()" title="จำลอง Webhook ยืนยันการชำระเงินจาก Payment Gateway เพื่อทดสอบ Flow แบบ Real-time">
+              <i class="fa-solid fa-bolt"></i>
+              <span>⚡ จำลอง Webhook จาก Backend (สำหรับทดสอบ)</span>
             </button>
           </div>
         </div>
@@ -500,11 +408,7 @@
               <strong class="matrix-val" id="paymentWinningBidVal">฿0</strong>
             </div>
             <div class="matrix-row">
-              <span class="matrix-label">ค่าบริการจัดส่ง White-Glove พร้อมประกันภัย:</span>
-              <span class="matrix-free-val">฿0 (ฟรีโปรโมชั่นพิเศษ)</span>
-            </div>
-            <div class="matrix-row">
-              <span class="matrix-label">ค่าธรรมเนียมคุ้มครอง Escrow Vault:</span>
+              <span class="matrix-label">ค่าธรรมเนียมระบบชำระเงิน:</span>
               <span class="matrix-free-val">฿0 (ฟรี)</span>
             </div>
 
@@ -513,7 +417,6 @@
             <div class="matrix-total-row">
               <div class="total-label-box">
                 <span class="total-main-text">ยอดรวมที่ต้องชำระสุทธิ</span>
-                <span class="total-sub-note">รวมภาษีและค่าคุ้มครองแล้ว</span>
               </div>
               <div class="total-price-box">
                 <strong class="total-amount-number" id="paymentTotalAmountVal">฿0</strong>
@@ -529,7 +432,7 @@
           <div class="guarantee-header">
             <div class="guarantee-icon"><i class="fa-solid fa-vault"></i></div>
             <div>
-              <strong class="guarantee-title">STARTASS Escrow Protection 100%</strong>
+              <strong class="guarantee-title">STARTASS Payment Protection 100%</strong>
               <span class="guarantee-subtitle">นโยบายการคุ้มครองเงินโอนของผู้ซื้อสูงสุด</span>
             </div>
           </div>
@@ -549,7 +452,7 @@
             </li>
             <li>
               <i class="fa-solid fa-circle-check text-emerald"></i>
-              <span><strong>ขนส่ง White-Glove:</strong> ขนส่งระดับมืออาชีพพร้อมประกันภัยเต็มวงเงิน</span>
+              <span><strong>ความปลอดภัยระดับสากล:</strong> คุ้มครองความปลอดภัยของยอดเงินใน Escrow ตลอดกระบวนการ</span>
             </li>
           </ul>
         </div>
@@ -566,9 +469,9 @@
       <div class="success-icon-animation">
         <i class="fa-solid fa-circle-check"></i>
       </div>
-      <h2 class="success-title">ชำระเงินเข้า Escrow Vault สำเร็จ!</h2>
+      <h2 class="success-title">ดำเนินการชำระเงินสำเร็จ!</h2>
       <p class="success-desc">
-        ยอดเงินจำนวน <strong class="text-emerald" id="successAmountText">฿0</strong> ได้รับการยืนยันเข้าสู่ระบบคุ้มครอง STARTASS Escrow เรียบร้อยแล้ว
+        ยอดเงินจำนวน <strong class="text-emerald" id="successAmountText">฿0</strong> ได้รับการยืนยันเข้าสู่ระบบชำระเงินเรียบร้อยแล้ว
       </p>
 
       <div class="success-receipt-box">
@@ -583,6 +486,10 @@
         <div class="receipt-row">
           <span>ช่องทางชำระเงิน:</span>
           <strong id="successMethodText">PromptPay QR Code</strong>
+        </div>
+        <div class="receipt-row">
+          <span>สถานะการคุ้มครองยอดเงิน:</span>
+          <strong class="text-emerald"><i class="fa-solid fa-shield-check"></i> พักใน Escrow ส่วนกลางแล้ว</strong>
         </div>
         <div class="receipt-row">
           <span>เวลาที่ทำรายการ:</span>

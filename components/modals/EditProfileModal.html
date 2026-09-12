@@ -1,0 +1,64 @@
+<!-- ==========================================================================
+     COMPONENT: Edit Profile Modal Template
+     File: components/modals/EditProfileModal.html
+     Description: Standalone semantic HTML markup for editing user profile
+                  information (Avatar URL, Full Name, Nickname, and Bio).
+     ========================================================================== -->
+
+<div class="modal-backdrop" id="editProfileModal" role="dialog" aria-modal="true" aria-labelledby="editProfileTitle">
+  <div class="modal-container modal-edit-profile-container">
+    <div class="modal-header">
+      <h3 class="modal-title" id="editProfileTitle">
+        <i class="fa-solid fa-user-pen" style="color: var(--accent-gold);"></i> แก้ไขข้อมูลโปรไฟล์ส่วนตัว
+      </h3>
+      <button type="button" class="modal-close" onclick="closeEditProfileModal()" aria-label="ปิดหน้าต่าง">&times;</button>
+    </div>
+    
+    <form id="editProfileForm" onsubmit="handleSaveProfileForm(event)">
+      <div class="modal-body">
+        <!-- Avatar Preview & Input -->
+        <div class="edit-profile-avatar-preview-box">
+          <img id="editAvatarPreview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Avatar Preview" class="edit-avatar-img">
+          <div class="edit-avatar-inputs">
+            <label for="editAvatarUrl" style="display:block; font-size:0.85rem; color:var(--text-secondary); margin-bottom:6px;">
+              ลิงก์รูปโปรไฟล์ (Avatar Image URL):
+            </label>
+            <input type="url" id="editAvatarUrl" class="composer-input" placeholder="https://..." oninput="previewAvatarFromInput(this)" style="width:100%; border-radius:var(--radius-sm);">
+            <small style="color:var(--text-muted); font-size:0.75rem; margin-top:4px; display:block;">รองรับลิงก์รูปภาพ Unsplash หรือ Image CDN</small>
+          </div>
+        </div>
+
+        <!-- 2-Column Form Grid -->
+        <div class="edit-grid-2col">
+          <div class="form-group">
+            <label for="editFullName" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
+              ชื่อ-นามสกุลจริง (Full Name):
+            </label>
+            <input type="text" id="editFullName" class="composer-input" style="width:100%; border-radius:var(--radius-sm);" required>
+          </div>
+
+          <div class="form-group">
+            <label for="editNickname" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
+              ชื่อเล่น / นามแฝงในตลาด (Nickname):
+            </label>
+            <input type="text" id="editNickname" class="composer-input" style="width:100%; border-radius:var(--radius-sm);" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editBio" style="display:block; font-size:0.88rem; color:var(--text-secondary); margin-bottom:6px;">
+            คำแนะนำตัว / คำอธิบายประวัติการสะสม (Bio):
+          </label>
+          <textarea id="editBio" class="report-textarea" rows="3" placeholder="เขียนคำแนะนำตัวสั้นๆ เกี่ยวกับตัวคุณ..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--border-subtle); display:flex; justify-content:flex-end; gap:12px;">
+        <button type="button" class="btn btn-view" onclick="closeEditProfileModal()">ยกเลิก</button>
+        <button type="submit" class="btn btn-profile-primary btn-profile-edit">
+          <i class="fa-solid fa-floppy-disk"></i> บันทึกการเปลี่ยนแปลง
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

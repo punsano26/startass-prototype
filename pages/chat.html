@@ -175,7 +175,7 @@
           <span class="chat-conv-count-badge" id="chatConvCountBadge">3 รายการ</span>
         </div>
 
-        <!-- Filter Chips: All, Unread, Won Deals -->
+        <!-- Filter Chips: All, Unread -->
         <div class="chat-filter-chips-strip">
           <button type="button" class="btn-chat-filter active" data-filter="all" onclick="setChatFilter('all', this)">
             <span>ทั้งหมด</span>
@@ -183,10 +183,6 @@
           <button type="button" class="btn-chat-filter" data-filter="unread" onclick="setChatFilter('unread', this)">
             <span>ยังไม่อ่าน</span>
             <span class="filter-unread-dot"></span>
-          </button>
-          <button type="button" class="btn-chat-filter" data-filter="won" onclick="setChatFilter('won', this)">
-            <i class="fa-solid fa-trophy"></i>
-            <span>ชนะการประมูล</span>
           </button>
         </div>
 
@@ -223,13 +219,8 @@
           <!-- Populated dynamically via renderStandaloneCurrentChat() -->
         </div>
 
-        <!-- Chat Messages Area with Floating Top-Left Payment Circle & Dropdown Drawer -->
+        <!-- Chat Messages Area -->
         <div class="chat-messages-area-wrapper" id="chatMessagesAreaWrapper">
-          <!-- P2P Escrow Payment & Action Trigger (Circular button top-left & expandable popover) -->
-          <div class="chat-escrow-action-bar" id="chatEscrowActionBar">
-            <!-- Populated dynamically via renderChatEscrowActionBar() -->
-          </div>
-
           <!-- Messages All History Timeline -->
           <div class="chat-messages-timeline" id="chatMessagesTimeline">
             <!-- Populated dynamically with all messages, date/time, read status, and owner product & price bids -->
@@ -254,14 +245,20 @@
         <div class="chat-quick-actions-bar" id="chatQuickActionsBar">
           <span class="quick-label"><i class="fa-solid fa-wand-magic-sparkles"></i> จัดการธุรกรรม / จำลอง:</span>
           <div class="quick-chips-scroll">
-            <button type="button" class="btn-quick-chip btn-chip-dealer-pay" onclick="handleChatGoToPayment()" title="💳 ไปยังหน้าชำระเงินเข้า Escrow [ Payment.html ]">
-              <i class="fa-solid fa-credit-card"></i> 💳 ชำระเงิน [ Dealer ]
+            <button type="button" class="btn-quick-chip btn-chip-dealer-pay" onclick="handleChatGoToPayment()" title="💳 ไปยังหน้าชำระเงิน [ Payment.html ]">
+              <i class="fa-solid fa-credit-card"></i> <span>💳 ไปยังหน้าชำระเงิน</span>
             </button>
-            <button type="button" class="btn-quick-chip btn-chip-seller-track" onclick="focusSellerTrackingInput()" title="🚚 กรอกหมายเลขพัสดุ [ Seller ]">
-              <i class="fa-solid fa-truck-fast"></i> 🚚 กรอกเลขพัสดุ [ Seller ]
+            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('📍 ที่อยู่จัดส่ง: 88/12 อาคารพรีเมียมทาวเวอร์ สุขุมวิท 55 กทม. 10110 ครับ')">
+              📍 ยืนยันที่อยู่จัดส่ง
             </button>
-            <button type="button" class="btn-quick-chip btn-chip-role-toggle" onclick="toggleChatViewRole()" title="🔄 สลับมุมมอง Dealer / Seller">
-              <i class="fa-solid fa-repeat"></i> สลับมุมมอง Dealer / Seller
+            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('🛡️ โอนเงินชำระเรียบร้อย พร้อมประสานงานปล่อยยอดเมื่อได้รับของครับ')">
+              🛡️ ยืนยันการชำระเงิน
+            </button>
+            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('📜 รบกวนขอใบรับรอง Certificate of Authenticity (COA) เพิ่มเติมด้วยครับ')">
+              📜 ขอเอกสาร COA
+            </button>
+            <button type="button" class="btn-quick-chip" onclick="handleStandaloneQuickPrompt('🚚 ขอบคุณครับ สะดวกรับของช่วงสุดสัปดาห์นี้ครับ')">
+              🚚 สอบถามการจัดส่ง
             </button>
             <button type="button" class="btn-quick-chip btn-chip-sim" onclick="simulateTypingPrompt('📍 ยืนยันที่อยู่จัดส่ง: 450 Lexington Ave, New York, NY 10017 พร้อมรับมอบสินค้าครับ')" title="จำลองพิมพ์: ยืนยันที่อยู่">
               <i class="fa-solid fa-keyboard"></i> ยืนยันที่อยู่
@@ -277,9 +274,6 @@
 
         <!-- Message Composer Form Bar with Typing Simulator Button -->
         <form class="chat-composer-bar" id="standaloneChatForm" onsubmit="handleSendStandaloneChatMessage(event)">
-          <button type="button" class="btn-composer-attach" title="แนบไฟล์หรือเอกสาร COA" onclick="showToast('ระบบแนบไฟล์สำหรับส่งหลักฐาน Escrow และเอกสาร COA พร้อมใช้งาน')">
-            <i class="fa-solid fa-paperclip"></i>
-          </button>
           <div class="composer-input-wrapper">
             <input type="text" id="standaloneMessageInput" class="composer-input" placeholder="พิมพ์ข้อความถึงผู้ขาย หรือกดปุ่มจำลองพิมพ์..." autocomplete="off" required>
             <button type="button" class="btn-composer-simulate-mini" onclick="simulateRandomBuyerTyping()" title="⚡ จำลองพิมพ์ข้อความอัตโนมัติ (Simulate Auto-Type)">
@@ -298,7 +292,7 @@
     </div>
   </div>
 
-  <!-- COMPONENT: Escrow Payment Modal (ชำระเงินเข้าสู่ระบบ Escrow Vault [ Dealer ]) -->
+  <!-- COMPONENT: Payment Modal (ชำระเงินค่าสินค้า [ Dealer ]) -->
   <div id="escrowPaymentModalContainer"></div>
 
   <!-- COMPONENT: Auction Bid Modal (เสนอราคาประมูลสินค้า) -->
@@ -307,141 +301,8 @@
   <!-- COMPONENT: Auction Item Detail Modal (รายละเอียดรายการประมูล) -->
   <div id="auctionDetailModalContainer"></div>
 
-  <!-- MODAL: Create Auction Listing -->
-  <div class="modal-backdrop" id="createModal" role="dialog" aria-modal="true" aria-labelledby="createModalTitle">
-    <div class="modal-container modal-create-container">
-      <div class="modal-header">
-        <h3 class="modal-title" id="createModalTitle">
-          <i class="fa-solid fa-plus-circle" style="color: var(--accent-gold);"></i> สร้างโพสต์ประมูลสินค้า
-        </h3>
-        <button class="modal-close" onclick="closeCreateModal()" aria-label="ปิดหน้าต่าง">&times;</button>
-      </div>
-      <form id="createAuctionForm" onsubmit="handleCreateAuction(event)">
-        <div class="modal-body create-modal-body">
-          <div class="create-modal-layout">
-            <div class="create-modal-left">
-              <div class="form-group form-col-full">
-                <label class="form-label" for="newProductName">
-                  <i class="fa-solid fa-tag"></i> ชื่อสินค้า (Product Name)
-                </label>
-                <input type="text" id="newProductName" class="form-input" placeholder="เช่น 1969 Ford Mustang Boss 429" required maxlength="120">
-              </div>
-              <div class="form-grid-2">
-                <div class="form-group">
-                  <label class="form-label" for="newProductCategory">
-                    <i class="fa-solid fa-layer-group"></i> หมวดหมู่สินค้า (Product Category)
-                  </label>
-                  <select id="newProductCategory" class="form-select" required>
-                    <option value="cars">โมเดลรถยนต์ & ซูเปอร์คาร์ (Car Models)</option>
-                    <option value="cards">การ์ดสะสมหายาก (Collectible Cards)</option>
-                    <option value="tech">เทคโนโลยี & ซูเปอร์คอมพิวเตอร์ (Tech & Computing)</option>
-                    <option value="trees">บอนไซ & ไม้ด่างหายาก (Rare Trees & Flora)</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">
-                    <i class="fa-solid fa-toggle-on"></i> สถานะการเปิดประมูล (Status)
-                  </label>
-                  <div class="status-toggle-wrapper">
-                    <label class="switch">
-                      <input type="checkbox" id="newIsActive" checked onchange="toggleStatusLabel(this.checked)">
-                      <span class="slider round"></span>
-                    </label>
-                    <span id="statusToggleLabel" class="status-label active-status">
-                      <i class="fa-solid fa-circle-check"></i> เปิดประมูลทันที (Active)
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="form-grid-2">
-                <div class="form-group">
-                  <label class="form-label" for="newStartPrice">
-                    <i class="fa-solid fa-tag"></i> ราคาเริ่มต้น (บาท - THB)
-                  </label>
-                  <div class="input-prefix-wrapper">
-                    <span class="input-prefix">฿</span>
-                    <input type="number" id="newStartPrice" class="form-input with-prefix" placeholder="1,500,000" min="1000" step="1000" required>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="newBidIncrement">
-                    <i class="fa-solid fa-arrow-up-right-dots"></i> ก้าวราคาขั้นต่ำ (Bid Increments)
-                  </label>
-                  <select id="newBidIncrement" class="form-select" required>
-                    <option value="500">+฿500 THB</option>
-                    <option value="1000">+฿1,000 THB</option>
-                    <option value="5000">+฿5,000 THB</option>
-                    <option value="10000" selected>+฿10,000 THB (ค่าเริ่มต้นแนะนำ)</option>
-                    <option value="50000">+฿50,000 THB</option>
-                    <option value="100000">+฿100,000 THB</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-grid-2">
-                <div class="form-group">
-                  <label class="form-label" for="newStartDate">
-                    <i class="fa-regular fa-calendar-check"></i> วันเวลาเริ่มต้นประมูล
-                  </label>
-                  <input type="datetime-local" id="newStartDate" class="form-input" required>
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="newEndDate">
-                    <i class="fa-regular fa-calendar-xmark"></i> วันเวลาสิ้นสุดประมูล
-                  </label>
-                  <input type="datetime-local" id="newEndDate" class="form-input" required>
-                </div>
-              </div>
-              <div class="form-group form-col-full">
-                <label class="form-label" for="newProductDesc">
-                  <i class="fa-solid fa-align-left"></i> รายละเอียดและคำอธิบายสินค้า
-                </label>
-                <textarea id="newProductDesc" class="form-textarea" rows="3" placeholder="ระบุรายละเอียด สภาพของสินค้า ประวัติความเป็นมา เอกสารการันตี หรือข้อมูลสำคัญสำหรับการประมูล..." required></textarea>
-              </div>
-            </div>
-            <div class="create-modal-right">
-              <label class="form-label">
-                <i class="fa-solid fa-images"></i> รูปภาพสินค้า (เลือกได้มากกว่า 1 รูป)
-              </label>
-              <div class="image-upload-zone" id="imageDropZone" onclick="document.getElementById('newProductImageFile').click()">
-                <input type="file" id="newProductImageFile" accept="image/*" multiple class="file-input-hidden" onchange="handleImageFileSelect(event)">
-                <div class="upload-prompt">
-                  <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                  <span class="upload-title">คลิกเพื่อเลือกไฟล์รูปภาพ หรือลากรูปมาวางที่นี่</span>
-                  <span class="upload-hint">รองรับไฟล์ JPG, PNG, WEBP, GIF (เลือกพร้อมกันได้มากกว่า 1 รูป)</span>
-                  <button type="button" class="btn-browse-file" onclick="event.stopPropagation(); document.getElementById('newProductImageFile').click();">
-                    <i class="fa-solid fa-folder-open"></i> เลือกรูปภาพ (หลายรูป)
-                  </button>
-                </div>
-              </div>
-              <div class="create-image-preview-wrapper">
-                <div class="create-image-preview" id="createImagePreviewBox">
-                  <img id="createPreviewImg" src="" alt="Image Preview" style="display: none;">
-                  <div class="image-placeholder" id="createPlaceholder">
-                    <i class="fa-regular fa-image"></i>
-                    <span>ยังไม่ได้เลือกรูปภาพ (เลือกได้มากกว่า 1 รูป)</span>
-                  </div>
-                  <div class="image-preview-badge" id="previewBadge" style="display: none;">
-                    <i class="fa-solid fa-images"></i>
-                    <span id="previewCounter">รูปที่ 1 จาก 1 รูป</span>
-                  </div>
-                  <button type="button" id="btnRemoveImage" class="btn-remove-preview" style="display: none;" onclick="removeActiveImage(event)" title="ลบรูปนี้">
-                    <i class="fa-solid fa-trash-can"></i> ลบรูปนี้
-                  </button>
-                </div>
-                <div class="create-thumbnails-strip" id="createThumbnailsStrip" style="display: none;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-view" onclick="closeCreateModal()">ยกเลิก</button>
-          <button type="submit" class="btn btn-bid">
-            <i class="fa-solid fa-cloud-arrow-up"></i> ยืนยันสร้างโพสต์ประมูล
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- COMPONENT: Create Auction Listing Modal (สร้างโพสต์ประมูลสินค้า) -->
+  <div id="createAuctionModalContainer"></div>
 
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
@@ -450,6 +311,7 @@
   <script src="../components/modals/AuctionBidModal.js"></script>
   <script src="../components/modals/AuctionDetailModal.js"></script>
   <script src="../components/modals/EscrowPaymentModal.js"></script>
+  <script src="../components/modals/CreateAuctionModal.js"></script>
 
   <!-- Platform Scripts -->
   <script src="../js/main.js"></script>

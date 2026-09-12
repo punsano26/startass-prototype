@@ -1,9 +1,9 @@
 /**
  * ==========================================================================
- * COMPONENT: Escrow Payment Modal (คอมโพเนนต์ชำระเงินเข้า Escrow Vault [ Dealer ])
+ * COMPONENT: Payment Modal (คอมโพเนนต์ชำระเงินค่าสินค้า [ Dealer ])
  * File: components/modals/EscrowPaymentModal.js
  * Description: Reusable, responsive modal component for auction winners (Dealer)
- *              to transfer winning funds into the STARTASS Escrow Vault system.
+ *              to transfer winning funds into the STARTASS payment system.
  *              Complies with the platform decoupled modal component architecture.
  * ==========================================================================
  */
@@ -20,7 +20,7 @@
       <div class="modal-header">
         <h3 class="modal-title" id="escrowPaymentModalTitle">
           <i class="fa-solid fa-shield-halved" style="color: var(--accent-gold);"></i>
-          <span>ชำระเงินเข้าสู่ระบบคุ้มครอง Escrow Vault <span class="role-badge-dealer">[ Dealer ]</span></span>
+          <span>ชำระเงินค่าสินค้า <span class="role-badge-dealer">[ Dealer ]</span></span>
         </h3>
         <button type="button" class="modal-close" onclick="closeEscrowPaymentModal()" aria-label="ปิดหน้าต่าง">&times;</button>
       </div>
@@ -42,15 +42,15 @@
           </div>
         </div>
 
-        <!-- Escrow Vault Security Banner -->
+        <!-- Security Banner -->
         <div class="escrow-vault-callout">
           <div class="vault-callout-icon">
             <i class="fa-solid fa-vault"></i>
           </div>
           <div class="vault-callout-content">
-            <strong>ระบบคุ้มครองเงินโอน STARTASS Escrow 100%</strong>
+            <strong>ระบบคุ้มครองความปลอดภัยในการชำระเงิน STARTASS 100%</strong>
             <p>
-              ยอดเงินของคุณจะถูกจัดเก็บรักษาอย่างปลอดภัยในระบบส่วนกลาง (Escrow Account) 
+              ยอดเงินของคุณจะถูกจัดเก็บรักษาอย่างปลอดภัยในระบบส่วนกลาง (ระบบชำระเงินปลอดภัย) 
               ผู้ขายจะยังไม่ได้รับเงินจนกว่าสินค้าจะจัดส่งถึงมือ และคุณได้ตรวจสอบสินค้าตรงปกภายใน <strong>10 วัน</strong>
             </p>
           </div>
@@ -63,13 +63,13 @@
             <span class="text-muted" id="escrowModalWinningBid">฿0</span>
           </div>
           <div class="amount-row-sub">
-            <span>ค่าบริการคุ้มครอง Escrow Vault (ฟรีโปรโมชั่น)</span>
+            <span>ค่าบริการคุ้มครองการชำระเงิน (ฟรีโปรโมชั่น)</span>
             <span style="color: #34d399; font-weight: 600;">฿0 (ฟรี)</span>
           </div>
           <div class="amount-divider"></div>
           <div class="amount-row-total">
             <div class="total-label-col">
-              <span class="total-label">ยอดที่ต้องชำระเข้า Escrow ทั้งสิ้น</span>
+              <span class="total-label">ยอดที่ต้องชำระทั้งสิ้น</span>
               <span class="total-subhint">ตรวจสอบยอดเงินก่อนดำเนินการโอน</span>
             </div>
             <div class="total-value-col">
@@ -136,15 +136,15 @@
                 </div>
                 <div class="qr-info-col">
                   <span class="promptpay-badge"><i class="fa-solid fa-bolt"></i> พร้อมเพย์ (PromptPay) QR</span>
-                  <span class="qr-scan-guide">เปิดแอปพลิเคชัน Mobile Banking ใดก็ได้ แล้วสแกนเพื่อโอนเงินเข้า Escrow</span>
+                  <span class="qr-scan-guide">เปิดแอปพลิเคชันธนาคารใดก็ได้ แล้วสแกนคิวอาร์โค้ดนี้เพื่อชำระเงิน</span>
                   <div class="qr-ref-box">
                     <div class="qr-ref-item">
                       <span>บัญชีปลายทาง:</span>
-                      <strong>STARTASS ESCROW VAULT CO., LTD.</strong>
+                      <strong>STARTASS PAYMENT TRUST (THAILAND)</strong>
                     </div>
                     <div class="qr-ref-item">
                       <span>หมายเลขอ้างอิง Ref 1:</span>
-                      <strong id="escrowRef1">ESC-89241</strong>
+                      <strong id="escrowRef1">PAY-89241</strong>
                     </div>
                   </div>
                 </div>
@@ -160,7 +160,7 @@
                   <i class="fa-solid fa-building-columns"></i> KBANK
                 </div>
                 <span class="bank-title">ธนาคารกสิกรไทย (Kasikornbank)</span>
-                <span class="bank-type-tag">บัญชี Escrow กลาง</span>
+                <span class="bank-type-tag">บัญชีรับชำระเงินกลาง</span>
               </div>
               <div class="bank-acc-grid">
                 <div class="bank-acc-field">
@@ -174,7 +174,7 @@
                 </div>
                 <div class="bank-acc-field">
                   <span class="field-label">ชื่อบัญชี:</span>
-                  <strong class="acc-name">บจก. สตาร์ทาสส์ เอสโครว์ ทรัสต์ วอลต์ (STARTASS ESCROW TRUST VAULT CO., LTD.)</strong>
+                  <strong class="acc-name">บจก. สตาร์ทาสส์ เพย์เมนต์ ทรัสต์ (STARTASS PAYMENT TRUST CO., LTD.)</strong>
                 </div>
                 <div class="bank-acc-field">
                   <span class="field-label">สาขา:</span>
@@ -190,13 +190,13 @@
               <div class="wallet-balance-header">
                 <i class="fa-solid fa-wallet" style="color: var(--accent-gold); font-size: 1.5rem;"></i>
                 <div>
-                  <span class="wallet-sub">ยอดเงินใน STARTASS Escrow Vault Balance:</span>
+                  <span class="wallet-sub">ยอดเงินใน STARTASS Wallet Balance:</span>
                   <strong class="wallet-val">฿180,000,000 THB</strong>
                 </div>
               </div>
               <div class="wallet-status-ok">
                 <i class="fa-solid fa-circle-check"></i>
-                <span>ยอดเงินคงเหลือในวอลเล็ตเพียงพอสำหรับการชำระเข้า Escrow อัตโนมัติทันที</span>
+                <span>ยอดเงินคงเหลือในวอลเล็ตเพียงพอสำหรับการชำระเงินอัตโนมัติทันที</span>
               </div>
             </div>
           </div>
@@ -219,7 +219,7 @@
           <label class="terms-agree-label">
             <input type="checkbox" id="chkAgreeEscrowTerms" checked required>
             <span>
-              ฉันเข้าใจและยินยอมให้ระบบพักเงินไว้ในระบบ <strong>Escrow</strong> และเงินจะถูกปล่อยให้ผู้ขาย <strong>[ Seller ]</strong> หลังจากที่ฉันได้รับสินค้าและตรวจรับสินค้าตรงปกภายใน 10 วัน ตามขั้นตอน Flowchart
+              ฉันเข้าใจและยินยอมให้ระบบพักเงินไว้ในระบบ <strong>ชำระเงิน</strong> และเงินจะถูกปล่อยให้ผู้ขาย <strong>[ Seller ]</strong> หลังจากที่ฉันได้รับสินค้าและตรวจรับสินค้าตรงปกภายใน 10 วัน ตามขั้นตอน Flowchart
             </span>
           </label>
         </div>
@@ -233,7 +233,7 @@
         </button>
         <button type="button" class="btn btn-bid btn-confirm-escrow-pay" id="btnConfirmEscrowPayment" onclick="submitEscrowPayment()">
           <i class="fa-solid fa-shield-halved"></i>
-          <span>ยืนยันการโอนเงินเข้า Escrow [ Dealer ]</span>
+          <span>ยืนยันการชำระเงิน [ Dealer ]</span>
         </button>
       </div>
     </div>
@@ -336,7 +336,7 @@
       if (sellerEl) sellerEl.textContent = (chat.seller && (chat.seller.name || chat.seller.nickname)) || 'ผู้ขาย';
       if (winBidEl) winBidEl.textContent = formatFn(winBid);
       if (totalAmountEl) totalAmountEl.textContent = formatFn(winBid);
-      if (refEl) refEl.textContent = 'ESC-' + (chat.orderId.replace(/[^0-9]/g, '') || '89241') + '-' + Math.floor(Math.random() * 899 + 100);
+      if (refEl) refEl.textContent = 'PAY-' + (chat.orderId.replace(/[^0-9]/g, '') || '89241') + '-' + Math.floor(Math.random() * 899 + 100);
 
       // Reset tabs
       currentSelectedMethod = 'promptpay';
@@ -356,7 +356,7 @@
       const btn = document.getElementById('btnConfirmEscrowPayment');
       if (btn) {
         btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> <span>ยืนยันการโอนเงินเข้า Escrow [ Dealer ]</span>';
+        btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> <span>ยืนยันการชำระเงิน [ Dealer ]</span>';
       }
 
       modal.classList.add('open');
@@ -405,11 +405,11 @@
       const text = accNumber.textContent.trim();
       navigator.clipboard.writeText(text).then(() => {
         if (typeof global.showToast === 'function') {
-          global.showToast('📋 คัดลอกเลขบัญชี Escrow Vault (' + text + ') เรียบร้อยแล้ว');
+          global.showToast('📋 คัดลอกเลขบัญชีรับชำระเงิน (' + text + ') เรียบร้อยแล้ว');
         }
       }).catch(() => {
         if (typeof global.showToast === 'function') {
-          global.showToast('📋 เลขที่บัญชี Escrow: ' + text);
+          global.showToast('📋 เลขที่บัญชีรับชำระเงิน: ' + text);
         }
       });
     }
@@ -419,7 +419,7 @@
     const agreeChk = document.getElementById('chkAgreeEscrowTerms');
     if (agreeChk && !agreeChk.checked) {
       if (typeof global.showToast === 'function') {
-        global.showToast('⚠️ กรุณายอมรับเงื่อนไขการคุ้มครอง Escrow ก่อนดำเนินการ');
+        global.showToast('⚠️ กรุณายอมรับเงื่อนไขการคุ้มครองการชำระเงินก่อนดำเนินการ');
       }
       return;
     }
@@ -436,7 +436,7 @@
         const methodNames = {
           promptpay: 'PromptPay QR Code',
           bank: 'โอนผ่านธนาคารกสิกรไทย (KBANK)',
-          wallet: 'STARTASS Escrow Wallet'
+          wallet: 'STARTASS Wallet'
         };
         const methodLabel = methodNames[currentSelectedMethod] || 'PromptPay QR';
         global.confirmEscrowPayment(currentPayingOrderId, methodLabel);

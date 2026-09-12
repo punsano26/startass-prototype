@@ -518,6 +518,20 @@ function saveAuctions() {
   }
 }
 
+// ==========================================================================
+// ORDER STATUS ENUM & LIFECYCLE CONSTANTS
+// ==========================================================================
+const ORDER_STATUS_ENUM = {
+  PENDING_PAYMENT: 'PENDING_PAYMENT',
+  WINNING: 'WINNING',
+  OUTBID: 'OUTBID',
+  WON: 'WON',
+  PAID: 'PAID',
+  SHIPPED: 'SHIPPED',
+  COMPLETED: 'COMPLETED',
+  ENDED: 'ENDED'
+};
+
 // LocalStorage Orders Management (Active Bids & Placed Orders)
 function loadOrders() {
   const seedWonOrder = {
@@ -535,9 +549,10 @@ function loadOrders() {
     currentBid: 12500000,
     startPrice: 3100000,
     bidIncrement: 50000,
-    status: 'WON', // ENUM: 'WINNING' | 'OUTBID' | 'WON' | 'ENDED'
-    statusLabel: 'ชนะการประมูลแล้ว (รอชำระเงิน)',
+    status: ORDER_STATUS_ENUM.PENDING_PAYMENT,
+    statusLabel: 'กำลังรอชำระเงิน',
     paymentStatus: 'UNPAID',
+    shippingStatus: 'UNPAID',
     placedAt: '7 ก.ย. 2026, 14:15',
     updatedAt: '8 ก.ย. 2026, 16:30',
     seller: {
@@ -566,9 +581,10 @@ function loadOrders() {
     currentBid: 145000000,
     startPrice: 98000000,
     bidIncrement: 1000000,
-    status: 'WON', // ENUM: 'WINNING' | 'OUTBID' | 'WON' | 'ENDED'
+    status: ORDER_STATUS_ENUM.PAID,
     statusLabel: 'ชำระเงินแล้ว (รอผู้ขายจัดส่ง)',
     paymentStatus: 'PAID',
+    shippingStatus: 'AWAITING_SHIPMENT',
     paidAmount: 145000000,
     paidAt: '8 ก.ย. 2026, 11:30',
     placedAt: '6 ก.ย. 2026, 10:20',
@@ -599,11 +615,30 @@ function loadOrders() {
           parsed.push(seedWonOrder3);
           changed = true;
         }
-        // Ensure paymentStatus is consistent for existing orders
+        // Ensure consistent order status according to architecture
         parsed.forEach(o => {
-          if (o.status === 'WON' && !o.paymentStatus) {
-            o.paymentStatus = (o.orderId === 'ORD-AUC-03') ? 'PAID' : 'UNPAID';
-            changed = true;
+          if (o.orderId === 'ORD-AUC-02') {
+            if (o.paymentStatus !== 'PAID') {
+              o.status = ORDER_STATUS_ENUM.PENDING_PAYMENT;
+              o.statusLabel = 'กำลังรอชำระเงิน';
+              o.paymentStatus = 'UNPAID';
+              changed = true;
+            } else {
+              o.status = ORDER_STATUS_ENUM.PAID;
+              o.statusLabel = 'ชำระเงินแล้ว (รอผู้ขายจัดส่ง)';
+              changed = true;
+            }
+          } else if (o.status === 'WON') {
+            if (o.paymentStatus === 'PAID') {
+              o.status = ORDER_STATUS_ENUM.PAID;
+              o.statusLabel = 'ชำระเงินแล้ว (รอผู้ขายจัดส่ง)';
+              changed = true;
+            } else {
+              o.status = ORDER_STATUS_ENUM.PENDING_PAYMENT;
+              o.statusLabel = 'กำลังรอชำระเงิน';
+              o.paymentStatus = 'UNPAID';
+              changed = true;
+            }
           }
         });
         if (changed) {
@@ -634,7 +669,7 @@ function loadOrders() {
       currentBid: 16800000,
       startPrice: 5200000,
       bidIncrement: 50000,
-      status: 'WINNING', // ENUM: 'WINNING' | 'OUTBID' | 'WON' | 'ENDED'
+      status: ORDER_STATUS_ENUM.WINNING,
       statusLabel: 'กำลังนำการประมูล (ราคาสูงสุด)',
       placedAt: '8 ก.ย. 2026, 17:30',
       updatedAt: '8 ก.ย. 2026, 18:45',
@@ -2928,21 +2963,16 @@ function renderBidderCardsHTML(container, activeNickname) {
   container.innerHTML = selectedBidders.map(u => {
     const isActive = u.nickname.toLowerCase() === (activeNickname || '').toLowerCase();
     return `
-      <div class="bidder-profile-card ${isActive ? 'active' : ''}">
-        <div class="bidder-card-avatar-wrap">
-          <img src="${u.avatar}" alt="${u.fullName || u.nickname}" class="bidder-card-avatar" loading="lazy">
-          <span class="bidder-card-online-dot"></span>
+      <a href="OtherProfileDetail.html?user=${encodeURIComponent(u.nickname)}"
+         class="bidder-mini-item${isActive ? ' bidder-mini-active' : ''}"
+         title="${isActive ? 'กำลังดูโปรไฟล์นี้' : u.fullName || u.nickname}">
+        <div class="bidder-mini-avatar-wrap">
+          <img src="${u.avatar}" alt="${u.nickname}" class="bidder-mini-avatar" loading="lazy">
+          <span class="bidder-mini-online-dot"></span>
         </div>
-        <div class="bidder-card-info">
-          <h4 class="bidder-card-name" title="${u.fullName}">${u.fullName}</h4>
-          <span class="bidder-card-nickname">@${u.nickname}</span>
-          ${u.winRate ? `<span class="bidder-card-winrate"><i class="fa-solid fa-trophy"></i> Win ${u.winRate}%</span>` : ''}
-        </div>
-        <a href="OtherProfileDetail.html?user=${encodeURIComponent(u.nickname)}" class="btn-bidder-view-profile ${isActive ? 'btn-view-active' : ''}" title="ดูโปรไฟล์ ${u.fullName}">
-          <span>${isActive ? 'กำลังดูโปรไฟล์นี้' : 'ดูโปรไฟล์'}</span>
-          <i class="fa-solid ${isActive ? 'fa-circle-check' : 'fa-arrow-right'}"></i>
-        </a>
-      </div>
+        <span class="bidder-mini-username">@${u.nickname}</span>
+        ${isActive ? '<span class="bidder-mini-active-dot" title="กำลังดูโปรไฟล์นี้"><i class="fa-solid fa-circle-check"></i></span>' : ''}
+      </a>
     `;
   }).join('');
 }
@@ -3171,18 +3201,26 @@ let activeOrderTab = 'current';
 
 function getStatusClass(status) {
   switch ((status || '').toUpperCase()) {
+    case 'PENDING_PAYMENT': return 'status-pending-payment';
     case 'WINNING': return 'status-winning';
     case 'OUTBID': return 'status-outbid';
     case 'WON': return 'status-won';
+    case 'PAID': return 'status-paid';
+    case 'SHIPPED': return 'status-shipped';
+    case 'COMPLETED': return 'status-completed';
     default: return 'status-ended';
   }
 }
 
 function getStatusLabel(status) {
   switch ((status || '').toUpperCase()) {
+    case 'PENDING_PAYMENT': return 'กำลังรอชำระเงิน';
     case 'WINNING': return 'กำลังนำการประมูล (ราคาสูงสุด)';
-    case 'OUTBID': return 'โดนแซงราคา (ต้องเสนอเพิ่ม)';
-    case 'WON': return 'ชนะการประมูลแล้ว (รอชำระเงิน/จัดส่ง)';
+    case 'OUTBID': return 'โดนแซงราคาแล้ว (ต้องเสนอราคาเพิ่ม)';
+    case 'WON': return 'ชนะการประมูลแล้ว';
+    case 'PAID': return 'ชำระเงินแล้ว (รอผู้ขายจัดส่ง)';
+    case 'SHIPPED': return 'จัดส่งสินค้าแล้ว';
+    case 'COMPLETED': return 'ได้รับสินค้าแล้ว (ปิดคำสั่งซื้อ)';
     default: return 'สิ้นสุดการประมูลแล้ว';
   }
 }
@@ -3704,7 +3742,7 @@ function renderP2PConversationsList() {
   if (!container) return;
 
   const orders = loadOrders();
-  const wonOrders = orders.filter(o => o.status === 'WON');
+  const wonOrders = orders.filter(o => o.status === 'WON' || o.status === ORDER_STATUS_ENUM.PENDING_PAYMENT || o.status === ORDER_STATUS_ENUM.PAID);
   const chats = loadP2PChats();
 
   container.innerHTML = wonOrders.map(o => {
@@ -3756,8 +3794,10 @@ function simulateAuctionWon(orderId, event) {
     targetOrder = orders[0];
   }
 
-  targetOrder.status = 'WON';
-  targetOrder.statusLabel = 'ชนะการประมูลแล้ว (รอประสานงานจัดส่ง)';
+  targetOrder.status = ORDER_STATUS_ENUM.PENDING_PAYMENT;
+  targetOrder.statusLabel = 'กำลังรอชำระเงิน';
+  targetOrder.paymentStatus = 'UNPAID';
+  targetOrder.shippingStatus = 'UNPAID';
   targetOrder.updatedAt = new Date().toLocaleString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   // Update auction item endDate to past to mark as closed
@@ -3779,8 +3819,8 @@ function simulateAuctionWon(orderId, event) {
     type: 'won',
     itemId: targetOrder.itemId,
     orderId: targetOrder.orderId,
-    title: '🏆 คุณชนะการประมูลแล้ว!',
-    message: `ยินดีด้วย! คุณชนะการประมูล "${targetOrder.title}" ในราคา ${formatCurrency(targetOrder.userBid)} ห้องสนทนาส่วนตัว P2P กับผู้ขายปลดล็อกแล้ว!`,
+    title: '🏆 คุณชนะการประมูลแล้ว! (กำลังรอชำระเงิน)',
+    message: `ยินดีด้วย! คุณชนะการประมูล "${targetOrder.title}" ในราคา ${formatCurrency(targetOrder.userBid)} สถานะคำสั่งซื้อ: [กำลังรอชำระเงิน] กรุณาดำเนินการชำระเงินเพื่อดำเนินการจัดส่งสินค้า`,
     itemTitle: targetOrder.title,
     time: 'เมื่อสักครู่',
     read: false,
@@ -3791,11 +3831,17 @@ function simulateAuctionWon(orderId, event) {
 
   updateNotificationBadge();
   renderNotificationsList();
-  showToast(`🎉 ขอแสดงความยินดี! คุณชนะการประมูลคำสั่งซื้อ #${targetOrder.orderId}! ห้องแชต P2P โดยตรงกับ [@${targetOrder.seller ? targetOrder.seller.nickname : 'ผู้ขาย'}] ปลดล็อกแล้ว!`);
+  showToast(`🎉 ขอแสดงความยินดี! คุณชนะการประมูลคำสั่งซื้อ #${targetOrder.orderId}! (สถานะ: กำลังรอชำระเงิน)`);
 
-  // Switch to chat tab or select standalone chat
+  // Switch to chat tab or select standalone chat or re-render order view
   if (document.getElementById('standaloneChatContainer')) {
     selectStandaloneChat(targetOrder.orderId);
+  } else if (document.getElementById('orderDetailContainer')) {
+    if (typeof currentOrdersViewMode !== 'undefined' && currentOrdersViewMode === 'list') {
+      renderOrdersList(currentOrdersFilterTab);
+    } else {
+      renderOrderDetail(targetOrder.orderId);
+    }
   } else {
     openSellerP2PChat(targetOrder.orderId);
   }
@@ -3806,8 +3852,8 @@ function renderP2PSection(orderId) {
   const currentOrder = orders.find(o => o.orderId === orderId) || orders[0];
   if (!currentOrder) return '';
 
-  const isWon = currentOrder.status === 'WON';
-  const wonOrders = orders.filter(o => o.status === 'WON');
+  const isWon = currentOrder.status === 'WON' || currentOrder.status === ORDER_STATUS_ENUM.PENDING_PAYMENT || currentOrder.status === ORDER_STATUS_ENUM.PAID;
+  const wonOrders = orders.filter(o => o.status === 'WON' || o.status === ORDER_STATUS_ENUM.PENDING_PAYMENT || o.status === ORDER_STATUS_ENUM.PAID);
   const chats = loadP2PChats();
 
   if (isWon) {
@@ -4054,6 +4100,9 @@ function navigateToOrderChat(itemId) {
   window.location.href = `chat.html?orderId=${encodeURIComponent(targetId)}`;
 }
 
+let currentOrdersViewMode = 'list'; // 'list' | 'detail'
+let currentOrdersFilterTab = 'all'; // 'all' | 'pending' | 'paid' | 'bidding'
+
 function initOrderDetailPage() {
   const container = document.getElementById('orderDetailContainer');
   if (!container) return;
@@ -4061,6 +4110,8 @@ function initOrderDetailPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const targetId = urlParams.get('id') || urlParams.get('orderId');
   const targetTab = urlParams.get('tab');
+  const targetView = urlParams.get('view');
+
   if (targetTab === 'chat') {
     window.location.href = `chat.html?orderId=${encodeURIComponent(targetId || 'ORD-AUC-02')}`;
     return;
@@ -4081,21 +4132,278 @@ function initOrderDetailPage() {
     return;
   }
 
-  let selectedOrder = null;
-  if (targetId) {
-    selectedOrder = orders.find(o => o.itemId === targetId || o.orderId.toLowerCase() === targetId.toLowerCase());
+  // If a specific ID is present and view is not explicitly forced to 'list', show detail
+  if (targetId && targetView !== 'list') {
+    currentOrdersViewMode = 'detail';
+    renderOrderDetail(targetId);
+  } else {
+    currentOrdersViewMode = 'list';
+    renderOrdersList(currentOrdersFilterTab);
   }
-  if (!selectedOrder) {
-    selectedOrder = orders[0];
-  }
-
-  renderOrderDetail(selectedOrder.orderId);
 
   if (urlParams.get('payment') === 'success' || urlParams.get('paid') === '1') {
     setTimeout(() => {
-      showToast('🎉 ดำเนินการชำระเงินสำเร็จ! เงินถูกพักไว้ในระบบอย่างปลอดภัย 100%');
+      showToast('🎉 ดำเนินการชำระเงินสำเร็จ! เงินเข้าสู่ระบบคุ้มครอง Escrow ปลอดภัย 100%');
     }, 450);
   }
+}
+
+// Global popstate listener for back/forward browser buttons
+if (typeof window !== 'undefined') {
+  window.addEventListener('popstate', (event) => {
+    const container = document.getElementById('orderDetailContainer');
+    if (!container) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetId = urlParams.get('id') || urlParams.get('orderId');
+    if (targetId && urlParams.get('view') !== 'list') {
+      currentOrdersViewMode = 'detail';
+      renderOrderDetail(targetId);
+    } else {
+      currentOrdersViewMode = 'list';
+      renderOrdersList(currentOrdersFilterTab);
+    }
+  });
+}
+
+function switchOrdersView(mode, orderId) {
+  currentOrdersViewMode = mode;
+  if (mode === 'detail' && orderId) {
+    try {
+      const newUrl = `${window.location.pathname}?id=${encodeURIComponent(orderId)}`;
+      window.history.pushState({ orderId, view: 'detail' }, '', newUrl);
+    } catch (e) {}
+    renderOrderDetail(orderId);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    try {
+      const newUrl = window.location.pathname;
+      window.history.pushState({ view: 'list' }, '', newUrl);
+    } catch (e) {}
+    renderOrdersList(currentOrdersFilterTab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function filterOrdersTab(tab) {
+  currentOrdersFilterTab = tab;
+  renderOrdersList(tab);
+}
+
+function renderOrdersList(filterTab = 'all') {
+  const container = document.getElementById('orderDetailContainer');
+  if (!container) return;
+
+  currentOrdersViewMode = 'list';
+  currentOrdersFilterTab = filterTab;
+
+  const orders = loadOrders();
+
+  // Counts for tabs
+  const pendingOrders = orders.filter(o => o.status === ORDER_STATUS_ENUM.PENDING_PAYMENT || (o.status === 'WON' && o.paymentStatus !== 'PAID'));
+  const paidOrders = orders.filter(o => o.status === ORDER_STATUS_ENUM.PAID || o.paymentStatus === 'PAID');
+  const biddingOrders = orders.filter(o => o.status === ORDER_STATUS_ENUM.WINNING || o.status === ORDER_STATUS_ENUM.OUTBID);
+
+  let filteredOrders = orders;
+  if (filterTab === 'pending') {
+    filteredOrders = pendingOrders;
+  } else if (filterTab === 'paid') {
+    filteredOrders = paidOrders;
+  } else if (filterTab === 'bidding') {
+    filteredOrders = biddingOrders;
+  }
+
+  const cardsHtml = filteredOrders.length > 0
+    ? filteredOrders.map(o => renderSingleOrderCardHTML(o)).join('')
+    : `
+      <div class="orders-empty-filter-state" style="grid-column: 1 / -1;">
+        <i class="fa-solid fa-inbox"></i>
+        <h3 style="font-size: 1.25rem; color: #fff; margin: 0;">ไม่พบรายการคำสั่งซื้อในหมวดหมู่นี้</h3>
+        <p style="margin: 0; font-size: 0.88rem;">ไม่มีคำสั่งซื้อที่ตรงกับตัวกรองที่คุณเลือกในขณะนี้</p>
+        <button type="button" class="btn btn-view" onclick="filterOrdersTab('all')" style="margin-top: 8px;">
+          <i class="fa-solid fa-list-ul"></i> ดูคำสั่งซื้อทั้งหมด (${orders.length})
+        </button>
+      </div>
+    `;
+
+  container.innerHTML = `
+    <!-- Breadcrumbs -->
+    <nav class="order-breadcrumbs" aria-label="Breadcrumb">
+      <a href="HomePage.html"><i class="fa-solid fa-house"></i> หน้าแรก</a>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-active"><i class="fa-solid fa-receipt"></i> คำสั่งซื้อของฉัน</span>
+    </nav>
+
+    <!-- Orders List Hero Card -->
+    <div class="orders-list-hero-card">
+      <div class="orders-hero-content">
+        <div class="orders-hero-pill">
+          <i class="fa-solid fa-shield-halved"></i> STARTASS Escrow Protection
+        </div>
+        <h1 class="orders-hero-title">คำสั่งซื้อของฉัน <span>(My Orders)</span></h1>
+        <p class="orders-hero-sub">
+          ตรวจสอบและจัดการรายการคำสั่งซื้อที่ชนะการประมูล ชำระเงินค่าสินค้าผ่านระบบคุ้มครอง Escrow ปลอดภัย 100% และประสานงานจัดส่งแบบ White-Glove
+        </p>
+      </div>
+
+      <div class="orders-hero-stats">
+        <div class="orders-stat-badge stat-pending" onclick="filterOrdersTab('pending')" title="คลิกเพื่อกรองคำสั่งซื้อที่กำลังรอชำระเงิน" style="cursor: pointer;">
+          <span class="stat-num">${pendingOrders.length}</span>
+          <span class="stat-lbl">กำลังรอชำระเงิน</span>
+        </div>
+        <div class="orders-stat-badge stat-paid" onclick="filterOrdersTab('paid')" title="คลิกเพื่อกรองคำสั่งซื้อที่ชำระเงินแล้ว" style="cursor: pointer;">
+          <span class="stat-num">${paidOrders.length}</span>
+          <span class="stat-lbl">ชำระเงินแล้ว</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Tabs Bar -->
+    <div class="orders-filter-bar" role="tablist">
+      <button type="button" class="btn-orders-tab ${filterTab === 'all' ? 'active' : ''}" onclick="filterOrdersTab('all')">
+        <i class="fa-solid fa-list-ul"></i>
+        <span>ทั้งหมด</span>
+        <span class="tab-count-pill">${orders.length}</span>
+      </button>
+
+      <button type="button" class="btn-orders-tab ${filterTab === 'pending' ? 'active' : ''}" onclick="filterOrdersTab('pending')">
+        <span class="status-pulse-dot" style="background: #fbbf24;"></span>
+        <span>กำลังรอชำระเงิน</span>
+        <span class="tab-count-pill pill-amber">${pendingOrders.length}</span>
+      </button>
+
+      <button type="button" class="btn-orders-tab ${filterTab === 'paid' ? 'active' : ''}" onclick="filterOrdersTab('paid')">
+        <span class="status-pulse-dot" style="background: #10b981;"></span>
+        <span>ชำระเงินแล้ว</span>
+        <span class="tab-count-pill pill-green">${paidOrders.length}</span>
+      </button>
+
+      <button type="button" class="btn-orders-tab ${filterTab === 'bidding' ? 'active' : ''}" onclick="filterOrdersTab('bidding')">
+        <i class="fa-solid fa-gavel"></i>
+        <span>กำลังร่วมประมูล</span>
+        <span class="tab-count-pill">${biddingOrders.length}</span>
+      </button>
+    </div>
+
+    <!-- Orders Grid -->
+    <div class="my-orders-grid">
+      ${cardsHtml}
+    </div>
+  `;
+}
+
+function renderSingleOrderCardHTML(order) {
+  const isPaid = order.status === ORDER_STATUS_ENUM.PAID || order.paymentStatus === 'PAID';
+  const isPending = !isPaid && (order.status === ORDER_STATUS_ENUM.PENDING_PAYMENT || order.status === 'WON');
+  const isWon = isPaid || isPending || order.status === 'WON';
+  const isWinning = !isWon && isUserHighestBidder(order.itemId);
+
+  let currentStatus = isWon 
+    ? (isPaid ? ORDER_STATUS_ENUM.PAID : ORDER_STATUS_ENUM.PENDING_PAYMENT)
+    : (isWinning ? ORDER_STATUS_ENUM.WINNING : ORDER_STATUS_ENUM.OUTBID);
+
+  const statusClass = getStatusClass(currentStatus);
+  const statusLabel = getStatusLabel(currentStatus);
+  const seller = order.seller || { nickname: 'seller', name: 'Apex Classic Motoring' };
+  const cardExtraClass = isPending ? 'card-pending-payment' : '';
+
+  // Determine pricing display
+  let priceRowHtml = '';
+  if (isPending) {
+    priceRowHtml = `
+      <div class="my-order-price-row">
+        <span class="price-title">ยอดที่ต้องชำระ:</span>
+        <span class="price-val price-amber">${formatCurrency(order.userBid)}</span>
+      </div>
+    `;
+  } else if (isPaid) {
+    priceRowHtml = `
+      <div class="my-order-price-row">
+        <span class="price-title">ยอดชำระแล้ว:</span>
+        <span class="price-val">${formatCurrency(order.paidAmount || order.userBid)}</span>
+      </div>
+    `;
+  } else {
+    priceRowHtml = `
+      <div class="my-order-price-row">
+        <span class="price-title">ราคาที่คุณเสนอ:</span>
+        <span class="price-val" style="color: #38bdf8;">${formatCurrency(order.userBid)}</span>
+      </div>
+    `;
+  }
+
+  // Determine action buttons
+  let actionsHtml = '';
+  if (isPending) {
+    actionsHtml = `
+      <a href="Payment.html?orderId=${encodeURIComponent(order.orderId)}" class="btn-order-action-pay" title="คลิกเพื่อไปชำระเงินค่าสินค้า">
+        <i class="fa-solid fa-credit-card"></i>
+        <span>ชำระเงิน</span>
+      </a>
+      <button type="button" class="btn-order-action-detail" onclick="switchOrdersView('detail', '${order.orderId}')" title="ดูรายละเอียดคำสั่งซื้อ">
+        <i class="fa-solid fa-file-invoice"></i> รายละเอียด
+      </button>
+    `;
+  } else if (isPaid) {
+    actionsHtml = `
+      <button type="button" class="btn-order-action-p2p" onclick="openSellerP2PChat('${order.orderId}')" title="เปิดห้องแชตคุยกับผู้ขายโดยตรง">
+        <i class="fa-solid fa-comments"></i> แชตกับผู้ขาย
+      </button>
+      <button type="button" class="btn-order-action-detail" onclick="switchOrdersView('detail', '${order.orderId}')" title="ดูรายละเอียดคำสั่งซื้อ">
+        <i class="fa-solid fa-file-lines"></i> รายละเอียด
+      </button>
+    `;
+  } else if (isWinning) {
+    actionsHtml = `
+      <button type="button" class="btn-order-action-detail btn-full" onclick="switchOrdersView('detail', '${order.orderId}')" title="ดูสถานะการประมูล">
+        <i class="fa-solid fa-shield-halved"></i> ผู้นำราคา (ดูรายละเอียด)
+      </button>
+    `;
+  } else {
+    actionsHtml = `
+      <button type="button" class="btn-order-action-raise" onclick="openBidModal('${order.itemId}')" title="คุณโดนแซงราคา! เสนอราคาเพิ่มเพื่อกลับมาเป็นผู้นำ">
+        <i class="fa-solid fa-arrow-trend-up"></i> เสนอราคาเพิ่ม
+      </button>
+      <button type="button" class="btn-order-action-detail" onclick="switchOrdersView('detail', '${order.orderId}')" title="ดูรายละเอียด">
+        <i class="fa-solid fa-file-lines"></i> รายละเอียด
+      </button>
+    `;
+  }
+
+  return `
+    <div class="my-order-card ${cardExtraClass}" id="orderCard_${order.orderId}">
+      <div class="my-order-card-header">
+        <div class="my-order-id-wrap">
+          <span class="my-order-id-label">คำสั่งซื้อ</span>
+          <span class="my-order-id">#${order.orderId}</span>
+        </div>
+        <span class="order-status-badge ${statusClass}">
+          <span class="status-pulse-dot"></span>
+          ${statusLabel}
+        </span>
+      </div>
+
+      <div class="my-order-card-body">
+        <div class="my-order-thumb-wrap">
+          <img src="${order.image}" alt="${order.title}" class="my-order-thumb">
+          <span class="my-order-cat-tag">${order.categoryLabel || 'ของสะสม'}</span>
+        </div>
+
+        <div class="my-order-details">
+          <h3 class="my-order-title" title="${order.title}">${order.title}</h3>
+          <div class="my-order-seller-row">
+            <i class="fa-solid fa-store"></i>
+            <span>ผู้ขาย: <strong>@${seller.nickname || 'ApexMotors_NY'}</strong></span>
+          </div>
+          ${priceRowHtml}
+        </div>
+      </div>
+
+      <div class="my-order-card-footer">
+        ${actionsHtml}
+      </div>
+    </div>
+  `;
 }
 
 function renderOrderDetail(orderId) {
@@ -4103,7 +4411,7 @@ function renderOrderDetail(orderId) {
   if (!container) return;
 
   const orders = loadOrders();
-  const order = orders.find(o => o.orderId === orderId) || orders[0];
+  const order = orders.find(o => o.orderId === orderId || o.itemId === orderId) || orders[0];
   if (!order) return;
   currentSelectedOrder = order;
 
@@ -4117,13 +4425,16 @@ function renderOrderDetail(orderId) {
   ];
 
   // Check if auction is won or winning
-  const isWon = order.status === 'WON';
-  const isPaid = isWon && order.paymentStatus === 'PAID';
+  const isWon = order.status === ORDER_STATUS_ENUM.WON || order.status === ORDER_STATUS_ENUM.PENDING_PAYMENT || order.status === ORDER_STATUS_ENUM.PAID;
+  const isPaid = order.status === ORDER_STATUS_ENUM.PAID || order.paymentStatus === 'PAID';
+  const isPendingPayment = !isPaid && (order.status === ORDER_STATUS_ENUM.PENDING_PAYMENT || isWon);
   const isWinning = !isWon && isUserHighestBidder(order.itemId);
-  const currentStatus = isWon ? 'WON' : (isWinning ? 'WINNING' : 'OUTBID');
+  const currentStatus = isWon 
+    ? (isPaid ? ORDER_STATUS_ENUM.PAID : ORDER_STATUS_ENUM.PENDING_PAYMENT)
+    : (isWinning ? ORDER_STATUS_ENUM.WINNING : ORDER_STATUS_ENUM.OUTBID);
   const statusClass = getStatusClass(currentStatus);
   const statusLabel = isWon
-    ? (isPaid ? 'ชำระเงินแล้ว (รอผู้ขายจัดส่ง)' : (order.statusLabel || 'ชนะการประมูลแล้ว (รอชำระเงิน)'))
+    ? (isPaid ? 'ชำระเงินแล้ว (รอผู้ขายจัดส่ง)' : 'กำลังรอชำระเงิน')
     : (isWinning ? 'กำลังนำการประมูล (ราคาสูงสุด)' : 'โดนแซงราคาแล้ว (ต้องเสนอราคาเพิ่ม)');
 
   const images = (order.images && order.images.length > 0) ? order.images : [order.image];
@@ -4137,19 +4448,20 @@ function renderOrderDetail(orderId) {
 
   const time = getTimeRemaining(order.endDate || new Date(Date.now() + 2 * 86400000).toISOString());
   const timerText = isWon
-    ? (isPaid ? 'ชนะแล้ว (ชำระเงินเรียบร้อย)' : 'ชนะการประมูลแล้ว (รอชำระเงิน)')
+    ? (isPaid ? 'ชนะแล้ว (ชำระเงินเรียบร้อย)' : 'ชนะการประมูลแล้ว (กำลังรอชำระเงิน)')
     : (time.expired ? 'ปิดการประมูลแล้ว' : `${time.days} วัน ${time.hours} ชม. ${time.minutes} นาที ${time.seconds} วิ`);
 
   // Order Switcher Chips HTML
   const chipsHtml = orders.map(o => {
     const isAct = o.orderId === order.orderId;
-    const isWonItem = o.status === 'WON';
-    const isPaidItem = isWonItem && o.paymentStatus === 'PAID';
+    const isWonItem = o.status === ORDER_STATUS_ENUM.WON || o.status === ORDER_STATUS_ENUM.PENDING_PAYMENT || o.status === ORDER_STATUS_ENUM.PAID;
+    const isPaidItem = isWonItem && (o.status === ORDER_STATUS_ENUM.PAID || o.paymentStatus === 'PAID');
+    const isPendingItem = isWonItem && !isPaidItem;
     const oWinning = !isWonItem && isUserHighestBidder(o.itemId);
-    const badgeClass = isWonItem ? (isPaidItem ? 'status-winning' : 'status-won') : (oWinning ? 'status-winning' : 'status-outbid');
-    const badgeText = isWonItem ? (isPaidItem ? 'ชำระแล้ว' : 'รอชำระ') : (oWinning ? 'กำลังนำ' : 'โดนแซง');
+    const badgeClass = isPaidItem ? 'status-paid' : (isPendingItem ? 'status-pending-payment' : (oWinning ? 'status-winning' : 'status-outbid'));
+    const badgeText = isPaidItem ? 'ชำระแล้ว' : (isPendingItem ? 'รอชำระ' : (oWinning ? 'กำลังนำ' : 'โดนแซง'));
     return `
-      <div class="order-chip ${isAct ? 'active' : ''}" onclick="renderOrderDetail('${o.orderId}')" title="${o.title}">
+      <div class="order-chip ${isAct ? 'active' : ''}" onclick="switchOrdersView('detail', '${o.orderId}')" title="${o.title}">
         <img src="${o.image}" alt="${o.title}" class="order-chip-thumb">
         <span style="font-weight:700;">#${o.orderId}</span>
         <span class="order-chip-bid">${formatCurrency(o.userBid)}</span>
@@ -4204,9 +4516,9 @@ function renderOrderDetail(orderId) {
     <nav class="order-breadcrumbs" aria-label="Breadcrumb">
       <a href="HomePage.html"><i class="fa-solid fa-house"></i> หน้าแรก</a>
       <span class="crumb-sep">/</span>
-      <a href="HomePage.html">การประมูล</a>
+      <button type="button" class="breadcrumb-link-btn" onclick="switchOrdersView('list')"><i class="fa-solid fa-receipt"></i> คำสั่งซื้อของฉัน</button>
       <span class="crumb-sep">/</span>
-      <span class="crumb-active">รายละเอียดคำสั่งซื้อ #${order.orderId}</span>
+      <span class="crumb-active">คำสั่งซื้อ #${order.orderId}</span>
     </nav>
 
     <!-- Orders Switcher Strip -->
@@ -4215,7 +4527,9 @@ function renderOrderDetail(orderId) {
         <span class="order-switcher-title">
           <i class="fa-solid fa-layer-group"></i> รายการคำสั่งซื้อของคุณ (${orders.length})
         </span>
-        <small style="color: #64748b;">คลิกเพื่อสลับดูคำสั่งซื้ออื่น</small>
+        <button type="button" class="btn-back-to-list" onclick="switchOrdersView('list')" title="กลับไปดูมุมมองรายการคำสั่งซื้อทั้งหมด">
+          <i class="fa-solid fa-table-cells-large"></i> ดูแบบรายการทั้งหมด
+        </button>
       </div>
       <div class="order-chips-scroll">
         ${chipsHtml}
@@ -4238,14 +4552,14 @@ function renderOrderDetail(orderId) {
         </div>
       </div>
       <div class="order-header-actions">
-        <a href="HomePage.html" class="btn btn-view" title="กลับไปหน้าหลัก">
-          <i class="fa-solid fa-arrow-left"></i> การประมูลทั้งหมด
-        </a>
+        <button type="button" class="btn btn-back-to-list" onclick="switchOrdersView('list')" title="กลับไปดูรายการคำสั่งซื้อทั้งหมด">
+          <i class="fa-solid fa-arrow-left"></i> รายการคำสั่งซื้อทั้งหมด
+        </button>
         ${isWon ? `
-          ${!isPaid ? `
-            <span class="order-escrow-paid-badge" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24;" title="รอชำระเงินค่าสินค้า">
-              <i class="fa-solid fa-clock"></i> <span>รอชำระเงิน</span>
-            </span>
+          ${isPendingPayment ? `
+            <a href="Payment.html?orderId=${encodeURIComponent(order.orderId)}" class="btn btn-order-action-pay" style="padding: 8px 16px;" title="คลิกเพื่อดำเนินการชำระเงินค่าสินค้า">
+              <i class="fa-solid fa-credit-card"></i> <span>ชำระเงิน</span>
+            </a>
           ` : `
             <span class="order-escrow-paid-badge" title="ชำระเงินสำเร็จแล้ว">
               <i class="fa-solid fa-circle-check"></i> <span>ชำระเงินแล้ว</span>
@@ -4255,7 +4569,7 @@ function renderOrderDetail(orderId) {
             <i class="fa-solid fa-comments"></i> แชต P2P กับผู้ขาย
           </button>
         ` : `
-          <button type="button" class="btn btn-simulate-won-cta-mini" onclick="simulateAuctionWon('${order.orderId}', event)" title="จำลองการชนะประมูลเพื่อปลดล็อกสิทธิ์ P2P Chat">
+          <button type="button" class="btn btn-simulate-won-cta-mini" onclick="simulateAuctionWon('${order.orderId}', event)" title="จำลองการชนะประมูลเพื่อเปลี่ยนสถานะเป็นกำลังรอชำระเงิน">
             <i class="fa-solid fa-trophy"></i> ⚡ จำลองชนะประมูล
           </button>
           ${isWinning ? `
@@ -4286,7 +4600,7 @@ function renderOrderDetail(orderId) {
                 <i class="${getCategoryIcon(order.category)}"></i> ${order.categoryLabel}
               </span>
               <span class="order-status-badge ${statusClass}" style="background: rgba(11, 15, 25, 0.75); backdrop-filter: blur(8px);">
-                <span class="status-pulse-dot"></span> ${isWon ? (isPaid ? 'ชนะแล้ว (ชำระแล้ว)' : 'ชนะแล้ว (รอชำระ)') : (isWinning ? 'กำลังนำการประมูล' : 'โดนแซงราคา')}
+                <span class="status-pulse-dot"></span> ${statusLabel}
               </span>
             </div>
           </div>
@@ -4355,7 +4669,7 @@ function renderOrderDetail(orderId) {
                 ${isWon 
                   ? (isPaid 
                     ? `<span class="price-user-callout" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.4);"><i class="fa-solid fa-circle-check"></i> ชนะประมูล & ชำระเงินแล้ว</span>`
-                    : `<span class="price-user-callout" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);"><i class="fa-solid fa-credit-card"></i> ชนะการประมูล - รอชำระเงิน</span>`)
+                    : `<span class="price-user-callout" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);"><i class="fa-solid fa-clock"></i> ชนะการประมูล - กำลังรอชำระเงิน</span>`)
                   : (isWinning 
                     ? `<span class="price-user-callout"><i class="fa-solid fa-crown"></i> คุณเป็นผู้นำการประมูล</span>` 
                     : `<span class="price-user-callout" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5;"><i class="fa-solid fa-triangle-exclamation"></i> โดนแซงราคา - เสนอเพิ่มเพื่อชนะ</span>`)}
@@ -4372,8 +4686,8 @@ function renderOrderDetail(orderId) {
                 <span class="value">+${formatCurrency(order.bidIncrement || 1000)}</span>
               </div>
               <div class="matrix-sub-item">
-                <span class="label">สถานะการชำระเงิน</span>
-                <span class="value" style="color: ${isWon ? (isPaid ? '#10b981' : '#f59e0b') : (isWinning ? '#34d399' : '#fb923c')}; font-weight: 700;">${isWon ? (isPaid ? 'ชำระเงินแล้ว' : 'รอชำระเงิน') : (isWinning ? 'ผู้นำประมูล' : 'โดนแซงราคา')}</span>
+                <span class="label">สถานะคำสั่งซื้อ</span>
+                <span class="value" style="color: ${isWon ? (isPaid ? '#10b981' : '#f59e0b') : (isWinning ? '#34d399' : '#fb923c')}; font-weight: 700;">${isWon ? (isPaid ? 'ชำระเงินแล้ว' : 'กำลังรอชำระเงิน') : (isWinning ? 'ผู้นำประมูล' : 'โดนแซงราคา')}</span>
               </div>
             </div>
           </div>
@@ -4381,23 +4695,23 @@ function renderOrderDetail(orderId) {
           <!-- Countdown Box -->
           <div class="order-timer-card ${isWon ? 'order-timer-won' : ''}">
             <div class="timer-label-box">
-              <i class="${isWon ? 'fa-solid fa-trophy' : 'fa-regular fa-clock'}" style="${isWon ? 'color: #f59e0b;' : ''}"></i>
+              <i class="${isWon ? (isPaid ? 'fa-solid fa-shield-halved' : 'fa-solid fa-clock') : 'fa-regular fa-clock'}" style="${isWon ? (isPaid ? 'color: #10b981;' : 'color: #f59e0b;') : ''}"></i>
               <div>
-                <strong style="display: block; font-size: 0.88rem; color: #fff;">${isWon ? (isPaid ? 'การประมูลสิ้นสุด (ชำระเงินสำเร็จ)' : 'การประมูลสิ้นสุดแล้ว') : 'เวลาประมูลคงเหลือ'}</strong>
-                <span style="font-size: 0.78rem; color: #94a3b8;">${isWon ? 'คุณเป็นผู้ชนะการประมูลอันดับ 1' : `สิ้นสุด: ${new Date(order.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}</span>
+                <strong style="display: block; font-size: 0.88rem; color: #fff;">${isWon ? (isPaid ? 'การประมูลสิ้นสุด (ชำระเงินสำเร็จ)' : 'การประมูลสิ้นสุด (กำลังรอชำระเงิน)') : 'เวลาประมูลคงเหลือ'}</strong>
+                <span style="font-size: 0.78rem; color: #94a3b8;">${isWon ? (isPaid ? 'คุ้มครองผ่านระบบ Escrow เรียบร้อย' : 'กรุณาชำระเงินเพื่อดำเนินการจัดส่งสินค้า') : `สิ้นสุด: ${new Date(order.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}</span>
               </div>
             </div>
-            <span class="timer-countdown-text" style="${isWon ? 'color: #10b981;' : ''}">${isWon ? (isPaid ? '<i class="fa-solid fa-shield-halved"></i> ชำระเงินแล้ว' : '<i class="fa-solid fa-trophy"></i> ชนะแล้ว') : timerText}</span>
+            <span class="timer-countdown-text" style="${isWon ? (isPaid ? 'color: #10b981;' : 'color: #fbbf24;') : ''}">${isWon ? (isPaid ? '<i class="fa-solid fa-shield-halved"></i> ชำระเงินแล้ว' : '<i class="fa-solid fa-clock"></i> กำลังรอชำระเงิน') : timerText}</span>
           </div>
 
-          <!-- CTA Buttons & Lock Notice -->
+          <!-- CTA Buttons & Action Controls -->
           <div class="order-cta-group">
             ${isWon ? `
-              ${!isPaid ? `
+              ${isPendingPayment ? `
                 <a href="Payment.html?orderId=${encodeURIComponent(order.orderId)}" class="btn btn-order-pay-cta" title="ดำเนินการชำระเงินค่าสินค้า">
                   <div class="btn-pay-content-wrap">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>ชำระเงินค่าสินค้า</span>
+                    <i class="fa-solid fa-credit-card"></i>
+                    <span>ชำระเงิน</span>
                   </div>
                   <span class="btn-pay-price-tag">${formatCurrency(order.userBid)}</span>
                 </a>
@@ -4425,15 +4739,15 @@ function renderOrderDetail(orderId) {
 
           <!-- Informative Lock or Outbid or Won Banner -->
           ${isWon ? `
-            ${!isPaid ? `
+            ${isPendingPayment ? `
               <div class="order-won-banner order-won-payment-pending">
                 <div class="won-banner-icon"><i class="fa-solid fa-credit-card"></i></div>
                 <div class="won-banner-info">
                   <div class="won-banner-title-row">
-                    <strong>คุณชนะการประมูล — กรุณาชำระเงินค่าสินค้า</strong>
-                    <span class="won-pending-pill"><i class="fa-solid fa-clock"></i> รอชำระเงิน</span>
+                    <strong>คุณชนะการประมูล — สถานะ: กำลังรอชำระเงิน</strong>
+                    <span class="won-pending-pill"><i class="fa-solid fa-clock"></i> กำลังรอชำระเงิน</span>
                   </div>
-                  <span>คุณชนะการประมูลรายการนี้ในราคา <strong>${formatCurrency(order.userBid)}</strong> กรุณาดำเนินการชำระเงิน เพื่อให้ผู้ขายเตรียมแพ็คและจัดส่งสินค้า โดยยอดเงินของคุณจะถูกคุ้มครองปลอดภัย 100% จนกว่าจะได้รับสินค้าและตรวจรับตรงปกภายใน 10 วัน</span>
+                  <span>คุณชนะการประมูลรายการนี้ในราคา <strong>${formatCurrency(order.userBid)}</strong> กรุณาดำเนินการชำระเงิน เพื่อให้ผู้ขายเตรียมแพ็คและจัดส่งสินค้า โดยยอดเงินของคุณจะถูกคุ้มครองปลอดภัย 100% ในระบบ Escrow จนกว่าจะได้รับสินค้าและตรวจรับตรงปกภายใน 10 วัน</span>
                 </div>
               </div>
             ` : `
@@ -5311,68 +5625,80 @@ function toggleChatPaymentDrawer(forceState) {
 }
 
 function confirmEscrowPayment(orderId, paymentMethod = 'PromptPay QR') {
-  const chats = loadP2PChats();
-  const chat = chats[orderId || activeStandaloneChatOrderId];
-  if (!chat) return;
-
+  const targetOrderId = orderId || activeStandaloneChatOrderId || 'ORD-AUC-02';
   const todayDate = new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' });
   const nowTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
   const fullTs = `${todayDate}, ${nowTime}`;
-  const winBidVal = chat.winningBid || chat.latestBid || 12500000;
-  const winBidFormatted = formatCurrency(winBidVal);
-  const seller = chat.seller || { name: 'ผู้ขาย', nickname: 'seller', avatar: '' };
 
-  // Update chat state
-  chat.paymentStatus = 'PAID';
-  chat.paidAmount = winBidVal;
-  chat.paidAt = fullTs;
-  chat.shippingStatus = 'AWAITING_SHIPMENT';
-
-  // System notification message
-  const sysMsg = {
-    id: 'msg-sys-pay-' + Date.now(),
-    sender: 'system',
-    isOwner: false,
-    text: `🛡️ [ระบบชำระเงิน] การชำระเงินสำเร็จ! ลูกค้า (Dealer: Alexander Sterling) ได้โอนเงินจำนวน ${winBidFormatted} เข้าสู่ระบบคุ้มครอง STARTASS เรียบร้อยแล้ว (ผ่าน ${paymentMethod}) ยอดเงินปลอดภัย 100% — ระบบได้แจ้งเตือนผู้ขาย [@${seller.nickname}] ให้จัดส่งสินค้าและกรอกหมายเลขพัสดุ (Tracking Number)`,
-    date: todayDate,
-    time: nowTime,
-    fullTimestamp: fullTs,
-    isRead: true
-  };
-  chat.messages.push(sysMsg);
-
-  // Automated Seller acknowledgement reply
-  const sellerMsg = {
-    id: 'msg-s-pay-' + (Date.now() + 1),
-    sender: 'seller',
-    isOwner: true,
-    senderName: `[ @${seller.nickname} ]`,
-    senderAvatar: seller.avatar,
-    text: `ได้รับแจ้งยอดชำระเงินจำนวน ${winBidFormatted} เรียบร้อยแล้วครับคุณ Alexander! ทางเรากำลังทำการแพ็คสินค้า "${chat.title}" อย่างแน่นหนาตามมาตรฐานความปลอดภัยสูง และเตรียมนำส่งมอบให้บริษัทขนส่ง จะนำหมายเลขพัสดุ (Tracking Number) มากดบันทึกให้ทราบในระบบทันทีครับ`,
-    date: todayDate,
-    time: nowTime,
-    fullTimestamp: fullTs,
-    isRead: true
-  };
-  chat.messages.push(sellerMsg);
-
-  chat.lastMessageSnippet = `ได้รับแจ้งยอดชำระเงินจำนวน ${winBidFormatted} เรียบร้อยแล้วครับ...`;
-  chat.lastMessageDate = todayDate;
-  chat.lastMessageTime = nowTime;
-  chat.lastMessageFull = `${todayDate} • ${nowTime}`;
-  chat.lastMessageIsRead = true;
-  saveP2PChats(chats);
-
-  // Synchronize orders in localStorage
+  // 1. Synchronize order state in localStorage FIRST
   const orders = loadOrders();
-  const order = orders.find(o => o.orderId === chat.orderId || o.itemId === chat.itemId);
+  const order = orders.find(o => o.orderId === targetOrderId || o.itemId === targetOrderId);
+  const winBidVal = order ? (order.userBid || order.currentBid || 12500000) : 12500000;
+  const winBidFormatted = formatCurrency(winBidVal);
+
   if (order) {
+    order.status = ORDER_STATUS_ENUM.PAID;
+    order.statusLabel = 'ชำระเงินแล้ว (รอผู้ขายจัดส่ง)';
     order.paymentStatus = 'PAID';
     order.paidAmount = winBidVal;
     order.paidAt = fullTs;
     order.shippingStatus = 'AWAITING_SHIPMENT';
-    order.statusLabel = 'ชำระเงินแล้ว (รอผู้ขายจัดส่ง)';
+    order.updatedAt = fullTs;
     saveOrders(orders);
+  }
+
+  // 2. Synchronize or initialize chat room for this order
+  let chats = loadP2PChats();
+  let chat = chats[targetOrderId];
+  if (!chat && order) {
+    initP2PChatForOrder(order);
+    chats = loadP2PChats();
+    chat = chats[targetOrderId];
+  }
+
+  if (chat) {
+    const seller = chat.seller || (order && order.seller) || { name: 'ผู้ขาย', nickname: 'seller', avatar: '' };
+
+    // Update chat state
+    chat.paymentStatus = 'PAID';
+    chat.paidAmount = winBidVal;
+    chat.paidAt = fullTs;
+    chat.shippingStatus = 'AWAITING_SHIPMENT';
+
+    // System notification message
+    const sysMsg = {
+      id: 'msg-sys-pay-' + Date.now(),
+      sender: 'system',
+      isOwner: false,
+      text: `🛡️ [ระบบชำระเงิน] การชำระเงินสำเร็จ! ลูกค้า (Dealer: Alexander Sterling) ได้โอนเงินจำนวน ${winBidFormatted} เข้าสู่ระบบคุ้มครอง STARTASS เรียบร้อยแล้ว (ผ่าน ${paymentMethod}) ยอดเงินปลอดภัย 100% — ระบบได้แจ้งเตือนผู้ขาย [@${seller.nickname}] ให้จัดส่งสินค้าและกรอกหมายเลขพัสดุ (Tracking Number)`,
+      date: todayDate,
+      time: nowTime,
+      fullTimestamp: fullTs,
+      isRead: true
+    };
+    chat.messages.push(sysMsg);
+
+    // Automated Seller acknowledgement reply
+    const sellerMsg = {
+      id: 'msg-s-pay-' + (Date.now() + 1),
+      sender: 'seller',
+      isOwner: true,
+      senderName: `[ @${seller.nickname} ]`,
+      senderAvatar: seller.avatar,
+      text: `ได้รับแจ้งยอดชำระเงินจำนวน ${winBidFormatted} เรียบร้อยแล้วครับคุณ Alexander! ทางเรากำลังทำการแพ็คสินค้า "${chat.title}" อย่างแน่นหนาตามมาตรฐานความปลอดภัยสูง และเตรียมนำส่งมอบให้บริษัทขนส่ง จะนำหมายเลขพัสดุ (Tracking Number) มากดบันทึกให้ทราบในระบบทันทีครับ`,
+      date: todayDate,
+      time: nowTime,
+      fullTimestamp: fullTs,
+      isRead: true
+    };
+    chat.messages.push(sellerMsg);
+
+    chat.lastMessageSnippet = `ได้รับแจ้งยอดชำระเงินจำนวน ${winBidFormatted} เรียบร้อยแล้วครับ...`;
+    chat.lastMessageDate = todayDate;
+    chat.lastMessageTime = nowTime;
+    chat.lastMessageFull = `${todayDate} • ${nowTime}`;
+    chat.lastMessageIsRead = true;
+    saveP2PChats(chats);
   }
 
   // Create Escrow Payment confirmation notification
@@ -5380,11 +5706,11 @@ function confirmEscrowPayment(orderId, paymentMethod = 'PromptPay QR') {
   notifications.unshift({
     id: 'notif-pay-' + Date.now(),
     type: 'won',
-    itemId: chat.itemId,
-    orderId: chat.orderId,
+    itemId: order ? order.itemId : (chat ? chat.itemId : 'auc-02'),
+    orderId: targetOrderId,
     title: '🛡️ ยืนยันการชำระเงินสำเร็จ',
-    message: `คุณได้ชำระเงิน ${winBidFormatted} สำหรับคำสั่งซื้อ #${chat.orderId} ผ่านระบบชำระเงิน STARTASS เรียบร้อยแล้ว ยอดเงินปลอดภัย 100%`,
-    itemTitle: chat.title,
+    message: `คุณได้ชำระเงิน ${winBidFormatted} สำหรับคำสั่งซื้อ #${targetOrderId} ผ่านระบบชำระเงิน STARTASS เรียบร้อยแล้ว ยอดเงินปลอดภัย 100%`,
+    itemTitle: order ? order.title : (chat ? chat.title : 'รายการประมูล'),
     time: 'เมื่อสักครู่',
     read: false,
     createdAt: new Date().toISOString()
@@ -5393,12 +5719,14 @@ function confirmEscrowPayment(orderId, paymentMethod = 'PromptPay QR') {
   updateNotificationBadge();
   renderNotificationsList();
 
-  // Switch role to seller so user immediately sees the input tracking number unlocked!
+  // Switch role to seller so user immediately sees the input tracking number unlocked if in chat
   activeChatViewRole = 'seller';
 
-  renderStandaloneCurrentChat(chat.orderId);
-  renderStandaloneChatConversations(activeStandaloneChatFilter);
-  scrollStandaloneChatToBottom();
+  if (document.getElementById('standaloneChatContainer')) {
+    renderStandaloneCurrentChat(targetOrderId);
+    renderStandaloneChatConversations(activeStandaloneChatFilter);
+    scrollStandaloneChatToBottom();
+  }
 
   if (typeof showToast === 'function') {
     showToast(`✅ ชำระเงินสำเร็จ! ยอดเงินได้รับการคุ้มครองในระบบอย่างปลอดภัย 100%`);
@@ -5477,11 +5805,13 @@ function resetMockOrderState(orderId) {
     const orders = loadOrders();
     const order = orders.find(o => o.orderId === orderId || o.itemId === orderId);
     if (order) {
+      order.status = ORDER_STATUS_ENUM.PENDING_PAYMENT;
+      order.statusLabel = 'กำลังรอชำระเงิน';
       order.paymentStatus = 'UNPAID';
       order.paidAmount = null;
       order.paidAt = null;
       order.shippingStatus = 'UNPAID';
-      order.statusLabel = 'ชนะการประมูลแล้ว (รอชำระเงิน)';
+      order.updatedAt = new Date().toLocaleString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
       saveOrders(orders);
     }
     const chats = loadP2PChats();
@@ -5505,7 +5835,7 @@ function initPaymentCheckoutPage() {
   const orders = loadOrders();
   let order = orders.find(o => o.orderId === targetId || o.itemId === targetId);
   if (!order) {
-    order = orders.find(o => o.status === 'WON') || orders[0];
+    order = orders.find(o => o.status === ORDER_STATUS_ENUM.PENDING_PAYMENT || o.status === 'WON') || orders[0];
   }
   if (!order) return;
 

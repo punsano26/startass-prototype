@@ -2872,17 +2872,85 @@ function initOtherProfilePage() {
   renderOtherProfileAuctions();
 }
 
+let bidderSwitcherInterval = null;
+
+function stopBidderSwitcherInterval() {
+  if (bidderSwitcherInterval) {
+    clearInterval(bidderSwitcherInterval);
+    bidderSwitcherInterval = null;
+  }
+}
+
+function getRandomBidders(pool, count = 5) {
+  if (!Array.isArray(pool) || pool.length === 0) return [];
+  // If pool has <= count users, show all of them (no fake users added)
+  if (pool.length <= count) {
+    return [...pool];
+  }
+  // Shuffle a copy and pick exactly count
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
 function renderSellerSwitcherChips(activeNickname) {
   const container = document.getElementById('sellerSwitchChips');
   if (!container) return;
 
-  const sellers = Object.values(OTHER_USER_PROFILES);
-  container.innerHTML = sellers.map(s => `
-    <a href="OtherProfileDetail.html?user=${encodeURIComponent(s.nickname)}" class="seller-chip-btn ${s.nickname === activeNickname ? 'active' : ''}">
-      <img src="${s.avatar}" alt="${s.nickname}">
-      <span>@${s.nickname}</span>
-    </a>
-  `).join('');
+  // Clear existing interval before starting a new one (prevent memory leak)
+  stopBidderSwitcherInterval();
+
+  // Initial render of 5 random bidders from existing pool
+  renderBidderCardsHTML(container, activeNickname);
+
+  // Setup 30-second interval to rotate and select new 5 random bidders
+  bidderSwitcherInterval = setInterval(() => {
+    rotateBidderCards(container, activeNickname);
+  }, 30000);
+}
+
+function rotateBidderCards(container, activeNickname) {
+  if (!container || !document.body.contains(container)) {
+    stopBidderSwitcherInterval();
+    return;
+  }
+  // Subtle smooth fade transition
+  container.classList.add('fading');
+  setTimeout(() => {
+    renderBidderCardsHTML(container, activeNickname);
+    container.classList.remove('fading');
+  }, 220);
+}
+
+function renderBidderCardsHTML(container, activeNickname) {
+  const pool = Object.values(OTHER_USER_PROFILES);
+  const selectedBidders = getRandomBidders(pool, 5);
+
+  container.innerHTML = selectedBidders.map(u => {
+    const isActive = u.nickname.toLowerCase() === (activeNickname || '').toLowerCase();
+    return `
+      <div class="bidder-profile-card ${isActive ? 'active' : ''}">
+        <div class="bidder-card-avatar-wrap">
+          <img src="${u.avatar}" alt="${u.fullName || u.nickname}" class="bidder-card-avatar" loading="lazy">
+          <span class="bidder-card-online-dot"></span>
+        </div>
+        <div class="bidder-card-info">
+          <h4 class="bidder-card-name" title="${u.fullName}">${u.fullName}</h4>
+          <span class="bidder-card-nickname">@${u.nickname}</span>
+          ${u.winRate ? `<span class="bidder-card-winrate"><i class="fa-solid fa-trophy"></i> Win ${u.winRate}%</span>` : ''}
+        </div>
+        <a href="OtherProfileDetail.html?user=${encodeURIComponent(u.nickname)}" class="btn-bidder-view-profile ${isActive ? 'btn-view-active' : ''}" title="ดูโปรไฟล์ ${u.fullName}">
+          <span>${isActive ? 'กำลังดูโปรไฟล์นี้' : 'ดูโปรไฟล์'}</span>
+          <i class="fa-solid ${isActive ? 'fa-circle-check' : 'fa-arrow-right'}"></i>
+        </a>
+      </div>
+    `;
+  }).join('');
+}
+
+// Clean up interval on page unload / hide to prevent memory leaks
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', stopBidderSwitcherInterval);
+  window.addEventListener('pagehide', stopBidderSwitcherInterval);
 }
 
 function renderOtherProfileAuctions() {
@@ -4319,7 +4387,7 @@ function renderOrderDetail(orderId) {
                 <span style="font-size: 0.78rem; color: #94a3b8;">${isWon ? 'คุณเป็นผู้ชนะการประมูลอันดับ 1' : `สิ้นสุด: ${new Date(order.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}</span>
               </div>
             </div>
-            <span class="timer-countdown-text" style="${isWon ? 'color: #10b981;' : ''}">${isWon ? (isPaid ? '<i class="fa-solid fa-shield-check"></i> ชำระเงินแล้ว' : '<i class="fa-solid fa-trophy"></i> ชนะแล้ว') : timerText}</span>
+            <span class="timer-countdown-text" style="${isWon ? 'color: #10b981;' : ''}">${isWon ? (isPaid ? '<i class="fa-solid fa-shield-halved"></i> ชำระเงินแล้ว' : '<i class="fa-solid fa-trophy"></i> ชนะแล้ว') : timerText}</span>
           </div>
 
           <!-- CTA Buttons & Lock Notice -->
@@ -4370,7 +4438,7 @@ function renderOrderDetail(orderId) {
               </div>
             ` : `
               <div class="order-won-banner order-won-paid">
-                <div class="won-banner-icon won-icon-success"><i class="fa-solid fa-shield-check"></i></div>
+                <div class="won-banner-icon won-icon-success"><i class="fa-solid fa-shield-halved"></i></div>
                 <div class="won-banner-info">
                   <div class="won-banner-title-row">
                     <strong style="color: #34d399;">ชำระเงินสำเร็จเรียบร้อยแล้ว</strong>
@@ -4434,7 +4502,7 @@ function renderOrderDetail(orderId) {
 
             <!-- Payment & Buyer Protection Terms -->
             <div class="info-box-card">
-              <h4><i class="fa-solid fa-shield-check"></i> ระบบชำระเงินและการคุ้มครองผู้ซื้อ</h4>
+              <h4><i class="fa-solid fa-shield-halved"></i> ระบบชำระเงินและการคุ้มครองผู้ซื้อ</h4>
               
               <div class="escrow-feature-item">
                 <div class="escrow-icon"><i class="fa-solid fa-vault"></i></div>
@@ -5347,12 +5415,88 @@ const PAYMENT_STATUS_ENUM = {
   ESCROW_FUNDED: 'ESCROW_FUNDED'
 };
 
+const PAYMENT_CONFIG = {
+  // In prototype / dev environment, mock mode is active by default.
+  // In production, set window.__STARTASS_MOCK_PAYMENT_MODE__ = false or window.__STARTASS_ENV__ = 'production'
+  isMockMode: typeof window !== 'undefined' && typeof window.__STARTASS_MOCK_PAYMENT_MODE__ !== 'undefined'
+    ? Boolean(window.__STARTASS_MOCK_PAYMENT_MODE__)
+    : true,
+};
+
 let currentCheckoutOrderId = null;
 let currentPaymentStatus = PAYMENT_STATUS_ENUM.WAITING_FOR_PAYMENT;
 let paymentBroadcastChannel = null;
 let isPaymentSimulationRunning = false;
+let paymentSimulationTimeouts = [];
 const processedPaymentTransactions = new Set();
 let paymentRedirectInterval = null;
+let currentMockTransactionId = null;
+
+function isMockPaymentActive() {
+  if (typeof window !== 'undefined') {
+    if (window.__STARTASS_ENV__ === 'production' || window.__STARTASS_IS_PROD__ === true) {
+      return false;
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('mode') === 'real' || urlParams.get('mock') === 'false') {
+      return false;
+    }
+  }
+  return PAYMENT_CONFIG.isMockMode;
+}
+
+function clearPaymentSimulationTimeouts() {
+  paymentSimulationTimeouts.forEach(id => clearTimeout(id));
+  paymentSimulationTimeouts = [];
+}
+
+function generateNextMockTransactionId() {
+  let count = parseInt(sessionStorage.getItem('startass_mock_tx_counter') || localStorage.getItem('startass_mock_tx_counter') || '0', 10);
+  count += 1;
+  try {
+    sessionStorage.setItem('startass_mock_tx_counter', count.toString());
+    localStorage.setItem('startass_mock_tx_counter', count.toString());
+  } catch (e) {}
+  const formatted = String(count).padStart(3, '0');
+  return `MOCK-PAYMENT-${formatted}`;
+}
+
+function getActiveMockTransactionId() {
+  if (!currentMockTransactionId) {
+    let count = parseInt(sessionStorage.getItem('startass_mock_tx_counter') || localStorage.getItem('startass_mock_tx_counter') || '0', 10);
+    if (count <= 0) count = 1;
+    const formatted = String(count).padStart(3, '0');
+    currentMockTransactionId = `MOCK-PAYMENT-${formatted}`;
+  }
+  return currentMockTransactionId;
+}
+
+function resetMockOrderState(orderId) {
+  if (!isMockPaymentActive()) return;
+  try {
+    const orders = loadOrders();
+    const order = orders.find(o => o.orderId === orderId || o.itemId === orderId);
+    if (order) {
+      order.paymentStatus = 'UNPAID';
+      order.paidAmount = null;
+      order.paidAt = null;
+      order.shippingStatus = 'UNPAID';
+      order.statusLabel = 'ชนะการประมูลแล้ว (รอชำระเงิน)';
+      saveOrders(orders);
+    }
+    const chats = loadP2PChats();
+    const chat = chats[orderId];
+    if (chat) {
+      chat.paymentStatus = 'UNPAID';
+      chat.paidAmount = null;
+      chat.paidAt = null;
+      chat.shippingStatus = 'UNPAID';
+      saveP2PChats(chats);
+    }
+  } catch (e) {
+    console.error('Failed to reset mock order state', e);
+  }
+}
 
 function initPaymentCheckoutPage() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -5366,7 +5510,25 @@ function initPaymentCheckoutPage() {
   if (!order) return;
 
   currentCheckoutOrderId = order.orderId;
-  const isPaid = order.paymentStatus === 'PAID';
+
+  // Check if Mock Payment Mode is active
+  const isMock = isMockPaymentActive();
+
+  if (isMock) {
+    // In Mock Mode: ALWAYS start fresh with an incremented Mock Transaction ID on open/reload
+    currentMockTransactionId = generateNextMockTransactionId();
+    resetMockOrderState(order.orderId);
+    clearPaymentSimulationTimeouts();
+    isPaymentSimulationRunning = false;
+    if (paymentRedirectInterval) {
+      clearInterval(paymentRedirectInterval);
+      paymentRedirectInterval = null;
+    }
+  }
+
+  // Check paid status (in Real Mode, this reflects genuine backend order status)
+  const isPaid = !isMock && order.paymentStatus === 'PAID';
+
   const winBidVal = order.userBid || order.currentBid || 12500000;
   const winBidFormatted = formatCurrency(winBidVal);
   const seller = order.seller || {
@@ -5403,8 +5565,14 @@ function initPaymentCheckoutPage() {
   if (totalAmountEl) totalAmountEl.textContent = winBidFormatted;
   if (qrAmountDisplay) qrAmountDisplay.textContent = `${winBidFormatted} THB`;
 
-  const numOnly = order.orderId.replace(/[^0-9]/g, '') || '89241';
-  if (qrRef1) qrRef1.textContent = `PAY-${numOnly}-${Math.floor(Math.random() * 899 + 100)}`;
+  const numOnly = order.orderId.replace(/[^0-9]/g, '') || '02';
+  if (qrRef1) {
+    if (isMock) {
+      qrRef1.textContent = `PAY-${numOnly}-${currentMockTransactionId}`;
+    } else {
+      qrRef1.textContent = `PAY-${numOnly}-${Math.floor(Math.random() * 899 + 100)}`;
+    }
+  }
 
   const returnUrl = `ordersdetail.html?id=${encodeURIComponent(order.orderId)}`;
   if (btnBackToOrder) btnBackToOrder.href = returnUrl;
@@ -5419,9 +5587,14 @@ function initPaymentCheckoutPage() {
       isExisting: true
     });
   } else {
-    updatePaymentUIState(PAYMENT_STATUS_ENUM.WAITING_FOR_PAYMENT, { orderId: order.orderId });
+    updatePaymentUIState(PAYMENT_STATUS_ENUM.WAITING_FOR_PAYMENT, {
+      orderId: order.orderId,
+      txId: isMock ? currentMockTransactionId : undefined
+    });
     initPaymentRealtimeListeners(order.orderId);
   }
+
+  renderMockControlUI(isMock);
 }
 
 function updatePaymentUIState(status, meta = {}) {
@@ -5432,7 +5605,6 @@ function updatePaymentUIState(status, meta = {}) {
   const descEl = document.getElementById('paymentStatusDescription');
   const radarDot = document.getElementById('liveRadarDot');
   const spinnerIcon = document.getElementById('statusSpinner');
-  const liveIndicatorPill = document.getElementById('paymentLiveIndicatorPill');
   const statusPill = document.getElementById('paymentStatusPill');
 
   const stepWaiting = document.getElementById('stepWaiting');
@@ -5459,13 +5631,11 @@ function updatePaymentUIState(status, meta = {}) {
         codeEl.className = 'status-code-tag tag-waiting';
       }
       if (labelEl) labelEl.textContent = 'กำลังรอการชำระเงิน (Waiting for Payment)';
-      if (descEl) descEl.textContent = 'ระบบกำลังรอสัญญาณการชำระเงินจาก Mobile Banking แบบ Real-time กรุณาสแกน QR Code เพื่อทำรายการ';
+      if (descEl) {
+        descEl.innerHTML = '<span class="status-desc-primary">ระบบกำลังรอสัญญาณการชำระเงินจาก Mobile Banking แบบ Real-time</span><span class="status-desc-secondary">กรุณาสแกน QR Code เพื่อทำรายการ</span>';
+      }
       if (radarDot) radarDot.className = 'pulse-radar-dot radar-gold';
       if (spinnerIcon) spinnerIcon.className = 'fa-solid fa-circle-notch fa-spin status-spinner-icon';
-      if (liveIndicatorPill) {
-        liveIndicatorPill.innerHTML = '<span class="radar-pulse"></span><span>กำลังรอการชำระเงินผ่าน Mobile Banking...</span>';
-        liveIndicatorPill.className = 'payment-live-indicator-pill pill-waiting';
-      }
       if (stepWaiting) stepWaiting.classList.add('step-active');
       break;
 
@@ -5475,13 +5645,11 @@ function updatePaymentUIState(status, meta = {}) {
         codeEl.className = 'status-code-tag tag-detected';
       }
       if (labelEl) labelEl.textContent = 'ตรวจพบยอดเงินชำระแล้ว (Payment Detected)';
-      if (descEl) descEl.textContent = 'ตรวจพบสัญญาณเงินเข้าจากเครือข่ายพร้อมเพย์ กำลังตรวจสอบลายเซ็นดิจิทัลกับระบบธนาคาร...';
+      if (descEl) {
+        descEl.innerHTML = '<span class="status-desc-primary">ตรวจพบสัญญาณเงินเข้าจากเครือข่ายพร้อมเพย์</span><span class="status-desc-secondary">กำลังตรวจสอบลายเซ็นดิจิทัลกับระบบธนาคาร...</span>';
+      }
       if (radarDot) radarDot.className = 'pulse-radar-dot radar-cyan';
       if (spinnerIcon) spinnerIcon.className = 'fa-solid fa-satellite-dish fa-beat-fade status-spinner-icon text-cyan';
-      if (liveIndicatorPill) {
-        liveIndicatorPill.innerHTML = '<i class="fa-solid fa-satellite-dish fa-spin"></i><span>ตรวจพบยอดเงินเข้าแล้ว กำลังตรวจสอบกับระบบธนาคาร...</span>';
-        liveIndicatorPill.className = 'payment-live-indicator-pill pill-detected';
-      }
       if (stepWaiting) stepWaiting.classList.add('step-done');
       if (conn1) conn1.classList.add('conn-active');
       if (stepDetected) stepDetected.classList.add('step-active');
@@ -5493,13 +5661,11 @@ function updatePaymentUIState(status, meta = {}) {
         codeEl.className = 'status-code-tag tag-verified';
       }
       if (labelEl) labelEl.textContent = 'ยืนยันยอดเงินสำเร็จ (Payment Verified)';
-      if (descEl) descEl.textContent = 'ระบบธนาคารยืนยันความถูกต้องของยอดเงินเรียบร้อยแล้ว กำลังนำยอดเงินเข้าฝากในระบบ Escrow คุ้มครองผู้ซื้อ...';
+      if (descEl) {
+        descEl.innerHTML = '<span class="status-desc-primary">ระบบธนาคารยืนยันความถูกต้องของยอดเงินเรียบร้อยแล้ว</span><span class="status-desc-secondary">กำลังนำยอดเงินเข้าฝากในระบบ Escrow คุ้มครองผู้ซื้อ...</span>';
+      }
       if (radarDot) radarDot.className = 'pulse-radar-dot radar-emerald';
       if (spinnerIcon) spinnerIcon.className = 'fa-solid fa-circle-check status-spinner-icon text-emerald';
-      if (liveIndicatorPill) {
-        liveIndicatorPill.innerHTML = '<i class="fa-solid fa-circle-check"></i><span>ยอดเงินได้รับการยืนยัน กำลังนำเข้าสู่ Escrow...</span>';
-        liveIndicatorPill.className = 'payment-live-indicator-pill pill-verified';
-      }
       if (stepWaiting) stepWaiting.classList.add('step-done');
       if (conn1) conn1.classList.add('conn-active');
       if (stepDetected) stepDetected.classList.add('step-done');
@@ -5513,13 +5679,11 @@ function updatePaymentUIState(status, meta = {}) {
         codeEl.className = 'status-code-tag tag-funded';
       }
       if (labelEl) labelEl.textContent = 'เงินเข้าสู่ระบบ Escrow เรียบร้อย (Escrow Funded)';
-      if (descEl) descEl.textContent = 'ยอดเงินถูกคุ้มครองในระบบ Escrow ปลอดภัย 100% เรียบร้อยแล้ว ระบบกำลังแจ้งเตือนผู้ขายเพื่อเตรียมการจัดส่ง';
-      if (radarDot) radarDot.className = 'pulse-radar-dot radar-success-solid';
-      if (spinnerIcon) spinnerIcon.className = 'fa-solid fa-shield-check status-spinner-icon text-gold';
-      if (liveIndicatorPill) {
-        liveIndicatorPill.innerHTML = '<i class="fa-solid fa-shield-halved"></i><span>ยอดเงินได้รับการคุ้มครองในระบบ Escrow สำเร็จแล้ว</span>';
-        liveIndicatorPill.className = 'payment-live-indicator-pill pill-funded';
+      if (descEl) {
+        descEl.innerHTML = '<span class="status-desc-primary">ยอดเงินถูกคุ้มครองในระบบ Escrow ปลอดภัย 100% เรียบร้อยแล้ว</span><span class="status-desc-secondary">ระบบกำลังแจ้งเตือนผู้ขายเพื่อเตรียมการจัดส่ง</span>';
       }
+      if (radarDot) radarDot.className = 'pulse-radar-dot radar-success-solid';
+      if (spinnerIcon) spinnerIcon.className = 'fa-solid fa-shield-halved status-spinner-icon text-gold';
       if (statusPill) {
         statusPill.innerHTML = '<i class="fa-solid fa-circle-check"></i> ชำระเงินเรียบร้อยแล้ว (คุ้มครองใน Escrow)';
         statusPill.style.background = 'rgba(16, 185, 129, 0.2)';
@@ -5545,9 +5709,9 @@ function updatePaymentUIState(status, meta = {}) {
 
 function executeEscrowFundingSuccess(meta = {}) {
   const targetOrderId = meta.orderId || currentCheckoutOrderId || 'ORD-AUC-02';
-  const txId = meta.txId || ('TX-' + Math.floor(100000000 + Math.random() * 900000000));
+  const txId = meta.txId || (isMockPaymentActive() ? getActiveMockTransactionId() : ('TX-' + Math.floor(100000000 + Math.random() * 900000000)));
 
-  // Guard against duplicate execution
+  // Guard against duplicate execution for this transaction ID
   if (processedPaymentTransactions.has(txId)) {
     return;
   }
@@ -5580,8 +5744,8 @@ function executeEscrowFundingSuccess(meta = {}) {
     overlay.style.display = 'flex';
   }
 
-  // 2-second automatic redirect
-  let secondsLeft = 2;
+  // 4-second automatic redirect giving ample time for developer to Reset or let redirect
+  let secondsLeft = 4;
   const countdownEl = document.getElementById('redirectCountdown');
   if (countdownEl) countdownEl.textContent = secondsLeft;
 
@@ -5642,6 +5806,11 @@ function handleIncomingPaymentPayload(payload) {
 }
 
 function simulateBackendPaymentWebhook(orderId) {
+  if (!isMockPaymentActive()) {
+    console.warn('Simulation webhook is not permitted in Real / Production Mode.');
+    return;
+  }
+
   const targetId = orderId || currentCheckoutOrderId || 'ORD-AUC-02';
   if (isPaymentSimulationRunning) {
     showToast('⚠️ ระบบกำลังจำลอง Webhook อยู่ กรุณารอสักครู่');
@@ -5655,8 +5824,10 @@ function simulateBackendPaymentWebhook(orderId) {
     btnSim.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>กำลังรับส่ง Webhook จาก Gateway...</span>';
   }
 
-  const generatedTxId = 'TX-' + Math.floor(100000000 + Math.random() * 900000000);
-  showToast('⚡ ได้รับสัญญาณ Webhook จำลองจาก Payment Gateway (Bank Event Received)');
+  const generatedTxId = getActiveMockTransactionId();
+  showToast(`⚡ ได้รับสัญญาณ Webhook จำลองจาก Payment Gateway [${generatedTxId}]`);
+
+  clearPaymentSimulationTimeouts();
 
   // Step 1: PAYMENT_DETECTED
   dispatchPaymentWebhookEvent({
@@ -5667,7 +5838,7 @@ function simulateBackendPaymentWebhook(orderId) {
   });
 
   // Step 2: PAYMENT_VERIFIED after 1200ms
-  setTimeout(() => {
+  const t1 = setTimeout(() => {
     dispatchPaymentWebhookEvent({
       orderId: targetId,
       status: PAYMENT_STATUS_ENUM.PAYMENT_VERIFIED,
@@ -5675,9 +5846,10 @@ function simulateBackendPaymentWebhook(orderId) {
       timestamp: Date.now()
     });
   }, 1200);
+  paymentSimulationTimeouts.push(t1);
 
   // Step 3: ESCROW_FUNDED after 2400ms
-  setTimeout(() => {
+  const t2 = setTimeout(() => {
     dispatchPaymentWebhookEvent({
       orderId: targetId,
       status: PAYMENT_STATUS_ENUM.ESCROW_FUNDED,
@@ -5686,6 +5858,85 @@ function simulateBackendPaymentWebhook(orderId) {
     });
     isPaymentSimulationRunning = false;
   }, 2400);
+  paymentSimulationTimeouts.push(t2);
+}
+
+function resetMockPaymentFlow() {
+  if (!isMockPaymentActive()) {
+    console.warn('Mock payment reset is only allowed in Mock / Development Mode.');
+    return;
+  }
+
+  // 1. Cancel any active simulation & timeouts
+  clearPaymentSimulationTimeouts();
+  isPaymentSimulationRunning = false;
+
+  // 2. Clear any active redirect interval
+  if (paymentRedirectInterval) {
+    clearInterval(paymentRedirectInterval);
+    paymentRedirectInterval = null;
+  }
+
+  // 3. Hide the success modal if visible
+  const overlay = document.getElementById('paymentSuccessOverlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+
+  // 4. Generate NEW Mock Transaction ID (e.g. MOCK-PAYMENT-002)
+  currentMockTransactionId = generateNextMockTransactionId();
+
+  // 5. Clean up mock order state in localStorage so it's not locked to PAID
+  const targetId = currentCheckoutOrderId || 'ORD-AUC-02';
+  resetMockOrderState(targetId);
+
+  // 6. Reset promptpay ref 1 display
+  const qrRef1 = document.getElementById('qrRef1');
+  const numOnly = (targetId || '89241').replace(/[^0-9]/g, '') || '02';
+  if (qrRef1) {
+    qrRef1.textContent = `PAY-${numOnly}-${currentMockTransactionId}`;
+  }
+
+  // 7. Reset developer simulation button
+  const btnSim = document.getElementById('btnSimulateWebhook');
+  if (btnSim) {
+    btnSim.disabled = false;
+    btnSim.innerHTML = '<i class="fa-solid fa-bolt"></i> <span>⚡ จำลอง Webhook จาก Backend (สำหรับทดสอบ)</span>';
+  }
+
+  // 8. Clear processed transactions for mock IDs
+  processedPaymentTransactions.delete(currentMockTransactionId);
+
+  // 9. Remove last payment event from localStorage
+  try {
+    localStorage.removeItem('startass_last_payment_event');
+  } catch (e) {}
+
+  // 10. Reset UI state to WAITING_FOR_PAYMENT
+  updatePaymentUIState(PAYMENT_STATUS_ENUM.WAITING_FOR_PAYMENT, {
+    orderId: targetId,
+    txId: currentMockTransactionId
+  });
+
+  // 11. Ensure real-time listeners are active
+  initPaymentRealtimeListeners(targetId);
+
+  if (typeof showToast === 'function') {
+    showToast(`🔄 รีเซ็ต Mock Flow เรียบร้อย — เริ่ม Mock Transaction ใหม่ [${currentMockTransactionId}]`);
+  }
+}
+
+function renderMockControlUI(isMock) {
+  const devGroup = document.getElementById('mockDevControlsGroup');
+  const btnResetOverlay = document.getElementById('btnResetMockOverlay');
+
+  if (isMock) {
+    if (devGroup) devGroup.style.display = 'flex';
+    if (btnResetOverlay) btnResetOverlay.style.display = 'inline-flex';
+  } else {
+    if (devGroup) devGroup.style.display = 'none';
+    if (btnResetOverlay) btnResetOverlay.style.display = 'none';
+  }
 }
 
 function dispatchPaymentWebhookEvent(payload) {

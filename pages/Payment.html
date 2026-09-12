@@ -70,7 +70,7 @@
               <div class="notification-header-title">
                 <i class="fa-solid fa-bell" style="color: var(--accent-gold);"></i>
                 <span>การแจ้งเตือน</span>
-                <span class="notification-count-tag" id="notificationCountTag">0 รายการใหม่</span>
+                <span class="notification-count-tag" id="notificationCountTag">0 ข้อความใหม่</span>
               </div>
               <button type="button" class="btn-clear-notifications" onclick="markAllNotificationsRead(event)" title="ทำเครื่องหมายว่าอ่านแล้วทั้งหมด">
                 <i class="fa-solid fa-check-double"></i> อ่านทั้งหมด
@@ -213,7 +213,7 @@
               <i class="fa-solid fa-qrcode" style="color: var(--accent-gold);"></i>
               <span>ชำระเงินด้วย PromptPay QR</span>
             </h2>
-            <span class="payment-secure-tag"><i class="fa-solid fa-shield-check"></i> ตรวจสอบยอดเงินแบบ Real-time</span>
+            <span class="payment-secure-tag"><i class="fa-solid fa-shield-halved"></i> ตรวจสอบยอดเงินแบบ Real-time</span>
           </div>
 
           <!-- PromptPay QR Container -->
@@ -315,7 +315,7 @@
                 </div>
                 <div class="tracker-connector" id="conn2"></div>
                 <div class="tracker-step" id="stepVerified">
-                  <div class="tracker-dot"><i class="fa-solid fa-badge-check"></i></div>
+                  <div class="tracker-dot"><i class="fa-solid fa-circle-check"></i></div>
                   <span class="tracker-label">ตรวจรับสำเร็จ</span>
                 </div>
                 <div class="tracker-connector" id="conn3"></div>
@@ -327,7 +327,10 @@
 
               <div class="live-status-message-box" id="paymentLiveMessage">
                 <i class="fa-solid fa-circle-notch fa-spin status-spinner-icon" id="statusSpinner"></i>
-                <span id="paymentStatusDescription">ระบบกำลังรอสัญญาณการชำระเงินจากระบบธนาคารแบบ Real-time กรุณาสแกน QR Code ผ่านแอปพลิเคชัน Mobile Banking ของคุณ</span>
+                <div class="status-desc-text-group" id="paymentStatusDescription">
+                  <span class="status-desc-primary">ระบบกำลังรอสัญญาณการชำระเงินจาก Mobile Banking แบบ Real-time</span>
+                  <span class="status-desc-secondary">กรุณาสแกน QR Code ผ่านแอปพลิเคชัน Mobile Banking ของคุณ</span>
+                </div>
               </div>
             </div>
 
@@ -349,17 +352,19 @@
             <a href="ordersdetail.html" class="btn btn-view btn-cancel-pay" id="btnCancelPayment">
               <i class="fa-solid fa-arrow-left"></i> ยกเลิก / กลับไปหน้ารายละเอียดคำสั่งซื้อ
             </a>
-            
-            <div class="payment-live-indicator-pill" id="paymentLiveIndicatorPill">
-              <span class="radar-pulse"></span>
-              <span>กำลังรอการชำระเงินผ่าน Mobile Banking...</span>
-            </div>
 
-            <!-- Developer / QA Simulation Trigger Button -->
-            <button type="button" class="btn-simulate-webhook" id="btnSimulateWebhook" onclick="handleTriggerSimulationWebhook()" title="จำลอง Webhook ยืนยันการชำระเงินจาก Payment Gateway เพื่อทดสอบ Flow แบบ Real-time">
-              <i class="fa-solid fa-bolt"></i>
-              <span>⚡ จำลอง Webhook จาก Backend (สำหรับทดสอบ)</span>
-            </button>
+            <!-- Developer / QA Simulation & Reset Controls -->
+            <div class="mock-dev-controls-group" id="mockDevControlsGroup">
+              <button type="button" class="btn-simulate-webhook" id="btnSimulateWebhook" onclick="handleTriggerSimulationWebhook()" title="จำลอง Webhook ยืนยันการชำระเงินจาก Payment Gateway เพื่อทดสอบ Flow แบบ Real-time">
+                <i class="fa-solid fa-bolt"></i>
+                <span>⚡ จำลอง Webhook จาก Backend (สำหรับทดสอบ)</span>
+              </button>
+
+              <button type="button" class="btn-reset-mock-pay" id="btnResetMockPayment" onclick="resetMockPaymentFlow()" title="รีเซ็ตการทดสอบชำระเงินเพื่อเริ่ม Flow ใหม่อีกครั้ง">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>🔄 รีเซ็ตการทดสอบ (Test Again)</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -489,7 +494,7 @@
         </div>
         <div class="receipt-row">
           <span>สถานะการคุ้มครองยอดเงิน:</span>
-          <strong class="text-emerald"><i class="fa-solid fa-shield-check"></i> พักใน Escrow ส่วนกลางแล้ว</strong>
+          <strong class="text-emerald"><i class="fa-solid fa-shield-halved"></i> พักใน Escrow ส่วนกลางแล้ว</strong>
         </div>
         <div class="receipt-row">
           <span>เวลาที่ทำรายการ:</span>
@@ -502,9 +507,14 @@
         <span>กำลังนำคุณกลับไปยังหน้ารายละเอียดคำสั่งซื้อใน <strong><span id="redirectCountdown">2</span></strong> วินาที...</span>
       </div>
 
-      <button type="button" class="btn btn-bid btn-success-return" onclick="redirectNowToOrderDetail()">
-        <i class="fa-solid fa-arrow-right"></i> ไปยังหน้ารายละเอียดคำสั่งซื้อทันที
-      </button>
+      <div class="success-actions-group">
+        <button type="button" class="btn btn-bid btn-success-return" onclick="redirectNowToOrderDetail()">
+          <i class="fa-solid fa-arrow-right"></i> ไปยังหน้ารายละเอียดคำสั่งซื้อทันที
+        </button>
+        <button type="button" class="btn-reset-mock-overlay" id="btnResetMockOverlay" onclick="resetMockPaymentFlow()">
+          <i class="fa-solid fa-rotate-left"></i> ทดสอบชำระเงินใหม่อีกครั้ง (Reset & Test Again)
+        </button>
+      </div>
     </div>
   </div>
 

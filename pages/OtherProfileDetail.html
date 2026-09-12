@@ -65,7 +65,7 @@
               <div class="notification-header-title">
                 <i class="fa-solid fa-bell" style="color: var(--accent-gold);"></i>
                 <span>การแจ้งเตือน</span>
-                <span class="notification-count-tag" id="notificationCountTag">0 รายการใหม่</span>
+                <span class="notification-count-tag" id="notificationCountTag">0 ข้อความใหม่</span>
               </div>
               <button type="button" class="btn-clear-notifications" onclick="markAllNotificationsRead(event)" title="ทำเครื่องหมายว่าอ่านแล้วทั้งหมด">
                 <i class="fa-solid fa-check-double"></i> อ่านทั้งหมด
@@ -81,7 +81,7 @@
                 <i class="fa-solid fa-bolt"></i>
                 <span>⚡ จำลองการโดนเสนอราคาแซง (Simulate Outbid)</span>
               </button>
-              <button type="button" class="btn-simulate-outbid" onclick="simulateAuctionWon(null, event)" title="จำลองสถานการณ์ชนะการประมูลเพื่อปลดล็อกสิทธิ์ P2P Chat กับผู้ขาย" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #34d399; margin-top: 6px;">
+              <button type="button" class="btn-simulate-outbid btn-simulate-won" onclick="simulateAuctionWon(null, event)" title="จำลองสถานการณ์ชนะการประมูลเพื่อปลดล็อกสิทธิ์ P2P Chat กับผู้ขาย">
                 <i class="fa-solid fa-trophy"></i>
                 <span>⚡ จำลองการชนะประมูล & ปลดล็อกสิทธิ์แชต P2P</span>
               </button>
@@ -151,13 +151,19 @@
       <span class="crumb-active" id="breadcrumbProfileName">โปรไฟล์ผู้ขาย</span>
     </nav>
 
-    <!-- Quick Switcher Bar: Test Multiple Sellers in 1 Click -->
-    <section class="seller-switcher-card">
-      <div class="seller-switcher-title">
-        <i class="fa-solid fa-users"></i>
-        <span>เลือกดูโปรไฟล์ผู้สะสมรายอื่น:</span>
+    <!-- Quick Switcher Bar: Showcase Other Bidders (5 Random Bidders Rotated Every 30s) -->
+    <section class="seller-switcher-card bidder-showcase-section">
+      <div class="seller-switcher-header">
+        <div class="seller-switcher-title">
+          <i class="fa-solid fa-users"></i>
+          <span>เลือกดูโปรไฟล์ผู้ประมูลรายอื่น</span>
+        </div>
+        <div class="bidder-interval-pill" title="สุ่มรายชื่อผู้ประมูลใหม่อัตโนมัติทุก 30 วินาที">
+          <i class="fa-solid fa-arrows-rotate fa-spin-pulse"></i>
+          <span>สุ่มใหม่ทุก 30 วินาที</span>
+        </div>
       </div>
-      <div class="seller-switch-chips" id="sellerSwitchChips">
+      <div class="bidder-cards-grid" id="sellerSwitchChips">
         <!-- Rendered dynamically via renderSellerSwitcherChips() -->
       </div>
     </section>

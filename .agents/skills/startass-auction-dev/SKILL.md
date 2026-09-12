@@ -315,8 +315,71 @@ Every auction item card must incorporate:
   - Filter tabs: `ทั้งหมด (All)`, `กำลังเปิดประมูลสด (Active Live)`, `ปิดการประมูลแล้ว (Ended / Sold)`.
   - Each item card allows instant bidding (`openBidModal`) or detail inspection (`openDetailModal`).
 
+---
 
+## 12. Escrow Payment Checkout Architecture & Real-Time Flow Standards (`pages/Payment.html`)
 
+### A. Strict Text & Element Invariants
+- **Forbidden Terminology**:
+  - Do NOT use `"STARTASS Escrow Vault"` — always use `"ระบบคุ้มครองการชำระเงิน Escrow"`.
+  - Do NOT display `"ค่าบริการจัดส่ง White-Glove พร้อมประกันภัย: ฿0 (ฟรีโปรโมชั่นพิเศษ)"`.
+  - Do NOT display `"รวมภาษีและค่าคุ้มครองแล้ว"`.
+- **Zero Slip Upload Policy**:
+  - Slip upload dropzones, file pickers, slip preview boxes, and manual upload buttons must NEVER be added to the checkout interface. Payment confirmation is driven purely by automated gateway signals.
 
+### B. Single Payment Method Standard: PromptPay QR
+- **Single Method Only**: PromptPay QR is the sole payment channel. Bank transfer forms and wallet balance panels are deprecated and must not be displayed.
+- **QR Presentation Specifications**:
+  - Crisp vector SVG QR frame with central security badge.
+  - Required metadata box:
+    1. Account Name: `STARTASS PAYMENT TRUST CO., LTD.`
+    2. Dynamic Ref 1: `PAY-<orderId>-<rand>` with 1-tap clipboard copy button (`#qrRef1`, `handleCopyQRRef()`).
+    3. Total Amount: Matches Winning Bid formatted with currency badge (`#qrAmountDisplay`).
+  - Action buttons: Download QR code image (`handleDownloadQR()`) and copy reference number.
 
+### C. Real-Time Payment Lifecycle & Security Invariants
+- **Initial State**: Every checkout session must initialize to `WAITING_FOR_PAYMENT` with a pulsating gold radar indicator (`pulse-radar-dot radar-gold`).
+- **Strict Invariant — No Fake Client-Side Success**: The frontend must never auto-complete payments or simulate instant success upon page interaction. The UI must wait for verified external events.
+- **4-Stage Pipeline State Machine**:
+  1. `WAITING_FOR_PAYMENT`: Awaiting buyer mobile banking scan.
+  2. `PAYMENT_DETECTED`: Inbound payment signal detected from banking gateway.
+  3. `PAYMENT_VERIFIED`: HMAC signature and amount validated by gateway.
+  4. `ESCROW_FUNDED`: Funds successfully locked into the central Escrow Vault.
+- **Real-Time Event Architecture**:
+  - Listeners must bind:
+    - `window.addEventListener('startass:payment_event', ...)`
+    - `new BroadcastChannel('startass_payment_channel')`
+    - `window.addEventListener('storage', ...)` (cross-tab fallback)
+- **Escrow Funding Trigger**:
+  - Only when reaching `ESCROW_FUNDED`:
+    1. Check `processedPaymentTransactions` (Set) to ensure idempotency.
+    2. Invoke `confirmEscrowPayment(orderId, 'PromptPay QR Code')`.
+    3. Update order status in `localStorage` to `PAID` with shipping status `AWAITING_SHIPMENT`.
+    4. Unlock seller tracking number input in P2P chat (`chat.html`).
+    5. Trigger in-app notification bell update.
+    6. Render `#paymentSuccessOverlay` with Transaction ID, Amount, and Escrow Guarantee status, followed by an automated 2-second countdown redirect to `ordersdetail.html`.
 
+### D. QA / Developer Webhook Simulator & Mock Reset Standards
+- **Mock Mode vs Real Mode Isolation**:
+  - `isMockPaymentActive()`: Determines whether mock test mode is active (default in prototype/development). In real production (`window.__STARTASS_IS_PROD__ = true` or `?mock=false`), all simulation triggers, mock reset buttons, and client-side webhook simulation are strictly disabled. Real mode relies purely on authenticated gateway webhooks and server state.
+- **Repeatable Testing & Fresh Transaction IDs**:
+  - Every page load/reload or reset in Mock Mode generates a sequential, unique transaction ID (e.g., `MOCK-PAYMENT-001`, `MOCK-PAYMENT-002`, `MOCK-PAYMENT-003`).
+  - Reloading/refreshing the page never locks into `ESCROW_FUNDED`; it always initializes cleanly to `WAITING_FOR_PAYMENT`.
+- **Mock Reset Architecture (`resetMockPaymentFlow()`)**:
+  - Developer action buttons (`#btnResetMockPayment` on payment card and `#btnResetMockOverlay` in success modal) allow resetting the test flow at any time without manual browser cache clearing.
+  - Aborts in-flight simulation timeouts (`paymentSimulationTimeouts`).
+  - Clears auto-redirect interval (`paymentRedirectInterval`).
+  - Hides success modal.
+  - Generates next sequential Mock Transaction ID.
+  - Resets order `paymentStatus` back to `UNPAID` in mock storage.
+  - Re-enables simulator trigger (`#btnSimulateWebhook`).
+  - Resets UI back to `WAITING_FOR_PAYMENT` with gold pulsing radar and waiting code tag.
+- **Webhook Simulator (`simulateBackendPaymentWebhook`)**:
+  - Dispatches genuine `CustomEvent` and `BroadcastChannel` messages across the 3 subsequent states (`PAYMENT_DETECTED` → `PAYMENT_VERIFIED` → `ESCROW_FUNDED`), testing the authentic event pipeline with full timing separation.
+
+### E. Responsive Standards for Payment (Down to 320px)
+- **`> 980px`**: 2-Column grid layout (`1.25fr 0.75fr`).
+- **`<= 980px`**: Single column with sticky financial summary re-ordered to top (`order: -1`).
+- **`<= 768px`**: Flow pipeline transforms to scrollable touch ribbon (`overflow-x: auto`), action buttons become stacked full-width.
+- **`<= 580px`**: QR Code presentation stacks vertically; metadata fields wrap safely.
+- **`<= 360px` (down to 320px)**: Compact QR SVG (140px), minimal padding (8–12px), touch targets >= 44px, zero horizontal overflow.

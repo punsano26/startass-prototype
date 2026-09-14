@@ -130,7 +130,7 @@ Every auction item card must incorporate:
 
 ### A. Dedicated Orders List Page (`pages/orders.html`)
 - **Route**: `pages/orders.html` serves as the primary hub for reviewing all user orders, active bids, and won items before drilling down into specific order details.
-- **Hero Card (`.orders-list-hero-card`)**: Escrow protection banner with interactive KPI counters (`.stat-pending`, `.stat-paid`) that filter cards on click.
+- **Hero Card (`.orders-list-hero-card`)**: Clean header with title, description, and interactive KPI counters (`.stat-pending`, `.stat-paid`) that filter cards on click. (Note: `.orders-hero-pill` / "STARTASS Escrow Protection" badge has been removed).
 - **Filter Tabs Bar (`.orders-filter-bar`)**: Filter tabs (`ทั้งหมด`, `กำลังรอชำระเงิน`, `ชำระเงินแล้ว`, `กำลังร่วมประมูล`) with active pills and real-time counts.
 - **Order Cards Grid (`.my-orders-grid`)**: Clean, responsive cards with status badges, product thumbnail, title, seller (@nickname), and context-aware action buttons:
   - Pending Payment: Direct "ชำระเงิน" (`Payment.html?orderId=...`) + "รายละเอียด" (`ordersdetail.html?id=...`).

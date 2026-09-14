@@ -4273,9 +4273,6 @@ function renderOrdersList(filterTab = 'all') {
     <!-- Orders List Hero Card -->
     <div class="orders-list-hero-card">
       <div class="orders-hero-content">
-        <div class="orders-hero-pill">
-          <i class="fa-solid fa-shield-halved"></i> STARTASS Escrow Protection
-        </div>
         <h1 class="orders-hero-title">คำสั่งซื้อของฉัน <span>(My Orders)</span></h1>
         <p class="orders-hero-sub">
           ตรวจสอบและจัดการรายการคำสั่งซื้อที่ชนะการประมูล ชำระเงินค่าสินค้าผ่านระบบคุ้มครอง Escrow ปลอดภัย 100% และประสานงานจัดส่งแบบ White-Glove

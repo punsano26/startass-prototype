@@ -130,7 +130,9 @@ Every auction item card must incorporate:
 
 ### A. Dedicated Orders List Page (`pages/orders.html`)
 - **Route**: `pages/orders.html` serves as the primary hub for reviewing all user orders, active bids, and won items before drilling down into specific order details.
-- **Hero Card (`.orders-list-hero-card`)**: Clean header with title, description, and interactive KPI counters (`.stat-pending`, `.stat-paid`) that filter cards on click. (Note: `.orders-hero-pill` / "STARTASS Escrow Protection" badge has been removed).
+- **Hero Card (`.orders-list-hero-card`)**: 
+  - Clean header layout displaying only the title (`คำสั่งซื้อของฉัน (My Orders)`), concise description, and interactive KPI badges (`.stat-pending`, `.stat-paid`).
+  - **Strict Invariant**: NEVER render `.orders-hero-pill` or `"STARTASS Escrow Protection"` badge above the hero title.
 - **Filter Tabs Bar (`.orders-filter-bar`)**: Filter tabs (`ทั้งหมด`, `กำลังรอชำระเงิน`, `ชำระเงินแล้ว`, `กำลังร่วมประมูล`) with active pills and real-time counts.
 - **Order Cards Grid (`.my-orders-grid`)**: Clean, responsive cards with status badges, product thumbnail, title, seller (@nickname), and context-aware action buttons:
   - Pending Payment: Direct "ชำระเงิน" (`Payment.html?orderId=...`) + "รายละเอียด" (`ordersdetail.html?id=...`).
@@ -138,14 +140,20 @@ Every auction item card must incorporate:
   - Winning: Direct "ผู้นำราคา (ดูรายละเอียด)" (`ordersdetail.html?id=...`).
   - Outbid: Direct "เสนอราคาเพิ่ม" (`openBidModal(...)`) + "รายละเอียด" (`ordersdetail.html?id=...`).
 
-### B. Bid Button Transition & Active Bid State
+### B. Global Navigation & Menu Invariants
+- **Navbar Button (`#navOrdersBtn`, `.btn-orders-nav`)**: Must always link to `orders.html` on every page across the platform (`HomePage.html`, `orders.html`, `ordersdetail.html`, `chat.html`, `MyProfileDetails.html`, `OtherProfileDetail.html`, `Payment.html`).
+- **Profile Dropdown Link**: "คำสั่งซื้อ & รายการประมูลของฉัน (My Orders)" must link to `orders.html`.
+
+### C. Bid Button Transition & Active Bid State
 - When a user submits a bid on an auction card on `HomePage.html`:
   - The card's primary action button changes to an emerald-highlighted active bid button (`.btn-bid-active`), displaying:
     `<i class="fa-solid fa-circle-check"></i> Bid Active: $XX,XXX <small>(View Order)</small>`
   - Alongside it, an icon button (`.btn-raise-bid`) is provided so users can increase their bid at any time.
   - Clicking `.btn-bid-active` routes directly to `pages/ordersdetail.html?id=<itemId>`.
 
-### C. Orders Detail Page Architecture (`pages/ordersdetail.html`)
+### D. Orders Detail Page Architecture (`pages/ordersdetail.html`)
+- **Single-Order Inspection**: Dedicated strictly to viewing details of an individual order (`?id=<orderId>`).
+- **Fallback Guard**: If accessed directly without an `id` or `orderId` parameter, `initOrderDetailPage()` must automatically redirect to `orders.html`.
 - **Order Switcher**: Header strip (`.order-switcher-container`) allowing bidders with multiple bids/orders to switch active inspection views with 1-click chips (`.order-chip`), along with a direct return link to the full orders list (`.btn-back-to-list` -> `orders.html`).
 - **Breadcrumbs**: Full navigation hierarchy: `หน้าแรก` -> `คำสั่งซื้อของฉัน (orders.html)` -> `คำสั่งซื้อ #...`.
 - **Header Status Banner**: Displays Order ID, Status Enum Badge (`WINNING`, `OUTBID`, `WON`, `ENDED`), and timestamps (`Placed at` and `Updated at`).
@@ -161,7 +169,7 @@ Every auction item card must incorporate:
 ## 7. Outbid Notification & Navbar Bell Standards
 
 ### A. Navbar Notification Bell (`.notification-dropdown-wrapper`)
-- Integrated in the platform navbar on all views (`HomePage.html`, `ordersdetail.html`).
+- Integrated in the platform navbar on all views (`HomePage.html`, `orders.html`, `ordersdetail.html`, `chat.html`, `MyProfileDetails.html`, `OtherProfileDetail.html`, `Payment.html`).
 - **Bell Button (`.notification-btn`)**: Touch-friendly 42x42px icon button with hover glow and dynamic ringing animation (`@keyframes bellWiggle`) when unread alerts exist.
 - **Pulsing Badge (`.notification-badge`)**: Displays unread count with high-contrast red gradient (`#ef4444` to `#dc2626`) and soft pulse animation.
 - **Dropdown Architecture (`.notification-dropdown-menu`)**:

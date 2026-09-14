@@ -126,17 +126,28 @@ Every auction item card must incorporate:
 
 ---
 
-## 6. Orders Detail Page & Bidding Flow Standards
+## 6. Orders List & Orders Detail Architecture (`pages/orders.html` & `pages/ordersdetail.html`)
 
-### A. Bid Button Transition & Active Bid State
+### A. Dedicated Orders List Page (`pages/orders.html`)
+- **Route**: `pages/orders.html` serves as the primary hub for reviewing all user orders, active bids, and won items before drilling down into specific order details.
+- **Hero Card (`.orders-list-hero-card`)**: Escrow protection banner with interactive KPI counters (`.stat-pending`, `.stat-paid`) that filter cards on click.
+- **Filter Tabs Bar (`.orders-filter-bar`)**: Filter tabs (`ทั้งหมด`, `กำลังรอชำระเงิน`, `ชำระเงินแล้ว`, `กำลังร่วมประมูล`) with active pills and real-time counts.
+- **Order Cards Grid (`.my-orders-grid`)**: Clean, responsive cards with status badges, product thumbnail, title, seller (@nickname), and context-aware action buttons:
+  - Pending Payment: Direct "ชำระเงิน" (`Payment.html?orderId=...`) + "รายละเอียด" (`ordersdetail.html?id=...`).
+  - Paid: Direct "แชตกับผู้ขาย" (`chat.html?orderId=...`) + "รายละเอียด" (`ordersdetail.html?id=...`).
+  - Winning: Direct "ผู้นำราคา (ดูรายละเอียด)" (`ordersdetail.html?id=...`).
+  - Outbid: Direct "เสนอราคาเพิ่ม" (`openBidModal(...)`) + "รายละเอียด" (`ordersdetail.html?id=...`).
+
+### B. Bid Button Transition & Active Bid State
 - When a user submits a bid on an auction card on `HomePage.html`:
   - The card's primary action button changes to an emerald-highlighted active bid button (`.btn-bid-active`), displaying:
     `<i class="fa-solid fa-circle-check"></i> Bid Active: $XX,XXX <small>(View Order)</small>`
   - Alongside it, an icon button (`.btn-raise-bid`) is provided so users can increase their bid at any time.
   - Clicking `.btn-bid-active` routes directly to `pages/ordersdetail.html?id=<itemId>`.
 
-### B. Orders Detail Page Architecture (`pages/ordersdetail.html`)
-- **Order Switcher**: Header strip (`.order-switcher-container`) allowing bidders with multiple bids/orders to switch active inspection views with 1-click chips (`.order-chip`).
+### C. Orders Detail Page Architecture (`pages/ordersdetail.html`)
+- **Order Switcher**: Header strip (`.order-switcher-container`) allowing bidders with multiple bids/orders to switch active inspection views with 1-click chips (`.order-chip`), along with a direct return link to the full orders list (`.btn-back-to-list` -> `orders.html`).
+- **Breadcrumbs**: Full navigation hierarchy: `หน้าแรก` -> `คำสั่งซื้อของฉัน (orders.html)` -> `คำสั่งซื้อ #...`.
 - **Header Status Banner**: Displays Order ID, Status Enum Badge (`WINNING`, `OUTBID`, `WON`, `ENDED`), and timestamps (`Placed at` and `Updated at`).
 - **Product Gallery**: Main image preview (`#orderMainImg`) with clickable thumbnail gallery (`.order-gallery-thumb`) for switching photos.
 - **Seller Card**: Displays seller verified badge, trust rating, and Seller Nickname formatted with brackets: `[ @SellerNickname ]`.

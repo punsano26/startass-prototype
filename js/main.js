@@ -985,6 +985,9 @@ function simulateOutbid(event) {
   if (document.getElementById('auctionGrid')) {
     renderCards();
   }
+  if (document.getElementById('ordersContainer')) {
+    renderOrdersList(currentOrdersFilterTab);
+  }
   if (document.getElementById('orderDetailContainer') && currentSelectedOrder) {
     renderOrderDetail(currentSelectedOrder.orderId);
   }
@@ -1571,7 +1574,10 @@ function submitBid() {
   closeBidModal();
   renderCards();
 
-  // If on ordersdetail.html, refresh view immediately
+  // If on orders.html or ordersdetail.html, refresh view immediately
+  if (document.getElementById('ordersContainer')) {
+    renderOrdersList(currentOrdersFilterTab);
+  }
   if (document.getElementById('orderDetailContainer')) {
     renderOrderDetail(orderId);
   }
@@ -3836,12 +3842,10 @@ function simulateAuctionWon(orderId, event) {
   // Switch to chat tab or select standalone chat or re-render order view
   if (document.getElementById('standaloneChatContainer')) {
     selectStandaloneChat(targetOrder.orderId);
+  } else if (document.getElementById('ordersContainer')) {
+    renderOrdersList(currentOrdersFilterTab);
   } else if (document.getElementById('orderDetailContainer')) {
-    if (typeof currentOrdersViewMode !== 'undefined' && currentOrdersViewMode === 'list') {
-      renderOrdersList(currentOrdersFilterTab);
-    } else {
-      renderOrderDetail(targetOrder.orderId);
-    }
+    renderOrderDetail(targetOrder.orderId);
   } else {
     openSellerP2PChat(targetOrder.orderId);
   }
@@ -4103,6 +4107,39 @@ function navigateToOrderChat(itemId) {
 let currentOrdersViewMode = 'list'; // 'list' | 'detail'
 let currentOrdersFilterTab = 'all'; // 'all' | 'pending' | 'paid' | 'bidding'
 
+function initOrdersPage() {
+  const container = document.getElementById('ordersContainer');
+  if (!container) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetTab = urlParams.get('tab') || 'all';
+
+  const orders = loadOrders();
+  if (orders.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="display:block; padding: 80px 20px; text-align: center;">
+        <i class="fa-solid fa-receipt" style="font-size: 3.5rem; color: #f59e0b; margin-bottom: 20px;"></i>
+        <h3 style="font-size: 1.5rem; margin-bottom: 10px;">ยังไม่มีคำสั่งซื้อหรือรายการเสนอราคาของคุณ</h3>
+        <p style="color: #94a3b8; max-width: 500px; margin: 0 auto 24px;">คุณยังไม่ได้ร่วมประมูลในรายการใด ลองเลือกชมสินค้าและเริ่มวางข้อเสนอราคาเพื่อดูสถานะคำสั่งซื้อที่นี่</p>
+        <a href="HomePage.html" class="btn btn-order-raise" style="display: inline-flex; align-items: center; gap: 8px; width: auto;">
+          <i class="fa-solid fa-arrow-left"></i> ไปยังหน้าประมูลหลัก (Explore Auctions)
+        </a>
+      </div>
+    `;
+    return;
+  }
+
+  currentOrdersViewMode = 'list';
+  currentOrdersFilterTab = targetTab;
+  renderOrdersList(targetTab);
+
+  if (urlParams.get('payment') === 'success' || urlParams.get('paid') === '1') {
+    setTimeout(() => {
+      showToast('🎉 ดำเนินการชำระเงินสำเร็จ! เงินเข้าสู่ระบบคุ้มครอง Escrow ปลอดภัย 100%');
+    }, 450);
+  }
+}
+
 function initOrderDetailPage() {
   const container = document.getElementById('orderDetailContainer');
   if (!container) return;
@@ -4114,6 +4151,12 @@ function initOrderDetailPage() {
 
   if (targetTab === 'chat') {
     window.location.href = `chat.html?orderId=${encodeURIComponent(targetId || 'ORD-AUC-02')}`;
+    return;
+  }
+
+  // If view is explicitly 'list' or no ID was provided on bare ordersdetail.html, redirect to orders.html
+  if (targetView === 'list' || (!targetId && !urlParams.toString())) {
+    window.location.href = 'orders.html';
     return;
   }
 
@@ -4132,14 +4175,9 @@ function initOrderDetailPage() {
     return;
   }
 
-  // If a specific ID is present and view is not explicitly forced to 'list', show detail
-  if (targetId && targetView !== 'list') {
-    currentOrdersViewMode = 'detail';
-    renderOrderDetail(targetId);
-  } else {
-    currentOrdersViewMode = 'list';
-    renderOrdersList(currentOrdersFilterTab);
-  }
+  const effectiveId = targetId || orders[0].orderId;
+  currentOrdersViewMode = 'detail';
+  renderOrderDetail(effectiveId);
 
   if (urlParams.get('payment') === 'success' || urlParams.get('paid') === '1') {
     setTimeout(() => {
@@ -4151,17 +4189,16 @@ function initOrderDetailPage() {
 // Global popstate listener for back/forward browser buttons
 if (typeof window !== 'undefined') {
   window.addEventListener('popstate', (event) => {
-    const container = document.getElementById('orderDetailContainer');
-    if (!container) return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const targetId = urlParams.get('id') || urlParams.get('orderId');
-    if (targetId && urlParams.get('view') !== 'list') {
-      currentOrdersViewMode = 'detail';
-      renderOrderDetail(targetId);
-    } else {
-      currentOrdersViewMode = 'list';
-      renderOrdersList(currentOrdersFilterTab);
+    const detailContainer = document.getElementById('orderDetailContainer');
+    if (detailContainer) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetId = urlParams.get('id') || urlParams.get('orderId');
+      if (targetId) {
+        currentOrdersViewMode = 'detail';
+        renderOrderDetail(targetId);
+      } else {
+        window.location.href = 'orders.html';
+      }
     }
   });
 }
@@ -4169,19 +4206,18 @@ if (typeof window !== 'undefined') {
 function switchOrdersView(mode, orderId) {
   currentOrdersViewMode = mode;
   if (mode === 'detail' && orderId) {
-    try {
-      const newUrl = `${window.location.pathname}?id=${encodeURIComponent(orderId)}`;
-      window.history.pushState({ orderId, view: 'detail' }, '', newUrl);
-    } catch (e) {}
-    renderOrderDetail(orderId);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (document.getElementById('orderDetailContainer')) {
+      try {
+        const newUrl = `ordersdetail.html?id=${encodeURIComponent(orderId)}`;
+        window.history.pushState({ orderId, view: 'detail' }, '', newUrl);
+      } catch (e) {}
+      renderOrderDetail(orderId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.location.href = `ordersdetail.html?id=${encodeURIComponent(orderId)}`;
+    }
   } else {
-    try {
-      const newUrl = window.location.pathname;
-      window.history.pushState({ view: 'list' }, '', newUrl);
-    } catch (e) {}
-    renderOrdersList(currentOrdersFilterTab);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.location.href = 'orders.html';
   }
 }
 
@@ -4191,7 +4227,7 @@ function filterOrdersTab(tab) {
 }
 
 function renderOrdersList(filterTab = 'all') {
-  const container = document.getElementById('orderDetailContainer');
+  const container = document.getElementById('ordersContainer') || document.getElementById('orderDetailContainer');
   if (!container) return;
 
   currentOrdersViewMode = 'list';
@@ -4340,33 +4376,33 @@ function renderSingleOrderCardHTML(order) {
         <i class="fa-solid fa-credit-card"></i>
         <span>ชำระเงิน</span>
       </a>
-      <button type="button" class="btn-order-action-detail" onclick="switchOrdersView('detail', '${order.orderId}')" title="ดูรายละเอียดคำสั่งซื้อ">
+      <a href="ordersdetail.html?id=${encodeURIComponent(order.orderId)}" class="btn-order-action-detail" title="ดูรายละเอียดคำสั่งซื้อ">
         <i class="fa-solid fa-file-invoice"></i> รายละเอียด
-      </button>
+      </a>
     `;
   } else if (isPaid) {
     actionsHtml = `
       <button type="button" class="btn-order-action-p2p" onclick="openSellerP2PChat('${order.orderId}')" title="เปิดห้องแชตคุยกับผู้ขายโดยตรง">
         <i class="fa-solid fa-comments"></i> แชตกับผู้ขาย
       </button>
-      <button type="button" class="btn-order-action-detail" onclick="switchOrdersView('detail', '${order.orderId}')" title="ดูรายละเอียดคำสั่งซื้อ">
+      <a href="ordersdetail.html?id=${encodeURIComponent(order.orderId)}" class="btn-order-action-detail" title="ดูรายละเอียดคำสั่งซื้อ">
         <i class="fa-solid fa-file-lines"></i> รายละเอียด
-      </button>
+      </a>
     `;
   } else if (isWinning) {
     actionsHtml = `
-      <button type="button" class="btn-order-action-detail btn-full" onclick="switchOrdersView('detail', '${order.orderId}')" title="ดูสถานะการประมูล">
+      <a href="ordersdetail.html?id=${encodeURIComponent(order.orderId)}" class="btn-order-action-detail btn-full" title="ดูสถานะการประมูล">
         <i class="fa-solid fa-shield-halved"></i> ผู้นำราคา (ดูรายละเอียด)
-      </button>
+      </a>
     `;
   } else {
     actionsHtml = `
       <button type="button" class="btn-order-action-raise" onclick="openBidModal('${order.itemId}')" title="คุณโดนแซงราคา! เสนอราคาเพิ่มเพื่อกลับมาเป็นผู้นำ">
         <i class="fa-solid fa-arrow-trend-up"></i> เสนอราคาเพิ่ม
       </button>
-      <button type="button" class="btn-order-action-detail" onclick="switchOrdersView('detail', '${order.orderId}')" title="ดูรายละเอียด">
+      <a href="ordersdetail.html?id=${encodeURIComponent(order.orderId)}" class="btn-order-action-detail" title="ดูรายละเอียด">
         <i class="fa-solid fa-file-lines"></i> รายละเอียด
-      </button>
+      </a>
     `;
   }
 
@@ -4516,7 +4552,7 @@ function renderOrderDetail(orderId) {
     <nav class="order-breadcrumbs" aria-label="Breadcrumb">
       <a href="HomePage.html"><i class="fa-solid fa-house"></i> หน้าแรก</a>
       <span class="crumb-sep">/</span>
-      <button type="button" class="breadcrumb-link-btn" onclick="switchOrdersView('list')"><i class="fa-solid fa-receipt"></i> คำสั่งซื้อของฉัน</button>
+      <a href="orders.html" class="breadcrumb-link-btn" style="text-decoration: none;"><i class="fa-solid fa-receipt"></i> คำสั่งซื้อของฉัน</a>
       <span class="crumb-sep">/</span>
       <span class="crumb-active">คำสั่งซื้อ #${order.orderId}</span>
     </nav>
@@ -4527,9 +4563,9 @@ function renderOrderDetail(orderId) {
         <span class="order-switcher-title">
           <i class="fa-solid fa-layer-group"></i> รายการคำสั่งซื้อของคุณ (${orders.length})
         </span>
-        <button type="button" class="btn-back-to-list" onclick="switchOrdersView('list')" title="กลับไปดูมุมมองรายการคำสั่งซื้อทั้งหมด">
+        <a href="orders.html" class="btn-back-to-list" title="กลับไปดูรายการคำสั่งซื้อทั้งหมด">
           <i class="fa-solid fa-table-cells-large"></i> ดูแบบรายการทั้งหมด
-        </button>
+        </a>
       </div>
       <div class="order-chips-scroll">
         ${chipsHtml}
@@ -6570,6 +6606,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCategoryFilters();
     updateStatsRibbon();
     setupImageDropZone();
+  }
+
+  if (document.getElementById('ordersContainer')) {
+    initOrdersPage();
   }
 
   if (document.getElementById('orderDetailContainer')) {

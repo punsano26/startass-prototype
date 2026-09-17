@@ -246,6 +246,10 @@ ReportUserModal.submit(event);
 | `#detailStartDate` | Auction start date/time |
 | `#detailStartPrice` | Minimum reserve starting price (highlighted) |
 | `#detailEndDate` | Auction conclusion date/time |
+| `#detailParticipantsSection` | Live auction participants war room battle section |
+| `#detailParticipantsCount` | Total active competitors badge count |
+| `#detailTotalBidsTag` | Cumulative total bids placed counter |
+| `#detailParticipantsList` | Dynamic list of active bidders, rankings, intensity pills, and highest bids |
 | `#detailModalBidBtn` | Dynamic bidding CTA with lock guards |
 
 ### `AuctionBidModal` Elements (`#bidModal`)

@@ -991,6 +991,9 @@ function simulateOutbid(event) {
   if (document.getElementById('orderDetailContainer') && currentSelectedOrder) {
     renderOrderDetail(currentSelectedOrder.orderId);
   }
+  if (selectedItemForDetail && selectedItemForDetail.id === targetItem.id) {
+    renderDetailParticipants(targetItem);
+  }
 
   // Trigger high-priority outbid alert toast with action button
   showOutbidAlertToast(newNotif);
@@ -1582,6 +1585,11 @@ function submitBid() {
     renderOrderDetail(orderId);
   }
 
+  // If Detail Modal is open for this item, refresh participants list
+  if (selectedItemForDetail && selectedItemForDetail.id === selectedItemForBid.id) {
+    renderDetailParticipants(selectedItemForDetail);
+  }
+
   showToast(`เสนอราคาสำเร็จ: ${formatCurrency(newAmount)} สำหรับ ${selectedItemForBid.title}! อัปเดตคำสั่งซื้อ #${orderId} เรียบร้อยแล้ว`);
 }
 
@@ -1692,7 +1700,166 @@ function openDetailModal(itemId) {
     }
   }
 
+  // Populate dynamic participants (ผู้เข้าร่วมประมูลดุเดือด)
+  renderDetailParticipants(item);
+
   if (modal) modal.classList.add('open');
+}
+
+/**
+ * Render Live Auction Participants / War Room Battle List
+ * Aggregates bidders, counts bids, detects leader & challengers, and renders intensity status
+ */
+function renderDetailParticipants(item) {
+  const container = document.getElementById('detailParticipantsList');
+  const countTag = document.getElementById('detailParticipantsCount');
+  const totalBidsTag = document.getElementById('detailTotalBidsTag');
+  if (!container) return;
+
+  const history = item.bidHistory || [];
+  const totalBids = item.bidsCount || (history.length > 0 ? history.length : 0);
+
+  if (totalBidsTag) {
+    totalBidsTag.innerHTML = `<i class="fa-solid fa-gavel"></i> ${totalBids.toLocaleString('th-TH')} เคาะ`;
+  }
+
+  if (history.length === 0) {
+    if (countTag) countTag.innerHTML = `<i class="fa-solid fa-users"></i> 0 ผู้ประมูล`;
+    container.innerHTML = `
+      <div class="participant-empty-state">
+        <i class="fa-solid fa-hourglass-half" style="font-size: 1.5rem; color: #f59e0b;"></i>
+        <span>ยังไม่มีผู้ร่วมเสนอราคาในขณะนี้ เป็นคนแรกที่เริ่มเปิดประมูล!</span>
+      </div>
+    `;
+    return;
+  }
+
+  // Aggregate participants by user
+  const participantMap = new Map();
+  history.forEach((b, idx) => {
+    const rawName = b.user || 'ผู้ร่วมประมูล';
+    if (!participantMap.has(rawName)) {
+      participantMap.set(rawName, {
+        name: rawName,
+        highestBid: b.amount,
+        bidsCount: 1,
+        latestTime: b.time || 'เมื่อสักครู่',
+        isLatestBidder: idx === 0
+      });
+    } else {
+      const p = participantMap.get(rawName);
+      p.bidsCount += 1;
+      if (b.amount > p.highestBid) {
+        p.highestBid = b.amount;
+      }
+    }
+  });
+
+  // Sort participants by highest bid descending (Leader is highest)
+  const participants = Array.from(participantMap.values()).sort((a, b) => b.highestBid - a.highestBid);
+
+  if (countTag) {
+    countTag.innerHTML = `<i class="fa-solid fa-users"></i> ${participants.length} ผู้ประมูล`;
+  }
+
+  const myProfile = typeof loadMyProfile === 'function' ? loadMyProfile() : null;
+
+  const getAvatar = (name) => {
+    const isMe = name.includes('Alexander Sterling') || name.includes('(คุณ)');
+    if (isMe && myProfile && myProfile.avatar) {
+      return myProfile.avatar;
+    }
+    if (name.includes('ApexMotors')) {
+      return 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=120&q=80';
+    }
+    if (name.includes('Kyoto') || name.includes('Poke')) {
+      return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80';
+    }
+    if (name.includes('VintageVault') || name.includes('Geneva')) {
+      return 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80';
+    }
+    if (name.includes('Stuttgart')) {
+      return 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80';
+    }
+    if (name.includes('Siam') || name.includes('Somdej') || name.includes('Amulet')) {
+      return 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80';
+    }
+    const fallbackList = [
+      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
+      'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=120&q=80',
+      'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=120&q=80',
+      'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80',
+      'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=120&q=80'
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return fallbackList[Math.abs(hash) % fallbackList.length];
+  };
+
+  container.innerHTML = participants.map((p, idx) => {
+    const isLeader = idx === 0;
+    const isChallenger = idx === 1;
+    const isMe = p.name.includes('Alexander Sterling') || p.name.includes('(คุณ)');
+
+    let itemClasses = 'participant-item';
+    let rankBadgeHtml = '';
+    let statusBadgeHtml = '';
+
+    if (isLeader) {
+      itemClasses += ' is-leader';
+      rankBadgeHtml = `<span class="participant-rank-badge rank-1" title="ผู้นำราคาอันดับ 1"><i class="fa-solid fa-crown"></i> ผู้นำราคา</span>`;
+      statusBadgeHtml = `<span class="participant-status-tag tag-leader"><i class="fa-solid fa-fire"></i> ครองราคาสูงสุด</span>`;
+    } else if (isChallenger) {
+      itemClasses += ' is-challenger';
+      rankBadgeHtml = `<span class="participant-rank-badge rank-2" title="ผู้ท้าชิงอันดับ 2"><i class="fa-solid fa-medal"></i> อันดับ 2</span>`;
+      statusBadgeHtml = `<span class="participant-status-tag tag-challenger"><i class="fa-solid fa-shield-halved"></i> ผู้ท้าชิงหลัก</span>`;
+    } else if (idx === 2) {
+      rankBadgeHtml = `<span class="participant-rank-badge rank-3" title="อันดับ 3"><i class="fa-solid fa-award"></i> อันดับ 3</span>`;
+      statusBadgeHtml = `<span class="participant-status-tag tag-normal"><i class="fa-solid fa-gavel"></i> สู้ราคา</span>`;
+    } else {
+      rankBadgeHtml = `<span class="participant-rank-badge rank-other">#${idx + 1}</span>`;
+      statusBadgeHtml = `<span class="participant-status-tag tag-normal"><i class="fa-solid fa-gavel"></i> ผู้ร่วมประมูล</span>`;
+    }
+
+    if (isMe) {
+      itemClasses += ' is-me';
+    }
+
+    const intensityHtml = p.bidsCount > 1
+      ? `<span class="participant-intensity-pill" title="เคาะสู้ราคาไปแล้ว ${p.bidsCount} ครั้ง"><i class="fa-solid fa-bolt"></i> เคาะสู้ ${p.bidsCount} ครั้ง</span>`
+      : `<span class="participant-intensity-pill"><i class="fa-solid fa-check"></i> เสนอราคา</span>`;
+
+    const avatarUrl = getAvatar(p.name);
+
+    return `
+      <div class="${itemClasses}">
+        <div class="participant-left">
+          <div class="participant-avatar-wrap">
+            <img src="${avatarUrl}" alt="${p.name}" class="participant-avatar" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'">
+            ${isLeader ? '<span class="avatar-crown-glow"><i class="fa-solid fa-crown"></i></span>' : ''}
+            <span class="avatar-online-indicator" title="ออนไลน์ในระบบ"></span>
+          </div>
+          <div class="participant-info">
+            <div class="participant-name-row">
+              <span class="participant-name ${isMe ? 'highlight-me' : ''}" title="${p.name}">
+                ${p.name}
+              </span>
+              ${rankBadgeHtml}
+            </div>
+            <div class="participant-sub-row">
+              ${statusBadgeHtml}
+              ${intensityHtml}
+              <span class="participant-time"><i class="fa-regular fa-clock"></i> ${p.latestTime}</span>
+            </div>
+          </div>
+        </div>
+        <div class="participant-right">
+          <span class="participant-bid-label">ราคาเสนอสูงสุด</span>
+          <span class="participant-bid-amount">${formatCurrency(p.highestBid)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function switchDetailImage(url, thumbEl) {

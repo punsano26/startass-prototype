@@ -74,6 +74,39 @@
           <span class="value" id="detailEndDate">-</span>
         </div>
       </div>
+
+      <!-- Live Auction Participants / Fierce Bidding War Room (ผู้เข้าร่วมประมูลที่กำลังแข่งขันอย่างดุเดือด) -->
+      <div class="detail-participants-section" id="detailParticipantsSection">
+        <div class="detail-participants-header">
+          <div class="participants-header-left">
+            <div class="participants-title-row">
+              <h4 class="participants-title">
+                <i class="fa-solid fa-fire-flame-curved" style="color: #f97316;"></i>
+                ผู้เข้าร่วมประมูล (Participants)
+              </h4>
+              <span class="participants-battle-badge">
+                <span class="pulse-battle-dot"></span> แข่งขันอย่างดุเดือด
+              </span>
+            </div>
+            <p class="participants-subtitle">
+              อันดับผู้เคาะประมูลสดแบบเรียลไทม์ และสถานะการแข่งขันล่าสุด
+            </p>
+          </div>
+          <div class="participants-header-right">
+            <span class="participants-count-tag" id="detailParticipantsCount">
+              <i class="fa-solid fa-users"></i> 0 ผู้ประมูล
+            </span>
+            <span class="participants-bids-tag" id="detailTotalBidsTag">
+              <i class="fa-solid fa-gavel"></i> 0 เคาะ
+            </span>
+          </div>
+        </div>
+
+        <!-- Dynamic Participants Battle List -->
+        <div class="detail-participants-list" id="detailParticipantsList">
+          <!-- Populated dynamically via JS renderDetailParticipants -->
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-view" onclick="closeDetailModal()">ปิดหน้าต่าง</button>

@@ -27,11 +27,17 @@ This skill provides guidelines and patterns for building and maintaining the Sta
 - **The Issue**: By default, flex items have `min-width: auto;`. When flex items contain unwrapable buttons or long strings, they can refuse to shrink below their content size, forcing the entire page into horizontal overflow on mobile viewports (< 450px).
 - **Rule**: Always specify `min-width: 0; max-width: 100%; width: 100%;` on flex children that wrap text, chips, or inputs.
 
-### B. Search & Category Filter Architecture
-- Keep Search and Category Filters in separate containers:
-  - `.search-bar-wrapper`: Standalone full-width container with search icon, input, and tap-to-clear button (`#clearSearchBtn`).
-  - `.category-filters-container`: Dedicated card with category title and active filter hint.
-  - `.category-filters`: Use `flex-wrap: wrap; gap: 8px; width: 100%; min-width: 0;` so chips flow into 2 neat rows on mobile screens rather than breaking horizontally.
+### B. Navbar Search & Minimal Category Navigation Architecture
+- **Navbar Search Bar (`.navbar-search-wrapper`)**:
+  - Hosted directly inside `.site-navbar .navbar-container`.
+  - Input (`#itemSearch`) triggers a floating popover (`.navbar-search-dropdown`) on focus/click.
+  - Popover hosts full category chips and trending quick-search keywords.
+  - Dismisses cleanly on click-outside or keyboard `Escape`.
+- **Minimal Home Navigation (`.minimal-nav-bar`)**:
+  - Replaces bulky filter cards on `HomePage.html` with a sleek, minimal segmented switcher (`.minimal-segmented-switch`).
+  - Contains ONLY 2 primary tabs: **10 อันดับสูงสุด (`top10`)** & **สินค้ามาใหม่ (`newest`)**.
+  - **Spacing Standard**: Track container `padding: 6px; gap: 6px;`, pill buttons `padding: 8px 18px;`. Avoid double outer borders or cramped buttons.
+  - Search dropdown category selections display a minimal active filter pill (`#activeCategoryChipWrap`) with a 1-click `[✕]` clear action.
 
 ### C. Breakpoint Matrix
 - **`<= 1024px`**: Grid transitions to responsive multi-column.
@@ -92,6 +98,11 @@ Every auction item card must incorporate:
      - Column 3: End Date (`#detailEndDate`, rose/coral icon `#f43f5e`).
      - Stacks to 1 column on mobile (`<= 640px`).
    - Dynamic Bidding CTA Button (`#detailModalBidBtn`) with won/draft/highest-bidder lock guards.
+
+3. **Edit Profile Modal (`EditProfileModal`)**:
+   - Stored in `components/modals/EditProfileModal.html` & `EditProfileModal.js`.
+   - **No URL Text Input**: Uses local file chooser (`<input type="file" id="editAvatarFileInput">` via `FileReader`) + preset avatar selection grid (`.preset-avatar-btn`).
+   - Maintains hidden `#editAvatarUrl` input to store selected Base64 data URL or preset URL.
 
 ---
 

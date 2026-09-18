@@ -1513,11 +1513,17 @@ function handleNavbarCategorySelect(cat) {
   const chip = document.querySelector(`.search-cat-chip[data-category="${cat}"]`);
   if (chip) {
     chip.click();
-  } else {
-    currentCategory = cat;
-    renderCards();
-    closeNavbarSearchDropdown();
+    return;
   }
+  const pageBtn = document.querySelector(`.category-btn[data-category="${cat}"]`);
+  if (pageBtn) {
+    pageBtn.click();
+    closeNavbarSearchDropdown();
+    return;
+  }
+  currentCategory = cat;
+  renderCards();
+  closeNavbarSearchDropdown();
 }
 
 function selectQuickSearch(keyword) {

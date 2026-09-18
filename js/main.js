@@ -1124,6 +1124,14 @@ function renderCards() {
   if (currentCategory === 'top10') {
     // Default mode: ONLY Top 10 highest-value auctions
     filtered = AUCTION_ITEMS.slice(0, 10);
+  } else if (currentCategory === 'newest') {
+    // New arrivals mode: sorted by newly created items / highest ID numeric value first
+    filtered = [...AUCTION_ITEMS].sort((a, b) => {
+      const numA = parseInt(String(a.id).replace(/\D/g, ''), 10) || 0;
+      const numB = parseInt(String(b.id).replace(/\D/g, ''), 10) || 0;
+      if (numB !== numA) return numB - numA;
+      return String(b.id).localeCompare(String(a.id));
+    });
   } else if (currentCategory === 'all') {
     // All categories: all items
     filtered = [...AUCTION_ITEMS];
@@ -1145,6 +1153,8 @@ function renderCards() {
   if (itemsCountEl) {
     if (currentCategory === 'top10') {
       itemsCountEl.textContent = `แสดง ${filtered.length} จาก 10 อันดับการประมูลราคาสูงสุด`;
+    } else if (currentCategory === 'newest') {
+      itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${AUCTION_ITEMS.length} รายการสินค้ามาใหม่`;
     } else if (currentCategory === 'all') {
       itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${AUCTION_ITEMS.length} รายการทั้งหมด`;
     } else {
@@ -1332,40 +1342,110 @@ function updateCountdowns() {
   }
 }
 
-// Filter Categories
+// Filter Categories & Navbar Interactive Search Popover
 function setupCategoryFilters() {
   const buttons = document.querySelectorAll('.category-btn');
+  const navChips = document.querySelectorAll('.search-cat-chip');
   const activeHint = document.getElementById('activeCategoryHint');
   const searchInput = document.getElementById('itemSearch');
   const clearBtn = document.getElementById('clearSearchBtn');
+  const searchWrapper = document.getElementById('navbarSearchWrapper');
 
+  // Page category buttons click
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
-      buttons.forEach(b => {
-        b.classList.remove('active');
-        b.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected', 'true');
-      currentCategory = btn.getAttribute('data-category');
-      
-      if (activeHint) {
-        if (currentCategory === 'top10') {
-          activeHint.textContent = '10 อันดับการประมูลราคาสูงสุด';
-        } else if (currentCategory === 'all') {
-          activeHint.textContent = 'ทุกหมวดหมู่ (รายการประมูลทั้งหมด)';
-        } else {
-          const labelText = btn.textContent.trim().replace(/[0-9]+$/, '').trim();
-          activeHint.textContent = labelText;
-        }
-      }
-
-      renderCards();
+      const cat = btn.getAttribute('data-category');
+      applyCategoryChange(cat);
     });
   });
 
+  // Navbar dropdown chips click
+  navChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const cat = chip.getAttribute('data-category');
+      applyCategoryChange(cat);
+      closeNavbarSearchDropdown();
+    });
+  });
+
+  function applyCategoryChange(cat) {
+    currentCategory = cat;
+
+    // Sync page buttons
+    buttons.forEach(b => {
+      const isMatch = b.getAttribute('data-category') === cat;
+      b.classList.toggle('active', isMatch);
+      b.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+    });
+
+    // Sync navbar dropdown chips
+    navChips.forEach(c => {
+      c.classList.toggle('active', c.getAttribute('data-category') === cat);
+    });
+    
+    if (activeHint) {
+      if (currentCategory === 'top10') {
+        activeHint.textContent = '10 อันดับการประมูลราคาสูงสุด';
+      } else if (currentCategory === 'newest') {
+        activeHint.textContent = 'สินค้ามาใหม่ล่าสุด (New Arrivals)';
+      } else if (currentCategory === 'all') {
+        activeHint.textContent = 'ทุกหมวดหมู่ (รายการประมูลทั้งหมด)';
+      } else {
+        const matchBtn = document.querySelector(`.category-btn[data-category="${currentCategory}"]`);
+        if (matchBtn) {
+          activeHint.textContent = matchBtn.textContent.trim().replace(/[0-9]+$/, '').trim();
+        }
+      }
+    }
+
+    // Update section title text & icon
+    const titleText = document.getElementById('homeSectionTitleText');
+    const titleIcon = document.getElementById('homeSectionTitleIcon');
+    if (titleText) {
+      if (cat === 'top10') {
+        titleText.textContent = '10 อันดับการประมูลราคาสูงสุด';
+        if (titleIcon) titleIcon.className = 'fa-solid fa-trophy';
+      } else if (cat === 'newest') {
+        titleText.textContent = 'สินค้ามาใหม่ล่าสุด (New Arrivals)';
+        if (titleIcon) titleIcon.className = 'fa-solid fa-sparkles';
+      } else if (cat === 'all') {
+        titleText.textContent = 'รายการประมูลทั้งหมด (All Auctions)';
+        if (titleIcon) titleIcon.className = 'fa-solid fa-border-all';
+      } else {
+        const matchChip = document.querySelector(`.search-cat-chip[data-category="${cat}"]`);
+        const label = matchChip ? matchChip.textContent.trim().replace(/[0-9]+$/, '').trim() : cat;
+        titleText.textContent = `หมวดหมู่: ${label}`;
+        if (titleIcon) titleIcon.className = 'fa-solid fa-sliders';
+      }
+    }
+
+    // Dynamic Category Filter Pill (shows only when a specific category is chosen from search dropdown)
+    const chipWrap = document.getElementById('activeCategoryChipWrap');
+    const chipText = document.getElementById('activeCategoryChipText');
+    if (chipWrap && chipText) {
+      if (cat !== 'top10' && cat !== 'newest') {
+        const matchChip = document.querySelector(`.search-cat-chip[data-category="${cat}"]`);
+        const label = matchChip ? matchChip.textContent.trim().replace(/[0-9]+$/, '').trim() : cat;
+        chipText.textContent = `หมวดหมู่: ${label}`;
+        chipWrap.style.display = 'inline-flex';
+      } else {
+        chipWrap.style.display = 'none';
+      }
+    }
+
+    renderCards();
+  }
+
   // Search input & clear button
   if (searchInput) {
+    // Open dropdown on focus and click
+    searchInput.addEventListener('focus', () => {
+      openNavbarSearchDropdown();
+    });
+    searchInput.addEventListener('click', () => {
+      openNavbarSearchDropdown();
+    });
+
     searchInput.addEventListener('input', (e) => {
       searchQuery = e.target.value.trim();
       if (clearBtn) {
@@ -1375,7 +1455,8 @@ function setupCategoryFilters() {
     });
 
     if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
+      clearBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         searchInput.value = '';
         searchQuery = '';
         clearBtn.style.display = 'none';
@@ -1385,12 +1466,77 @@ function setupCategoryFilters() {
     }
   }
 
+  // Click outside to dismiss dropdown (คลิกตรงอื่นนอก padding/search-wrapper แผงจะหายไป)
+  document.addEventListener('click', (e) => {
+    if (searchWrapper && !searchWrapper.contains(e.target)) {
+      closeNavbarSearchDropdown();
+    }
+  });
+
+  // Escape key to dismiss dropdown
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeNavbarSearchDropdown();
+      if (searchInput) searchInput.blur();
+    }
+  });
+
   // Update counts in filter badges
   updateCategoryCounts();
 }
 
+function openNavbarSearchDropdown() {
+  const dropdown = document.getElementById('navbarSearchDropdown');
+  const searchBar = document.getElementById('navbarSearchBar');
+  if (dropdown) {
+    dropdown.style.display = 'block';
+    dropdown.classList.add('open');
+  }
+  if (searchBar) {
+    searchBar.classList.add('is-active');
+  }
+}
+
+function closeNavbarSearchDropdown() {
+  const dropdown = document.getElementById('navbarSearchDropdown');
+  const searchBar = document.getElementById('navbarSearchBar');
+  if (dropdown) {
+    dropdown.style.display = 'none';
+    dropdown.classList.remove('open');
+  }
+  if (searchBar) {
+    searchBar.classList.remove('is-active');
+  }
+}
+
+function handleNavbarCategorySelect(cat) {
+  const chip = document.querySelector(`.search-cat-chip[data-category="${cat}"]`);
+  if (chip) {
+    chip.click();
+  } else {
+    currentCategory = cat;
+    renderCards();
+    closeNavbarSearchDropdown();
+  }
+}
+
+function selectQuickSearch(keyword) {
+  const searchInput = document.getElementById('itemSearch');
+  const clearBtn = document.getElementById('clearSearchBtn');
+  if (searchInput) {
+    searchInput.value = keyword;
+    searchQuery = keyword;
+  }
+  if (clearBtn) {
+    clearBtn.style.display = 'flex';
+  }
+  renderCards();
+  closeNavbarSearchDropdown();
+}
+
 function updateCategoryCounts() {
   const countTop10 = Math.min(10, AUCTION_ITEMS.length);
+  const countNewest = AUCTION_ITEMS.length;
   const countAll = AUCTION_ITEMS.length;
   const countCars = AUCTION_ITEMS.filter(i => i.category === 'cars').length;
   const countCards = AUCTION_ITEMS.filter(i => i.category === 'cards').length;
@@ -1398,6 +1544,7 @@ function updateCategoryCounts() {
   const countTrees = AUCTION_ITEMS.filter(i => i.category === 'trees').length;
 
   const badgeTop10 = document.getElementById('count-top10');
+  const badgeNewest = document.getElementById('count-newest');
   const badgeAll = document.getElementById('count-all');
   const badgeCars = document.getElementById('count-cars');
   const badgeCards = document.getElementById('count-cards');
@@ -1405,11 +1552,29 @@ function updateCategoryCounts() {
   const badgeTrees = document.getElementById('count-trees');
 
   if (badgeTop10) badgeTop10.textContent = countTop10;
+  if (badgeNewest) badgeNewest.textContent = countNewest;
   if (badgeAll) badgeAll.textContent = countAll;
   if (badgeCars) badgeCars.textContent = countCars;
   if (badgeCards) badgeCards.textContent = countCards;
   if (badgeTech) badgeTech.textContent = countTech;
   if (badgeTrees) badgeTrees.textContent = countTrees;
+
+  // Navbar Popover badges
+  const navCountTop10 = document.getElementById('navCountTop10');
+  const navCountNewest = document.getElementById('navCountNewest');
+  const navCountAll = document.getElementById('navCountAll');
+  const navCountCars = document.getElementById('navCountCars');
+  const navCountCards = document.getElementById('navCountCards');
+  const navCountTech = document.getElementById('navCountTech');
+  const navCountTrees = document.getElementById('navCountTrees');
+
+  if (navCountTop10) navCountTop10.textContent = countTop10;
+  if (navCountNewest) navCountNewest.textContent = countNewest;
+  if (navCountAll) navCountAll.textContent = countAll;
+  if (navCountCars) navCountCars.textContent = countCars;
+  if (navCountCards) navCountCards.textContent = countCards;
+  if (navCountTech) navCountTech.textContent = countTech;
+  if (navCountTrees) navCountTrees.textContent = countTrees;
 }
 
 // Bidding Modal Logic

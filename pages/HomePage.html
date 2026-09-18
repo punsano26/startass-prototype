@@ -31,6 +31,70 @@
         <span class="navbar-brand-name">STAR <span>TASS!</span></span>
       </a>
 
+      <!-- Navbar Search with Interactive Category Dropdown Popover -->
+      <div class="navbar-search-wrapper" id="navbarSearchWrapper">
+        <div class="navbar-search-bar" id="navbarSearchBar">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="itemSearch" placeholder="ค้นหาชื่อสินค้า, หมวดหมู่ หรือคำสำคัญ..." autocomplete="off">
+          <button type="button" id="clearSearchBtn" class="search-clear-btn" aria-label="ล้างการค้นหา" style="display: none;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Interactive Dropdown Popover on Focus/Click -->
+        <div class="navbar-search-dropdown" id="navbarSearchDropdown" style="display: none;">
+          <div class="search-dropdown-header">
+            <span class="search-dropdown-title">
+              <i class="fa-solid fa-sliders" style="color: var(--accent-gold);"></i> เลือกหมวดหมู่ที่ต้องการค้นหา:
+            </span>
+            <span class="search-dropdown-tip">คลิกเพื่อกรองสินค้า</span>
+          </div>
+
+          <div class="search-dropdown-categories">
+            <button type="button" class="search-cat-chip active" data-category="top10" onclick="handleNavbarCategorySelect('top10')">
+              <i class="fa-solid fa-trophy"></i> 10 อันดับสูงสุด
+              <span class="search-cat-count" id="navCountTop10">10</span>
+            </button>
+            <button type="button" class="search-cat-chip" data-category="newest" onclick="handleNavbarCategorySelect('newest')">
+              <i class="fa-solid fa-sparkles"></i> สินค้ามาใหม่
+              <span class="search-cat-count" id="navCountNewest">14</span>
+            </button>
+            <button type="button" class="search-cat-chip" data-category="all" onclick="handleNavbarCategorySelect('all')">
+              <i class="fa-solid fa-border-all"></i> ทุกหมวดหมู่
+              <span class="search-cat-count" id="navCountAll">14</span>
+            </button>
+            <button type="button" class="search-cat-chip" data-category="cars" onclick="handleNavbarCategorySelect('cars')">
+              <i class="fa-solid fa-car-side"></i> รถยนต์ & ซูเปอร์คาร์
+              <span class="search-cat-count" id="navCountCars">4</span>
+            </button>
+            <button type="button" class="search-cat-chip" data-category="cards" onclick="handleNavbarCategorySelect('cards')">
+              <i class="fa-solid fa-ticket"></i> การ์ดสะสมหายาก
+              <span class="search-cat-count" id="navCountCards">3</span>
+            </button>
+            <button type="button" class="search-cat-chip" data-category="tech" onclick="handleNavbarCategorySelect('tech')">
+              <i class="fa-solid fa-microchip"></i> เทคโนโลยี & คอมพิวเตอร์
+              <span class="search-cat-count" id="navCountTech">4</span>
+            </button>
+            <button type="button" class="search-cat-chip" data-category="trees" onclick="handleNavbarCategorySelect('trees')">
+              <i class="fa-solid fa-tree"></i> บอนไซ & ไม้ด่างหายาก
+              <span class="search-cat-count" id="navCountTrees">3</span>
+            </button>
+          </div>
+
+          <div class="search-dropdown-footer">
+            <div class="trending-tags-title">
+              <i class="fa-solid fa-fire" style="color: #f97316;"></i> แนะนำ:
+            </div>
+            <div class="trending-tags-list">
+              <button type="button" class="trending-tag" onclick="selectQuickSearch('Porsche 911 GT3')">Porsche 911</button>
+              <button type="button" class="trending-tag" onclick="selectQuickSearch('Pikachu Illustrator')">Pikachu</button>
+              <button type="button" class="trending-tag" onclick="selectQuickSearch('Quantum Core')">Supercomputer</button>
+              <button type="button" class="trending-tag" onclick="selectQuickSearch('บอนไซสนดำ')">บอนไซสนดำ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="navbar-actions">
         <!-- My Orders Navigation Button -->
         <a href="orders.html" class="btn-orders-nav" id="navOrdersBtn" title="ดูรายการคำสั่งซื้อ / การประมูลของฉัน">
@@ -188,57 +252,42 @@
       </div>
     </header>
 
-    <!-- Filters & Category Navigation -->
-    <section class="filter-section">
-      <!-- Search Input Bar -->
-      <div class="search-bar-wrapper">
-        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="itemSearch" placeholder="ค้นหารายการประมูลตามชื่อสินค้า, หมวดหมู่ หรือคำสำคัญ..." autocomplete="off">
-        <button type="button" id="clearSearchBtn" class="search-clear-btn" aria-label="ล้างการค้นหา" style="display: none;">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+    <!-- Minimal Section Header & Segmented Navigation (10 อันดับสูงสุด & สินค้ามาใหม่) -->
+    <section class="minimal-nav-bar">
+      <!-- Left: Title & Live Item Counter -->
+      <div class="minimal-nav-left">
+        <h2 class="section-title" id="homeSectionTitle">
+          <i class="fa-solid fa-trophy" id="homeSectionTitleIcon" style="color: var(--accent-gold);"></i>
+          <span id="homeSectionTitleText">10 อันดับการประมูลราคาสูงสุด</span>
+        </h2>
+        <span class="items-counter" id="itemsCount">แสดง 10 จาก 10 รายการ</span>
       </div>
 
-      <!-- Categories Filter Pills Bar -->
-      <div class="category-filters-container">
-        <div class="category-filters-header">
-          <span class="category-filters-title"><i class="fa-solid fa-sliders"></i> หมวดหมู่สินค้า:</span>
-          <span class="category-filters-active-hint" id="activeCategoryHint">10 อันดับการประมูลราคาสูงสุด</span>
-        </div>
-        <div class="category-filters" role="tablist">
-          <button class="category-btn active" data-category="top10" role="tab" aria-selected="true">
-            <i class="fa-solid fa-trophy"></i> 10 อันดับสูงสุด
+      <!-- Right: Minimal Segmented Switcher (เฉพาะ 10 อันดับสูงสุด & สินค้ามาใหม่) -->
+      <div class="minimal-segmented-wrapper">
+        <div class="minimal-segmented-switch" role="tablist">
+          <button class="category-btn minimal-pill-btn active" data-category="top10" role="tab" aria-selected="true">
+            <i class="fa-solid fa-trophy"></i>
+            <span>10 อันดับสูงสุด</span>
             <span class="category-count" id="count-top10">10</span>
           </button>
-          <button class="category-btn" data-category="all" role="tab" aria-selected="false">
-            <i class="fa-solid fa-border-all"></i> ทุกหมวดหมู่
-            <span class="category-count" id="count-all">14</span>
-          </button>
-          <button class="category-btn" data-category="cars" role="tab" aria-selected="false">
-            <i class="fa-solid fa-car-side"></i> โมเดลรถยนต์ & ซูเปอร์คาร์
-            <span class="category-count" id="count-cars">4</span>
-          </button>
-          <button class="category-btn" data-category="cards" role="tab" aria-selected="false">
-            <i class="fa-solid fa-ticket"></i> การ์ดสะสมหายาก
-            <span class="category-count" id="count-cards">3</span>
-          </button>
-          <button class="category-btn" data-category="tech" role="tab" aria-selected="false">
-            <i class="fa-solid fa-microchip"></i> เทคโนโลยี & ซูเปอร์คอมพิวเตอร์
-            <span class="category-count" id="count-tech">4</span>
-          </button>
-          <button class="category-btn" data-category="trees" role="tab" aria-selected="false">
-            <i class="fa-solid fa-tree"></i> บอนไซ & ไม้ด่างหายาก
-            <span class="category-count" id="count-trees">3</span>
+          <button class="category-btn minimal-pill-btn" data-category="newest" role="tab" aria-selected="false">
+            <i class="fa-solid fa-sparkles"></i>
+            <span>สินค้ามาใหม่</span>
+            <span class="category-count" id="count-newest">14</span>
           </button>
         </div>
-      </div>
 
-      <!-- Section Title & Counter -->
-      <div class="section-header-bar">
-        <h2 class="section-title">
-          <i class="fa-solid fa-chart-line"></i> กระดานผู้นำการประมูลล่าสุด
-        </h2>
-        <span class="items-counter" id="itemsCount">แสดง 10 จาก 10 รายการแนะนำ</span>
+        <!-- Dynamic Category Filter Pill (แสดงเมื่อเลือกหมวดหมู่อื่นจากช่องค้นหา) -->
+        <div class="active-category-chip-wrap" id="activeCategoryChipWrap" style="display: none;">
+          <span class="active-category-pill">
+            <i class="fa-solid fa-filter"></i>
+            <span id="activeCategoryChipText">หมวดหมู่</span>
+            <button type="button" class="btn-clear-category-pill" onclick="handleNavbarCategorySelect('top10')" title="ล้างตัวกรอง กลับไป 10 อันดับสูงสุด">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </span>
+        </div>
       </div>
     </section>
 

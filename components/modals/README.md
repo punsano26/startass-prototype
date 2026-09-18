@@ -306,8 +306,10 @@ ReportUserModal.submit(event);
 | :--- | :--- |
 | `#editProfileModal` | Modal backdrop container with `.modal-backdrop` |
 | `#editProfileForm` | Profile edit form |
-| `#editAvatarPreview` | Live avatar image preview |
-| `#editAvatarUrl` | Avatar image URL input |
+| `#editAvatarPreview` | Live avatar image preview with camera change button |
+| `#editAvatarFileInput` | File upload input for selecting avatar image from local device |
+| `#editAvatarUrl` | Hidden input storing chosen avatar image (data URL or preset URL) |
+| `.preset-avatar-btn` | Preset avatar selection buttons |
 | `#editFullName` | Full name input |
 | `#editNickname` | Market nickname / handle input |
 | `#editBio` | Bio / collector description textarea |

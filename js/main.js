@@ -2820,12 +2820,16 @@ function openEditProfileModal() {
   const av = document.getElementById('editAvatarUrl');
   const bio = document.getElementById('editBio');
   const previewImg = document.getElementById('editAvatarPreview');
+  const fileInput = document.getElementById('editAvatarFileInput');
 
   if (fn) fn.value = currentUser.fullName || '';
   if (nn) nn.value = currentUser.nickname || '';
   if (av) av.value = currentUser.avatar || '';
   if (bio) bio.value = currentUser.bio || '';
   if (previewImg) previewImg.src = currentUser.avatar || '';
+  if (fileInput) fileInput.value = '';
+
+  updatePresetAvatarSelection(currentUser.avatar || '');
 
   modal.classList.add('open');
 }
@@ -2856,8 +2860,61 @@ function handleSaveProfileForm(event) {
   showToast('บันทึกข้อมูลโปรไฟล์ของคุณเรียบร้อยแล้ว!');
 }
 
+function handleAvatarFileSelect(event) {
+  const file = event && event.target && event.target.files && event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    alert('กรุณาเลือกไฟล์รูปภาพที่ถูกต้อง (JPG, PNG, WebP, GIF)');
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    alert('ขนาดไฟล์รูปภาพต้องไม่เกิน 5MB');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const dataUrl = e.target.result;
+    const previewImg = document.getElementById('editAvatarPreview');
+    const avInput = document.getElementById('editAvatarUrl');
+    if (previewImg) previewImg.src = dataUrl;
+    if (avInput) avInput.value = dataUrl;
+
+    const presetBtns = document.querySelectorAll('.preset-avatar-btn');
+    presetBtns.forEach(btn => btn.classList.remove('selected'));
+  };
+  reader.readAsDataURL(file);
+}
+
+function selectPresetAvatar(url, el) {
+  if (!url) return;
+  const previewImg = document.getElementById('editAvatarPreview');
+  const avInput = document.getElementById('editAvatarUrl');
+  if (previewImg) previewImg.src = url;
+  if (avInput) avInput.value = url;
+
+  const fileInput = document.getElementById('editAvatarFileInput');
+  if (fileInput) fileInput.value = '';
+
+  const presetBtns = document.querySelectorAll('.preset-avatar-btn');
+  presetBtns.forEach(btn => btn.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+}
+
+function updatePresetAvatarSelection(currentUrl) {
+  const presetBtns = document.querySelectorAll('.preset-avatar-btn');
+  presetBtns.forEach(btn => {
+    if (btn.getAttribute('data-url') === currentUrl) {
+      btn.classList.add('selected');
+    } else {
+      btn.classList.remove('selected');
+    }
+  });
+}
+
 function previewAvatarFromInput(input) {
-  const url = input.value.trim();
+  const url = input && input.value ? input.value.trim() : '';
   const previewImg = document.getElementById('editAvatarPreview');
   if (previewImg && url) {
     previewImg.src = url;

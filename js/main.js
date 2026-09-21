@@ -1108,70 +1108,9 @@ function getTimeRemaining(endDateStr) {
   return { total, days, hours, minutes, seconds, expired: false };
 }
 
-// Render Cards (Default Top 10 vs All Categories & Filtered Views)
-function renderCards() {
-  const grid = document.getElementById('auctionGrid');
-  const emptyState = document.getElementById('emptyState');
-  const itemsCountEl = document.getElementById('itemsCount');
-  
-  if (!grid) return;
-
-  // Always keep items sorted by highest current bid and rank updated
-  sortAndRankAuctions();
-
-  // Filter items based on current category
-  let filtered = [];
-  if (currentCategory === 'top10') {
-    // Default mode: ONLY Top 10 highest-value auctions
-    filtered = AUCTION_ITEMS.slice(0, 10);
-  } else if (currentCategory === 'newest') {
-    // New arrivals mode: sorted by newly created items / highest ID numeric value first
-    filtered = [...AUCTION_ITEMS].sort((a, b) => {
-      const numA = parseInt(String(a.id).replace(/\D/g, ''), 10) || 0;
-      const numB = parseInt(String(b.id).replace(/\D/g, ''), 10) || 0;
-      if (numB !== numA) return numB - numA;
-      return String(b.id).localeCompare(String(a.id));
-    });
-  } else if (currentCategory === 'all') {
-    // All categories: all items
-    filtered = [...AUCTION_ITEMS];
-  } else {
-    // Specific category
-    filtered = AUCTION_ITEMS.filter(item => item.category === currentCategory);
-  }
-
-  // Apply search query filter if user typed in search input
-  if (searchQuery.trim() !== '') {
-    const q = searchQuery.toLowerCase().trim();
-    filtered = filtered.filter(item =>
-      item.title.toLowerCase().includes(q) ||
-      item.description.toLowerCase().includes(q) ||
-      (item.categoryLabel && item.categoryLabel.toLowerCase().includes(q))
-    );
-  }
-
-  if (itemsCountEl) {
-    if (currentCategory === 'top10') {
-      itemsCountEl.textContent = `แสดง ${filtered.length} จาก 10 อันดับการประมูลราคาสูงสุด`;
-    } else if (currentCategory === 'newest') {
-      itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${AUCTION_ITEMS.length} รายการสินค้ามาใหม่`;
-    } else if (currentCategory === 'all') {
-      itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${AUCTION_ITEMS.length} รายการทั้งหมด`;
-    } else {
-      const catCount = AUCTION_ITEMS.filter(item => item.category === currentCategory).length;
-      itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${catCount} รายการในหมวดหมู่นี้`;
-    }
-  }
-
-  if (filtered.length === 0) {
-    grid.innerHTML = '';
-    if (emptyState) emptyState.style.display = 'block';
-    return;
-  }
-
-  if (emptyState) emptyState.style.display = 'none';
-
-  grid.innerHTML = filtered.map(item => {
+// Shared Card HTML Generator
+function generateAuctionCardsHTML(items) {
+  return items.map(item => {
     const time = getTimeRemaining(item.endDate);
     const isInactive = item.isActive === false;
     const userOrder = getUserOrder(item.id);
@@ -1309,6 +1248,169 @@ function renderCards() {
       </article>
     `;
   }).join('');
+}
+
+// Render Cards (Default Top 10 vs All Categories & Filtered Views / Search Mode)
+function renderCards() {
+  const grid = document.getElementById('auctionGrid');
+  const emptyState = document.getElementById('emptyState');
+  const itemsCountEl = document.getElementById('itemsCount');
+  
+  if (!grid) return;
+
+  // Always keep items sorted by highest current bid and rank updated
+  sortAndRankAuctions();
+
+  // If currently in Search Mode (Advice IT 2-column sidebar layout)
+  if (isSearchMode) {
+    let filtered = [...AUCTION_ITEMS];
+
+    // 1. Search Query text matching
+    if (searchQuery.trim() !== '') {
+      filtered = filtered.filter(item => matchesSearchText(item, searchQuery));
+    }
+
+    // 2. Multi-select Category Checkboxes
+    if (searchSelectedCategories.size > 0) {
+      filtered = filtered.filter(item => searchSelectedCategories.has(item.category));
+    }
+
+    // 3. Status Checkboxes
+    if (searchSelectedStatuses.size > 0) {
+      filtered = filtered.filter(item => {
+        const time = getTimeRemaining(item.endDate);
+        const isLive = item.isActive !== false && !time.expired;
+        const hasBids = (item.bidsCount || 0) > 0;
+        const isEndingSoon = isLive && (time.total < 24 * 60 * 60 * 1000);
+        const isMyBid = Boolean(getUserOrder(item.id));
+
+        let pass = false;
+        if (searchSelectedStatuses.has('active') && isLive) pass = true;
+        if (searchSelectedStatuses.has('hasBids') && hasBids) pass = true;
+        if (searchSelectedStatuses.has('endingSoon') && isEndingSoon) pass = true;
+        if (searchSelectedStatuses.has('myBids') && isMyBid) pass = true;
+        return pass;
+      });
+    }
+
+    // 4. Seller / Brand Checkboxes
+    if (searchSelectedSellers.size > 0) {
+      filtered = filtered.filter(item => item.seller && searchSelectedSellers.has(item.seller.nickname));
+    }
+
+    // 5. Price Range
+    if (searchPriceRange.min !== null) {
+      filtered = filtered.filter(item => (item.currentBid || 0) >= searchPriceRange.min);
+    }
+    if (searchPriceRange.max !== null) {
+      filtered = filtered.filter(item => (item.currentBid || 0) <= searchPriceRange.max);
+    }
+
+    // 6. Sort
+    if (searchSortBy === 'price_desc') {
+      filtered.sort((a, b) => (b.currentBid || 0) - (a.currentBid || 0));
+    } else if (searchSortBy === 'price_asc') {
+      filtered.sort((a, b) => (a.currentBid || 0) - (b.currentBid || 0));
+    } else if (searchSortBy === 'ending_soon') {
+      filtered.sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+    } else if (searchSortBy === 'bids_desc') {
+      filtered.sort((a, b) => (b.bidsCount || 0) - (a.bidsCount || 0));
+    } else if (searchSortBy === 'newest') {
+      filtered.sort((a, b) => {
+        const numA = parseInt(String(a.id).replace(/\D/g, ''), 10) || 0;
+        const numB = parseInt(String(b.id).replace(/\D/g, ''), 10) || 0;
+        return numB - numA;
+      });
+    }
+
+    // Update Headline & Badge
+    const highlightEl = document.getElementById('searchQueryHighlight');
+    if (highlightEl) {
+      highlightEl.textContent = searchQuery ? `"${searchQuery}"` : 'ทั้งหมด (All)';
+    }
+    const countBadge = document.getElementById('searchResultsCountBadge');
+    if (countBadge) {
+      countBadge.textContent = `พบ ${filtered.length} รายการ`;
+    }
+    const mobileCount = document.getElementById('mobileApplyCount');
+    if (mobileCount) {
+      mobileCount.textContent = filtered.length;
+    }
+
+    renderActiveFilterTags();
+    updateSidebarCategoryCounts();
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '';
+      if (emptyState) {
+        emptyState.style.display = 'block';
+        const emptyTitle = document.getElementById('emptyStateTitle');
+        if (emptyTitle) emptyTitle.textContent = 'ไม่พบรายการประมูลที่ตรงกับตัวกรอง';
+        const emptyDesc = document.getElementById('emptyStateDesc');
+        if (emptyDesc) emptyDesc.textContent = 'ลองยกเลิกตัวกรองบางส่วน หรือค้นหาด้วยคำสำคัญใหม่';
+      }
+      return;
+    }
+
+    if (emptyState) emptyState.style.display = 'none';
+
+    grid.innerHTML = generateAuctionCardsHTML(filtered);
+    return;
+  }
+
+  // Normal Home View (Top 10 / Newest / Specific Category)
+  let filtered = [];
+  if (currentCategory === 'top10') {
+    // Default mode: ONLY Top 10 highest-value auctions
+    filtered = AUCTION_ITEMS.slice(0, 10);
+  } else if (currentCategory === 'newest') {
+    // New arrivals mode: sorted by newly created items / highest ID numeric value first
+    filtered = [...AUCTION_ITEMS].sort((a, b) => {
+      const numA = parseInt(String(a.id).replace(/\D/g, ''), 10) || 0;
+      const numB = parseInt(String(b.id).replace(/\D/g, ''), 10) || 0;
+      if (numB !== numA) return numB - numA;
+      return String(b.id).localeCompare(String(a.id));
+    });
+  } else if (currentCategory === 'all') {
+    // All categories: all items
+    filtered = [...AUCTION_ITEMS];
+  } else {
+    // Specific category
+    filtered = AUCTION_ITEMS.filter(item => item.category === currentCategory);
+  }
+
+  // Apply search query filter if user typed in search input
+  if (searchQuery.trim() !== '') {
+    const q = searchQuery.toLowerCase().trim();
+    filtered = filtered.filter(item =>
+      item.title.toLowerCase().includes(q) ||
+      item.description.toLowerCase().includes(q) ||
+      (item.categoryLabel && item.categoryLabel.toLowerCase().includes(q))
+    );
+  }
+
+  if (itemsCountEl) {
+    if (currentCategory === 'top10') {
+      itemsCountEl.textContent = `แสดง ${filtered.length} จาก 10 อันดับการประมูลราคาสูงสุด`;
+    } else if (currentCategory === 'newest') {
+      itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${AUCTION_ITEMS.length} รายการสินค้ามาใหม่`;
+    } else if (currentCategory === 'all') {
+      itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${AUCTION_ITEMS.length} รายการทั้งหมด`;
+    } else {
+      const catCount = AUCTION_ITEMS.filter(item => item.category === currentCategory).length;
+      itemsCountEl.textContent = `แสดง ${filtered.length} จาก ${catCount} รายการในหมวดหมู่นี้`;
+    }
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    if (emptyState) emptyState.style.display = 'block';
+    return;
+  }
+
+  if (emptyState) emptyState.style.display = 'none';
+
+  grid.innerHTML = generateAuctionCardsHTML(filtered);
 }
 
 // Live Countdown Updater (Ticks Every 1 Second)
@@ -1451,8 +1553,34 @@ function setupCategoryFilters() {
       if (clearBtn) {
         clearBtn.style.display = searchQuery.length > 0 ? 'flex' : 'none';
       }
-      renderCards();
+      if (isSearchMode) {
+        renderCards();
+        renderSidebarFilters();
+      } else {
+        renderCards();
+      }
     });
+
+    // Press Enter to activate Advice IT Search Results Layout!
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const q = searchInput.value.trim();
+        closeNavbarSearchDropdown();
+        searchInput.blur();
+        activateSearchMode(q);
+      }
+    });
+
+    // Search Icon click triggers search mode
+    const searchIcon = document.getElementById('navbarSearchIcon') || document.querySelector('.navbar-search-bar .search-icon');
+    if (searchIcon) {
+      searchIcon.addEventListener('click', () => {
+        const q = searchInput.value.trim();
+        closeNavbarSearchDropdown();
+        activateSearchMode(q);
+      });
+    }
 
     if (clearBtn) {
       clearBtn.addEventListener('click', (e) => {
@@ -1460,13 +1588,17 @@ function setupCategoryFilters() {
         searchInput.value = '';
         searchQuery = '';
         clearBtn.style.display = 'none';
-        searchInput.focus();
-        renderCards();
+        if (isSearchMode) {
+          deactivateSearchMode();
+        } else {
+          searchInput.focus();
+          renderCards();
+        }
       });
     }
   }
 
-  // Click outside to dismiss dropdown (คลิกตรงอื่นนอก padding/search-wrapper แผงจะหายไป)
+  // Click outside to dismiss dropdown
   document.addEventListener('click', (e) => {
     if (searchWrapper && !searchWrapper.contains(e.target)) {
       closeNavbarSearchDropdown();
@@ -1531,13 +1663,505 @@ function selectQuickSearch(keyword) {
   const clearBtn = document.getElementById('clearSearchBtn');
   if (searchInput) {
     searchInput.value = keyword;
-    searchQuery = keyword;
   }
   if (clearBtn) {
     clearBtn.style.display = 'flex';
   }
-  renderCards();
   closeNavbarSearchDropdown();
+  activateSearchMode(keyword);
+}
+
+// ==========================================================================
+// ADVICE IT STYLE SEARCH RESULTS & MULTI-FILTER STATE ENGINE
+// ==========================================================================
+let isSearchMode = false;
+let searchSelectedCategories = new Set();
+let searchSelectedStatuses = new Set();
+let searchSelectedSellers = new Set();
+let searchPriceRange = { min: null, max: null, presetLabel: null };
+let searchSortBy = 'price_desc';
+
+const KNOWN_CATEGORIES = [
+  { key: 'cars', label: 'รถยนต์ & ซูเปอร์คาร์', icon: 'fa-car-side' },
+  { key: 'cards', label: 'การ์ดสะสมหายาก', icon: 'fa-ticket' },
+  { key: 'tech', label: 'เทคโนโลยี & คอมพิวเตอร์', icon: 'fa-microchip' },
+  { key: 'trees', label: 'บอนไซ & ไม้ด่างหายาก', icon: 'fa-tree' }
+];
+
+const PRICE_PRESETS = [
+  { min: 0, max: 3000000, label: '฿0 - ฿3,000,000' },
+  { min: 3000000, max: 6000000, label: '฿3,000,000 - ฿6,000,000' },
+  { min: 6000000, max: 10000000, label: '฿6,000,000 - ฿10,000,000' },
+  { min: 10000000, max: 50000000, label: '฿10,000,000 ขึ้นไป' }
+];
+
+function matchesSearchText(item, query) {
+  if (!query || query.trim() === '') return true;
+  const q = query.toLowerCase().trim();
+  const inTitle = Boolean(item.title && item.title.toLowerCase().includes(q));
+  const inDesc = Boolean(item.description && item.description.toLowerCase().includes(q));
+  const inCat = Boolean(item.categoryLabel && item.categoryLabel.toLowerCase().includes(q));
+  const inSellerName = Boolean(item.seller && item.seller.name && item.seller.name.toLowerCase().includes(q));
+  const inSellerNick = Boolean(item.seller && item.seller.nickname && item.seller.nickname.toLowerCase().includes(q));
+  const inSpecs = Boolean(Array.isArray(item.specs) && item.specs.some(s => s.toLowerCase().includes(q)));
+  return inTitle || inDesc || inCat || inSellerName || inSellerNick || inSpecs;
+}
+
+function activateSearchMode(query = '', initialCategory = null) {
+  isSearchMode = true;
+  searchQuery = (query || '').trim();
+
+  if (initialCategory && initialCategory !== 'all' && initialCategory !== 'top10' && initialCategory !== 'newest') {
+    searchSelectedCategories.clear();
+    searchSelectedCategories.add(initialCategory);
+  }
+
+  const searchInput = document.getElementById('itemSearch');
+  if (searchInput) {
+    searchInput.value = searchQuery;
+  }
+  const clearBtn = document.getElementById('clearSearchBtn');
+  if (clearBtn) {
+    clearBtn.style.display = searchQuery ? 'flex' : 'none';
+  }
+
+  const homeHeader = document.getElementById('homeAuctionHeader');
+  const minimalNav = document.getElementById('homeMinimalNavBar');
+  const controlBar = document.getElementById('searchResultsControlBar');
+  const sidebar = document.getElementById('adviceFilterSidebar');
+  const layout = document.getElementById('marketplaceLayout');
+
+  if (homeHeader) homeHeader.style.display = 'none';
+  if (minimalNav) minimalNav.style.display = 'none';
+  if (controlBar) controlBar.style.display = 'block';
+  if (sidebar) sidebar.style.display = 'block';
+  if (layout) layout.classList.add('is-search-active');
+
+  renderSidebarFilters();
+  renderCards();
+
+  if (controlBar) {
+    controlBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function deactivateSearchMode() {
+  isSearchMode = false;
+  searchQuery = '';
+  searchSelectedCategories.clear();
+  searchSelectedStatuses.clear();
+  searchSelectedSellers.clear();
+  searchPriceRange = { min: null, max: null, presetLabel: null };
+
+  const searchInput = document.getElementById('itemSearch');
+  if (searchInput) searchInput.value = '';
+
+  const clearBtn = document.getElementById('clearSearchBtn');
+  if (clearBtn) clearBtn.style.display = 'none';
+
+  const homeHeader = document.getElementById('homeAuctionHeader');
+  const minimalNav = document.getElementById('homeMinimalNavBar');
+  const controlBar = document.getElementById('searchResultsControlBar');
+  const sidebar = document.getElementById('adviceFilterSidebar');
+  const layout = document.getElementById('marketplaceLayout');
+
+  if (homeHeader) homeHeader.style.display = 'block';
+  if (minimalNav) minimalNav.style.display = 'block';
+  if (controlBar) controlBar.style.display = 'none';
+  if (sidebar) {
+    sidebar.style.display = 'none';
+    sidebar.classList.remove('is-mobile-open');
+  }
+  if (layout) layout.classList.remove('is-search-active');
+
+  currentCategory = 'top10';
+  const top10Btn = document.querySelector('.category-btn[data-category="top10"]');
+  if (top10Btn) {
+    top10Btn.click();
+  } else {
+    renderCards();
+  }
+}
+
+function renderSidebarFilters() {
+  renderSidebarCategories();
+  renderSidebarStatuses();
+  renderSidebarSellers();
+  renderSidebarPricePresets();
+  renderActiveFilterTags();
+}
+
+function renderSidebarCategories() {
+  const container = document.getElementById('categoryCheckboxList');
+  if (!container) return;
+
+  const catMap = new Map();
+  KNOWN_CATEGORIES.forEach(c => catMap.set(c.key, { ...c, count: 0 }));
+
+  AUCTION_ITEMS.forEach(item => {
+    const key = item.category || 'other';
+    const label = item.categoryLabel || key;
+    if (!catMap.has(key)) {
+      catMap.set(key, { key, label, icon: 'fa-box', count: 0 });
+    }
+    if (matchesSearchText(item, searchQuery)) {
+      const entry = catMap.get(key);
+      entry.count += 1;
+    }
+  });
+
+  const searchVal = (document.getElementById('catSearchInput')?.value || '').toLowerCase().trim();
+
+  let html = '';
+  catMap.forEach((data, key) => {
+    if (searchVal && !data.label.toLowerCase().includes(searchVal) && !key.toLowerCase().includes(searchVal)) {
+      return;
+    }
+    const isChecked = searchSelectedCategories.has(key);
+    html += `
+      <label class="advice-checkbox-item">
+        <input type="checkbox" class="advice-checkbox-input" value="${key}" ${isChecked ? 'checked' : ''} onchange="toggleCategoryFilter('${key}', this.checked)">
+        <span class="advice-checkbox-label" title="${data.label}">
+          <i class="fa-solid ${data.icon || 'fa-tag'}" style="color: var(--accent-gold); font-size: 0.76rem; margin-right: 4px;"></i>
+          ${data.label}
+        </span>
+        <span class="advice-checkbox-count" id="count-cat-${key}">(${data.count})</span>
+      </label>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function updateSidebarCategoryCounts() {
+  const catMap = new Map();
+  AUCTION_ITEMS.forEach(item => {
+    const key = item.category || 'other';
+    if (!catMap.has(key)) catMap.set(key, 0);
+    if (matchesSearchText(item, searchQuery)) {
+      catMap.set(key, catMap.get(key) + 1);
+    }
+  });
+
+  catMap.forEach((count, key) => {
+    const el = document.getElementById(`count-cat-${key}`);
+    if (el) el.textContent = `(${count})`;
+  });
+}
+
+function toggleCategoryFilter(catKey, isChecked) {
+  if (isChecked) {
+    searchSelectedCategories.add(catKey);
+  } else {
+    searchSelectedCategories.delete(catKey);
+  }
+  renderCards();
+}
+
+function resetCategoryFilter() {
+  searchSelectedCategories.clear();
+  const searchEl = document.getElementById('catSearchInput');
+  if (searchEl) searchEl.value = '';
+  renderSidebarCategories();
+  renderCards();
+}
+
+function filterCategoryOptions(val) {
+  renderSidebarCategories();
+}
+
+function renderSidebarStatuses() {
+  const container = document.getElementById('statusCheckboxList');
+  if (!container) return;
+
+  const statuses = [
+    { key: 'active', label: 'กำลังเปิดประมูลสด (Live)', icon: 'fa-signal' },
+    { key: 'hasBids', label: 'มีการเคาะราคาแล้ว', icon: 'fa-gavel' },
+    { key: 'endingSoon', label: 'ใกล้ปิดประมูล (< 24 ชม.)', icon: 'fa-clock' },
+    { key: 'myBids', label: 'รายการที่ฉันร่วมเสนอราคา', icon: 'fa-user-tag' }
+  ];
+
+  let html = '';
+  statuses.forEach(s => {
+    let count = 0;
+    AUCTION_ITEMS.forEach(item => {
+      if (!matchesSearchText(item, searchQuery)) return;
+      const time = getTimeRemaining(item.endDate);
+      const isLive = item.isActive !== false && !time.expired;
+      const hasBids = (item.bidsCount || 0) > 0;
+      const isEndingSoon = isLive && (time.total < 24 * 60 * 60 * 1000);
+      const isMyBid = Boolean(getUserOrder(item.id));
+
+      if (s.key === 'active' && isLive) count++;
+      if (s.key === 'hasBids' && hasBids) count++;
+      if (s.key === 'endingSoon' && isEndingSoon) count++;
+      if (s.key === 'myBids' && isMyBid) count++;
+    });
+
+    const isChecked = searchSelectedStatuses.has(s.key);
+    html += `
+      <label class="advice-checkbox-item">
+        <input type="checkbox" class="advice-checkbox-input" value="${s.key}" ${isChecked ? 'checked' : ''} onchange="toggleStatusFilter('${s.key}', this.checked)">
+        <span class="advice-checkbox-label" title="${s.label}">
+          <i class="fa-solid ${s.icon}" style="color: #38bdf8; font-size: 0.76rem; margin-right: 4px;"></i>
+          ${s.label}
+        </span>
+        <span class="advice-checkbox-count">(${count})</span>
+      </label>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleStatusFilter(statusKey, isChecked) {
+  if (isChecked) {
+    searchSelectedStatuses.add(statusKey);
+  } else {
+    searchSelectedStatuses.delete(statusKey);
+  }
+  renderCards();
+}
+
+function resetStatusFilter() {
+  searchSelectedStatuses.clear();
+  renderSidebarStatuses();
+  renderCards();
+}
+
+function renderSidebarSellers() {
+  const container = document.getElementById('sellerCheckboxList');
+  if (!container) return;
+
+  const sellerMap = new Map();
+  AUCTION_ITEMS.forEach(item => {
+    if (!item.seller || !item.seller.nickname) return;
+    const nick = item.seller.nickname;
+    const name = item.seller.name || nick;
+    if (!sellerMap.has(nick)) {
+      sellerMap.set(nick, { nickname: nick, name, count: 0 });
+    }
+    if (matchesSearchText(item, searchQuery)) {
+      sellerMap.get(nick).count += 1;
+    }
+  });
+
+  const searchVal = (document.getElementById('sellerSearchInput')?.value || '').toLowerCase().trim();
+
+  let html = '';
+  sellerMap.forEach((seller, nick) => {
+    if (searchVal && !seller.name.toLowerCase().includes(searchVal) && !nick.toLowerCase().includes(searchVal)) {
+      return;
+    }
+    const isChecked = searchSelectedSellers.has(nick);
+    html += `
+      <label class="advice-checkbox-item">
+        <input type="checkbox" class="advice-checkbox-input" value="${nick}" ${isChecked ? 'checked' : ''} onchange="toggleSellerFilter('${nick}', this.checked)">
+        <span class="advice-checkbox-label" title="${seller.name} (@${nick})">
+          ${seller.name}
+        </span>
+        <span class="advice-checkbox-count">(${seller.count})</span>
+      </label>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleSellerFilter(sellerNick, isChecked) {
+  if (isChecked) {
+    searchSelectedSellers.add(sellerNick);
+  } else {
+    searchSelectedSellers.delete(sellerNick);
+  }
+  renderCards();
+}
+
+function resetSellerFilter() {
+  searchSelectedSellers.clear();
+  const searchEl = document.getElementById('sellerSearchInput');
+  if (searchEl) searchEl.value = '';
+  renderSidebarSellers();
+  renderCards();
+}
+
+function filterSellerOptions(val) {
+  renderSidebarSellers();
+}
+
+function renderSidebarPricePresets() {
+  const container = document.getElementById('pricePresetsList');
+  if (!container) return;
+
+  let html = '';
+  PRICE_PRESETS.forEach((preset) => {
+    const isActive = searchPriceRange.presetLabel === preset.label;
+    html += `
+      <button type="button" class="advice-price-preset-btn ${isActive ? 'active' : ''}" onclick="selectPricePreset(${preset.min}, ${preset.max}, '${preset.label}')">
+        <span>${preset.label}</span>
+        ${isActive ? '<i class="fa-solid fa-check" style="color:#38bdf8;"></i>' : ''}
+      </button>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function selectPricePreset(min, max, label) {
+  if (searchPriceRange.presetLabel === label) {
+    searchPriceRange = { min: null, max: null, presetLabel: null };
+  } else {
+    searchPriceRange = { min, max, presetLabel: label };
+  }
+  const minInput = document.getElementById('customPriceMin');
+  const maxInput = document.getElementById('customPriceMax');
+  if (minInput) minInput.value = '';
+  if (maxInput) maxInput.value = '';
+
+  renderSidebarPricePresets();
+  renderCards();
+}
+
+function applyCustomPriceRange() {
+  const minVal = parseFloat(document.getElementById('customPriceMin')?.value) || 0;
+  const maxVal = parseFloat(document.getElementById('customPriceMax')?.value) || null;
+
+  if (maxVal !== null && maxVal < minVal) {
+    if (typeof showToast === 'function') showToast('ราคาสูงสุดต้องมากกว่าราคาต่ำสุด');
+    return;
+  }
+
+  const label = maxVal ? `฿${minVal.toLocaleString()} - ฿${maxVal.toLocaleString()}` : `มากกว่า ฿${minVal.toLocaleString()}`;
+  searchPriceRange = { min: minVal, max: maxVal, presetLabel: label };
+
+  renderSidebarPricePresets();
+  renderCards();
+}
+
+function resetPriceFilter() {
+  searchPriceRange = { min: null, max: null, presetLabel: null };
+  const minInput = document.getElementById('customPriceMin');
+  const maxInput = document.getElementById('customPriceMax');
+  if (minInput) minInput.value = '';
+  if (maxInput) maxInput.value = '';
+
+  renderSidebarPricePresets();
+  renderCards();
+}
+
+function handleSearchSortChange(newSort) {
+  searchSortBy = newSort;
+  renderCards();
+}
+
+function resetAllSearchFilters() {
+  searchSelectedCategories.clear();
+  searchSelectedStatuses.clear();
+  searchSelectedSellers.clear();
+  searchPriceRange = { min: null, max: null, presetLabel: null };
+
+  const catSearch = document.getElementById('catSearchInput');
+  if (catSearch) catSearch.value = '';
+  const sellerSearch = document.getElementById('sellerSearchInput');
+  if (sellerSearch) sellerSearch.value = '';
+  const minInput = document.getElementById('customPriceMin');
+  if (minInput) minInput.value = '';
+  const maxInput = document.getElementById('customPriceMax');
+  if (maxInput) maxInput.value = '';
+
+  renderSidebarFilters();
+  renderCards();
+}
+
+function renderActiveFilterTags() {
+  const container = document.getElementById('activeFilterTagsRibbon');
+  if (!container) return;
+
+  const tags = [];
+
+  searchSelectedCategories.forEach(catKey => {
+    const found = KNOWN_CATEGORIES.find(c => c.key === catKey);
+    const label = found ? found.label : catKey;
+    tags.push({
+      type: 'category',
+      key: catKey,
+      label: `หมวดหมู่: ${label}`,
+      onRemove: `toggleCategoryFilter('${catKey}', false)`
+    });
+  });
+
+  searchSelectedStatuses.forEach(statKey => {
+    const labelMap = {
+      active: 'กำลังเปิดประมูล',
+      hasBids: 'มีการเคาะราคา',
+      endingSoon: 'ใกล้ปิด (<24 ชม.)',
+      myBids: 'ฉันร่วมประมูล'
+    };
+    tags.push({
+      type: 'status',
+      key: statKey,
+      label: `สถานะ: ${labelMap[statKey] || statKey}`,
+      onRemove: `toggleStatusFilter('${statKey}', false)`
+    });
+  });
+
+  searchSelectedSellers.forEach(nick => {
+    tags.push({
+      type: 'seller',
+      key: nick,
+      label: `ผู้ขาย: @${nick}`,
+      onRemove: `toggleSellerFilter('${nick}', false)`
+    });
+  });
+
+  if (searchPriceRange.presetLabel) {
+    tags.push({
+      type: 'price',
+      key: 'price',
+      label: `ราคา: ${searchPriceRange.presetLabel}`,
+      onRemove: 'resetPriceFilter()'
+    });
+  }
+
+  const badgeEl = document.getElementById('mobileFilterBadge');
+  if (badgeEl) {
+    badgeEl.textContent = tags.length;
+    badgeEl.style.display = tags.length > 0 ? 'inline-block' : 'none';
+  }
+
+  if (tags.length === 0) {
+    container.innerHTML = '';
+    container.style.display = 'none';
+    return;
+  }
+
+  container.style.display = 'flex';
+  container.innerHTML = tags.map(t => `
+    <span class="active-filter-tag-chip">
+      <span>${t.label}</span>
+      <button type="button" class="btn-remove-tag" onclick="${t.onRemove}" aria-label="ลบตัวกรอง">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </span>
+  `).join('') + `
+    <button type="button" class="btn-clear-all-tags" onclick="resetAllSearchFilters()">
+      ล้างตัวกรองทั้งหมด
+    </button>
+  `;
+}
+
+function toggleMobileSearchFilter() {
+  const sidebar = document.getElementById('adviceFilterSidebar');
+  if (sidebar) {
+    sidebar.classList.toggle('is-mobile-open');
+  }
+}
+
+function closeMobileSearchFilter() {
+  const sidebar = document.getElementById('adviceFilterSidebar');
+  if (sidebar) {
+    sidebar.classList.remove('is-mobile-open');
+  }
 }
 
 function updateCategoryCounts() {
@@ -6998,6 +7622,14 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCategoryFilters();
     updateStatsRibbon();
     setupImageDropZone();
+
+    // Check for search or category query parameters in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchParam = urlParams.get('search') || urlParams.get('q');
+    const catParam = urlParams.get('category') || urlParams.get('cat');
+    if (searchParam || catParam) {
+      activateSearchMode(searchParam || '', catParam || null);
+    }
   }
 
   if (document.getElementById('ordersContainer')) {

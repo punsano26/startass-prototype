@@ -23,183 +23,14 @@
 </head>
 <body>
 
-  <!-- Top Navbar: Clean & Prominent Brand Logo, Create Auction & Profile Dropdown -->
-  <nav class="site-navbar">
-    <div class="navbar-container">
-      <a href="HomePage.html" class="navbar-brand">
-        <img src="../images/logo.png" alt="STARTASS Logo" class="navbar-logo-img">
-        <span class="navbar-brand-name">STAR <span>TASS!</span></span>
-      </a>
-
-      <!-- Navbar Search with Interactive Category Dropdown Popover -->
-      <div class="navbar-search-wrapper" id="navbarSearchWrapper">
-        <div class="navbar-search-bar" id="navbarSearchBar">
-          <i class="fa-solid fa-magnifying-glass search-icon"></i>
-          <input type="text" id="itemSearch" placeholder="ค้นหาชื่อสินค้า, หมวดหมู่ หรือคำสำคัญ..." autocomplete="off">
-          <button type="button" id="clearSearchBtn" class="search-clear-btn" aria-label="ล้างการค้นหา" style="display: none;">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-
-        <!-- Interactive Dropdown Popover on Focus/Click -->
-        <div class="navbar-search-dropdown" id="navbarSearchDropdown" style="display: none;">
-          <div class="search-dropdown-header">
-            <span class="search-dropdown-title">
-              <i class="fa-solid fa-sliders" style="color: var(--accent-gold);"></i> เลือกหมวดหมู่ที่ต้องการค้นหา:
-            </span>
-            <span class="search-dropdown-tip">คลิกเพื่อกรองสินค้า</span>
-          </div>
-
-          <div class="search-dropdown-categories">
-            <button type="button" class="search-cat-chip" data-category="all" onclick="handleNavbarCategorySelect('all')">
-              <i class="fa-solid fa-border-all"></i> ทุกหมวดหมู่
-              <span class="search-cat-count" id="navCountAll">14</span>
-            </button>
-            <button type="button" class="search-cat-chip" data-category="cars" onclick="handleNavbarCategorySelect('cars')">
-              <i class="fa-solid fa-car-side"></i> รถยนต์ & ซูเปอร์คาร์
-              <span class="search-cat-count" id="navCountCars">4</span>
-            </button>
-            <button type="button" class="search-cat-chip" data-category="cards" onclick="handleNavbarCategorySelect('cards')">
-              <i class="fa-solid fa-ticket"></i> การ์ดสะสมหายาก
-              <span class="search-cat-count" id="navCountCards">3</span>
-            </button>
-            <button type="button" class="search-cat-chip" data-category="tech" onclick="handleNavbarCategorySelect('tech')">
-              <i class="fa-solid fa-microchip"></i> เทคโนโลยี & คอมพิวเตอร์
-              <span class="search-cat-count" id="navCountTech">4</span>
-            </button>
-            <button type="button" class="search-cat-chip" data-category="trees" onclick="handleNavbarCategorySelect('trees')">
-              <i class="fa-solid fa-tree"></i> บอนไซ & ไม้ด่างหายาก
-              <span class="search-cat-count" id="navCountTrees">3</span>
-            </button>
-          </div>
-
-          <div class="search-dropdown-footer">
-            <div class="trending-tags-title">
-              <i class="fa-solid fa-fire" style="color: #f97316;"></i> แนะนำ:
-            </div>
-            <div class="trending-tags-list">
-              <button type="button" class="trending-tag" onclick="selectQuickSearch('Porsche 911 GT3')">Porsche 911</button>
-              <button type="button" class="trending-tag" onclick="selectQuickSearch('Pikachu Illustrator')">Pikachu</button>
-              <button type="button" class="trending-tag" onclick="selectQuickSearch('Quantum Core')">Supercomputer</button>
-              <button type="button" class="trending-tag" onclick="selectQuickSearch('บอนไซสนดำ')">บอนไซสนดำ</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="navbar-actions">
-        <!-- My Orders Navigation Button -->
-        <a href="orders.html" class="btn-orders-nav" id="navOrdersBtn" title="ดูรายการคำสั่งซื้อ / การประมูลของฉัน">
-          <i class="fa-solid fa-receipt"></i>
-          <span>คำสั่งซื้อของฉัน</span>
-          <span class="orders-nav-badge" id="navOrdersBadge" style="display: none;">0</span>
-        </a>
-
-        <!-- Messages Navigation Button -->
-        <a href="chat.html" class="btn-chat-nav" id="navChatBtn" title="ข้อความและการสนทนา P2P (Messages & P2P Chat)">
-          <i class="fa-solid fa-comments"></i>
-          <span>ข้อความ</span>
-          <span class="chat-nav-badge" id="navChatBadge" style="display: none;">0</span>
-        </a>
-
-        <button type="button" class="btn btn-create-auction" onclick="openCreateModal()">
-          <i class="fa-solid fa-plus"></i>
-          <span>สร้างโพสต์ประมูล</span>
-        </button>
-
-        <!-- Notification Bell Dropdown -->
-        <div class="notification-dropdown-wrapper" id="notificationDropdownWrapper">
-          <button type="button" class="notification-btn" id="notificationBtn" onclick="toggleNotificationDropdown(event)" aria-expanded="false" aria-haspopup="true" title="การแจ้งเตือน (Notifications & Outbid Alerts)">
-            <i class="fa-regular fa-bell"></i>
-            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
-          </button>
-
-          <!-- Notification Dropdown Menu -->
-          <div class="notification-dropdown-menu" id="notificationDropdownMenu">
-            <div class="notification-dropdown-header">
-              <div class="notification-header-title">
-                <i class="fa-solid fa-bell" style="color: var(--accent-gold);"></i>
-                <span>การแจ้งเตือน</span>
-                <span class="notification-count-tag" id="notificationCountTag">0 ข้อความใหม่</span>
-              </div>
-              <button type="button" class="btn-clear-notifications" onclick="markAllNotificationsRead(event)" title="ทำเครื่องหมายว่าอ่านแล้วทั้งหมด">
-                <i class="fa-solid fa-check-double"></i> อ่านทั้งหมด
-              </button>
-            </div>
-
-            <!-- Notification Items List -->
-            <div class="notification-list" id="notificationList">
-              <!-- Populated dynamically via JS -->
-            </div>
-
-            <div class="notification-dropdown-footer">
-              <button type="button" class="btn-simulate-outbid" onclick="simulateOutbid(event)" title="จำลองสถานการณ์เมื่อมีคนอื่นมาบิดแซงเรา">
-                <i class="fa-solid fa-bolt"></i>
-                <span>⚡ จำลองการโดนเสนอราคาแซง (Simulate Outbid)</span>
-              </button>
-              <button type="button" class="btn-simulate-outbid btn-simulate-won" onclick="simulateAuctionWon(null, event)" title="จำลองสถานการณ์ชนะการประมูลเพื่อปลดล็อกสิทธิ์ P2P Chat กับผู้ขาย">
-                <i class="fa-solid fa-trophy"></i>
-                <span>⚡ จำลองการชนะประมูล & ปลดล็อกสิทธิ์แชต P2P</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- User Profile Dropdown -->
-        <div class="profile-dropdown-wrapper" id="profileDropdownWrapper">
-          <button type="button" class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown(event)" aria-expanded="false" aria-haspopup="true" title="ดูโปรไฟล์ Alexander Sterling">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Profile" class="profile-avatar" id="navProfileAvatar">
-          </button>
-
-          <!-- Dropdown Menu Content -->
-          <div class="profile-dropdown-menu" id="profileDropdownMenu">
-            <div class="profile-dropdown-header">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Avatar" class="dropdown-avatar-lg" id="menuProfileAvatar">
-              <div class="profile-dropdown-user-info">
-                <span class="profile-full-name-label">ชื่อผู้ใช้งาน</span>
-                <span class="profile-full-name" id="userFullName">Alexander Sterling</span>
-              </div>
-            </div>
-
-            <div class="profile-dropdown-divider"></div>
-
-            <ul class="profile-menu-list">
-              <li>
-                <a href="MyProfileDetails.html" class="profile-menu-item" style="text-decoration: none;">
-                  <i class="fa-solid fa-user"></i>
-                  <span>โปรไฟล์ของฉัน (My Profile)</span>
-                </a>
-              </li>
-              <li>
-                <a href="orders.html" class="profile-menu-item" style="text-decoration: none;">
-                  <i class="fa-solid fa-file-invoice-dollar"></i>
-                  <span>คำสั่งซื้อ & รายการประมูลของฉัน (My Orders)</span>
-                </a>
-              </li>
-              <li>
-                <a href="chat.html" class="profile-menu-item" style="text-decoration: none;">
-                  <i class="fa-solid fa-comments"></i>
-                  <span>กล่องข้อความ & แชต P2P กับผู้ขาย (Messages)</span>
-                </a>
-              </li>
-              <li>
-                <button type="button" class="profile-menu-item text-danger" onclick="handleLogout()">
-                  <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                  <span>ออกจากระบบ (Logout)</span>
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <!-- COMPONENT: Top Navbar Layout (แถบเมนูด้านบน) -->
+  <div id="appNavbarContainer"></div>
 
   <!-- Main Container -->
   <div class="container">
 
     <!-- Page Header -->
-    <header class="auction-header">
+    <header class="auction-header" id="homeAuctionHeader">
       <div class="header-badge">
         <span class="pulse-dot"></span> ตลาดประมูลสดระดับพรีเมียม
       </div>
@@ -245,7 +76,7 @@
     </header>
 
     <!-- Minimal Section Header & Segmented Navigation (10 อันดับสูงสุด & สินค้ามาใหม่) -->
-    <section class="minimal-nav-bar">
+    <section class="minimal-nav-bar" id="homeMinimalNavBar">
       <!-- Left: Title & Live Item Counter -->
       <div class="minimal-nav-left">
         <h2 class="section-title" id="homeSectionTitle">
@@ -283,16 +114,77 @@
       </div>
     </section>
 
-    <!-- Auction Items Grid (Bigger Featured Cards) -->
-    <main class="auction-grid" id="auctionGrid">
-      <!-- Dynamically populated by js/main.js -->
-    </main>
+    <!-- Search Results View Header & Control Bar (Advice Style) -->
+    <section class="search-results-control-bar" id="searchResultsControlBar" style="display: none;">
+      <div class="search-results-top-nav">
+        <div class="search-breadcrumbs">
+          <a href="javascript:void(0)" onclick="deactivateSearchMode()" class="breadcrumb-item"><i class="fa-solid fa-house"></i> หน้าแรก</a>
+          <span class="breadcrumb-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+          <span class="breadcrumb-current">ผลการค้นหาและตัวกรอง</span>
+        </div>
+        <button type="button" class="btn-exit-search-mode" onclick="deactivateSearchMode()">
+          <i class="fa-solid fa-arrow-left"></i> กลับสู่หน้าหลัก (10 อันดับสูงสุด)
+        </button>
+      </div>
 
-    <!-- Empty State (When search/filter has no match) -->
-    <div class="empty-state" id="emptyState">
-      <i class="fa-solid fa-box-open"></i>
-      <h3>ไม่พบรายการประมูลที่ค้นหา</h3>
-      <p>ลองเลือกหมวดหมู่อื่น หรือค้นหาด้วยคำสำคัญใหม่อีกครั้ง</p>
+      <div class="search-results-headline-bar">
+        <div class="search-headline-left">
+          <h1 class="search-main-heading">
+            <i class="fa-solid fa-magnifying-glass search-heading-icon"></i>
+            ผลการค้นหาสำหรับ: <span class="search-query-text" id="searchQueryHighlight">"..."</span>
+          </h1>
+          <span class="search-count-pill" id="searchResultsCountBadge">พบ 0 รายการ</span>
+        </div>
+
+        <div class="search-headline-right">
+          <!-- Mobile Filter Toggle Button -->
+          <button type="button" class="btn-mobile-filter-trigger" id="btnMobileFilterToggle" onclick="toggleMobileSearchFilter()">
+            <i class="fa-solid fa-sliders"></i>
+            <span>ตัวกรองสินค้า</span>
+            <span class="mobile-filter-counter-badge" id="mobileFilterBadge" style="display: none;">0</span>
+          </button>
+
+          <!-- Sorting Dropdown -->
+          <div class="search-sort-box">
+            <label for="searchSortSelect" class="search-sort-lbl"><i class="fa-solid fa-arrow-down-wide-short"></i> เรียงตาม:</label>
+            <select id="searchSortSelect" class="search-sort-dropdown" onchange="handleSearchSortChange(this.value)">
+              <option value="price_desc">ราคาประมูลสูงสุด (มากไปน้อย)</option>
+              <option value="price_asc">ราคาประมูลต่ำสุด (น้อยไปมาก)</option>
+              <option value="ending_soon">เวลาใกล้สิ้นสุดที่สุด</option>
+              <option value="bids_desc">เสนอราคามากที่สุด (เคาะเยอะ)</option>
+              <option value="newest">รายการมาใหม่ล่าสุด</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Filter Tags Ribbon -->
+      <div class="search-active-tags-strip" id="activeFilterTagsRibbon" style="display: none;">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- Marketplace Layout: Advice 2-column sidebar layout when in search mode -->
+      <!-- COMPONENT: Marketplace Filter Sidebar Layout (แถบตัวกรองสินค้าด้านข้าง) -->
+      <div id="appSidebarContainer"></div>
+
+      <!-- Main Marketplace Products Column -->
+      <div class="marketplace-main-col" id="marketplaceMainCol">
+        <!-- Auction Items Grid (Bigger Featured Cards) -->
+        <main class="auction-grid" id="auctionGrid">
+          <!-- Dynamically populated by js/main.js -->
+        </main>
+
+        <!-- Empty State (When search/filter has no match) -->
+        <div class="empty-state" id="emptyState">
+          <i class="fa-solid fa-box-open"></i>
+          <h3 id="emptyStateTitle">ไม่พบรายการประมูลที่ค้นหา</h3>
+          <p id="emptyStateDesc">ลองเลือกหมวดหมู่อื่น หรือปรับแต่งตัวกรองใหม่อีกครั้ง</p>
+          <button type="button" class="btn btn-view" onclick="resetAllSearchFilters()" style="margin-top: 14px;">
+            <i class="fa-solid fa-rotate-left"></i> ล้างตัวกรองทั้งหมด
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Footer -->
@@ -313,6 +205,10 @@
 
   <!-- COMPONENT: Create Auction Listing Modal (สร้างโพสต์ประมูลสินค้า) -->
   <div id="createAuctionModalContainer"></div>
+
+  <!-- Layout Components (คอมโพเนนต์แถบเมนูและไซด์บาร์) -->
+  <script src="../components/layouts/Navbar.js"></script>
+  <script src="../components/layouts/Sidebar.js"></script>
 
   <!-- Modal Components -->
   <script src="../components/modals/AuctionBidModal.js"></script>

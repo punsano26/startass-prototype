@@ -23,128 +23,8 @@
 </head>
 <body>
 
-  <!-- Top Navbar: Clean & Prominent Brand Logo, All Auctions Link, Create Auction & Profile Dropdown -->
-  <nav class="site-navbar">
-    <div class="navbar-container">
-      <a href="HomePage.html" class="navbar-brand">
-        <img src="../images/logo.png" alt="STARTASS Logo" class="navbar-logo-img">
-        <span class="navbar-brand-name">STAR <span>TASS!</span></span>
-      </a>
-
-      <div class="navbar-actions">
-        <!-- Back to Auctions Link -->
-        <a href="HomePage.html" class="btn btn-view" title="กลับไปหน้ากระดานประมูลหลัก">
-          <i class="fa-solid fa-arrow-left"></i>
-          <span>กระดานประมูล</span>
-        </a>
-
-        <!-- My Orders Navigation Button (Active) -->
-        <a href="orders.html" class="btn-orders-nav active" id="navOrdersBtn" title="หน้ารายการคำสั่งซื้อ / การประมูลของฉัน">
-          <i class="fa-solid fa-receipt"></i>
-          <span>คำสั่งซื้อของฉัน</span>
-          <span class="orders-nav-badge" id="navOrdersBadge">1</span>
-        </a>
-
-        <!-- Messages Navigation Button -->
-        <a href="chat.html" class="btn-chat-nav" id="navChatBtn" title="ข้อความและการสนทนา P2P (Messages & P2P Chat)">
-          <i class="fa-solid fa-comments"></i>
-          <span>ข้อความ</span>
-          <span class="chat-nav-badge" id="navChatBadge" style="display: none;">0</span>
-        </a>
-
-        <!-- Create Auction Button -->
-        <button type="button" class="btn btn-create-auction" onclick="openCreateModal()">
-          <i class="fa-solid fa-plus"></i>
-          <span>สร้างโพสต์ประมูล</span>
-        </button>
-
-        <!-- Notification Bell Dropdown -->
-        <div class="notification-dropdown-wrapper" id="notificationDropdownWrapper">
-          <button type="button" class="notification-btn" id="notificationBtn" onclick="toggleNotificationDropdown(event)" aria-expanded="false" aria-haspopup="true" title="การแจ้งเตือน (Notifications & Outbid Alerts)">
-            <i class="fa-regular fa-bell"></i>
-            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
-          </button>
-
-          <!-- Notification Dropdown Menu -->
-          <div class="notification-dropdown-menu" id="notificationDropdownMenu">
-            <div class="notification-dropdown-header">
-              <div class="notification-header-title">
-                <i class="fa-solid fa-bell" style="color: var(--accent-gold);"></i>
-                <span>การแจ้งเตือน</span>
-                <span class="notification-count-tag" id="notificationCountTag">0 ข้อความใหม่</span>
-              </div>
-              <button type="button" class="btn-clear-notifications" onclick="markAllNotificationsRead(event)" title="ทำเครื่องหมายว่าอ่านแล้วทั้งหมด">
-                <i class="fa-solid fa-check-double"></i> อ่านทั้งหมด
-              </button>
-            </div>
-
-            <!-- Notification Items List -->
-            <div class="notification-list" id="notificationList">
-              <!-- Populated dynamically via JS -->
-            </div>
-
-            <div class="notification-dropdown-footer">
-              <button type="button" class="btn-simulate-outbid" onclick="simulateOutbid(event)" title="จำลองสถานการณ์เมื่อมีคนอื่นมาบิดแซงเรา">
-                <i class="fa-solid fa-bolt"></i>
-                <span>⚡ จำลองการโดนเสนอราคาแซง (Simulate Outbid)</span>
-              </button>
-              <button type="button" class="btn-simulate-outbid btn-simulate-won" onclick="simulateAuctionWon(null, event)" title="จำลองสถานการณ์ชนะการประมูลเพื่อปลดล็อกสิทธิ์ P2P Chat กับผู้ขาย">
-                <i class="fa-solid fa-trophy"></i>
-                <span>⚡ จำลองการชนะประมูล & ปลดล็อกสิทธิ์แชต P2P</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- User Profile Dropdown -->
-        <div class="profile-dropdown-wrapper" id="profileDropdownWrapper">
-          <button type="button" class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown(event)" aria-expanded="false" aria-haspopup="true" title="ดูโปรไฟล์ Alexander Sterling">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Profile" class="profile-avatar" id="navProfileAvatar">
-          </button>
-
-          <!-- Dropdown Menu Content -->
-          <div class="profile-dropdown-menu" id="profileDropdownMenu">
-            <div class="profile-dropdown-header">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Avatar" class="dropdown-avatar-lg" id="menuProfileAvatar">
-              <div class="profile-dropdown-user-info">
-                <span class="profile-full-name-label">ชื่อผู้ใช้งาน</span>
-                <span class="profile-full-name" id="userFullName">Alexander Sterling</span>
-              </div>
-            </div>
-
-            <div class="profile-dropdown-divider"></div>
-
-            <ul class="profile-menu-list">
-              <li>
-                <a href="MyProfileDetails.html" class="profile-menu-item" style="text-decoration: none;">
-                  <i class="fa-solid fa-user"></i>
-                  <span>โปรไฟล์ของฉัน (My Profile)</span>
-                </a>
-              </li>
-              <li>
-                <a href="orders.html" class="profile-menu-item" style="text-decoration: none;">
-                  <i class="fa-solid fa-file-invoice-dollar"></i>
-                  <span>คำสั่งซื้อ & รายการประมูลของฉัน (My Orders)</span>
-                </a>
-              </li>
-              <li>
-                <a href="chat.html" class="profile-menu-item" style="text-decoration: none;">
-                  <i class="fa-solid fa-comments"></i>
-                  <span>กล่องข้อความ & แชต P2P กับผู้ขาย (Messages)</span>
-                </a>
-              </li>
-              <li>
-                <button type="button" class="profile-menu-item text-danger" onclick="handleLogout()">
-                  <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                  <span>ออกจากระบบ (Logout)</span>
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <!-- COMPONENT: Top Navbar Layout (แถบเมนูด้านบน) -->
+  <div id="appNavbarContainer"></div>
 
   <!-- Main Container -->
   <div class="container order-page-wrapper">
@@ -169,6 +49,9 @@
 
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Layout Components (คอมโพเนนต์แถบเมนูด้านบน) -->
+  <script src="../components/layouts/Navbar.js"></script>
 
   <!-- Modal Components -->
   <script src="../components/modals/AuctionBidModal.js"></script>
